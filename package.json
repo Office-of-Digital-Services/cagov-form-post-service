@@ -1,0 +1,9 @@
+{
+  "name": "cagov-form-post-service",
+  "version": "1.0.0",
+  "description": "Service code for making your own form data post service.",
+  "author": {
+    "name": "Carter Medlin",
+    "email": "carter.medlin@gmail.com"
+  }
+}
