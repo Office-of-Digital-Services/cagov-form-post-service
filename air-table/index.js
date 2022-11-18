@@ -1,27 +1,27 @@
 //@ts-check
 module.exports = async function (context, req) {
-    context.log('JavaScript HTTP trigger function processed a request.');
+  context.log('JavaScript HTTP trigger function processed a request.');
 
-    if (req.method === 'GET') {
-        context.res = {
-            body: GetResponseHTML,
-            headers: {
-                'Content-Type': 'text/html'
-            }
-        };
-
-        return;
-    }
-
-    const name = req.query.name || req.body;
-    const responseMessage = name
-        ? `Hello, ${name}. This HTTP triggered function executed successfully.`
-        : "This HTTP triggered function executed successfully. Pass a name in the query string or in the request body for a personalized response.";
-
+  if (req.method === 'GET') {
     context.res = {
-        // status: 200, /* Defaults to 200 */
-        body: responseMessage
+      body: GetResponseHTML,
+      headers: {
+        'Content-Type': 'text/html'
+      }
     };
+
+    return;
+  }
+
+  const name = req.query.name || req.body;
+  const responseMessage = name
+    ? `Hello, ${name}. This HTTP triggered function executed successfully.`
+    : "This HTTP triggered function executed successfully. Pass a name in the query string or in the request body for a personalized response.";
+
+  context.res = {
+    // status: 200, /* Defaults to 200 */
+    body: responseMessage
+  };
 };
 
 const GetResponseHTML = `

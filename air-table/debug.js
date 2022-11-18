@@ -5,8 +5,10 @@ Object.keys(Values).forEach(x => (process.env[x] = Values[x])); //Load local set
 process.env.debug = true; //set to false or remove to run like the real instance
 const repeatCount = parseInt(process.argv.slice(2));
 
-const context = { executionContext: { functionName: "debug" }, 
-                  done: function() { console.log("Done function called"); } };
+const context = {
+  executionContext: { functionName: "debug" },
+  done: function () { console.log("Done function called"); }
+};
 
 //run the indexpage async
 const indexCode = require("./index");
