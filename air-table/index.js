@@ -7,8 +7,8 @@ module.exports = async function (context, req) {
   context.log('JavaScript HTTP trigger function processed a request.');
 
   const PersonalAccessToken = process.env["AirTablePersonalAccessToken"];
-  const baseId = process.env["baseId"];
-  const tableIdOrName = process.env["tableIdOrName"];
+  const baseId = process.env["AirTableBaseId"];
+  const tableIdOrName = process.env["AirTableTableIdOrName"];
 
   if (req.method === 'POST') {
     // POST

@@ -1,0 +1,15 @@
+{
+  "$schema": "https://json.schemastore.org/local.settings.json",
+  "IsEncrypted": false,
+  "Values": {
+    "FUNCTIONS_WORKER_RUNTIME": "node",
+    "AzureWebJobsStorage": "",
+    "AirTablePersonalAccessToken": "Your AirTable Personal Access Token here",
+    "AirTableBaseId": "Your AirTable database (base) id here",
+    "AirTableTableIdOrName": "Your AirTable Table ID or Name here"
+  },
+  "Host": {
+    "LocalHttpPort": 12345,
+    "CORS": "*"
+  }
+}
