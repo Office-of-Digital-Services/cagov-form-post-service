@@ -2,6 +2,8 @@
 import fetch from "node-fetch";
 
 const airTableApiUrl = "https://api.airtable.com/v0";
+// AirTable Create Records API Reference
+// https://airtable.com/developers/web/api/create-records
 
 export default async function (context, req) {
   context.log('JavaScript HTTP trigger function processed a request.');
