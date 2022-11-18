@@ -1,0 +1,7 @@
+{
+  "$schema": "https://json.schemastore.org/eslintrc",
+  "env": {
+    "browser": true,
+    "node": false
+  }
+}

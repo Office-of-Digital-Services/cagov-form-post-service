@@ -33,6 +33,7 @@
     "no-template-curly-in-string": "warn",
     "no-trailing-spaces": "off",
     "no-undef": "warn",
+    "no-unused-vars": "warn",
     "no-useless-computed-key": "warn",
     "no-useless-concat": "warn",
     "no-useless-return": "warn",

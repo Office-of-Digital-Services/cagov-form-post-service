@@ -5,5 +5,11 @@
   "author": {
     "name": "Carter Medlin",
     "email": "carter.medlin@gmail.com"
+  },
+  "devDependencies": {
+    "@types/node": "^18.11.9"
+  },
+  "dependencies": {
+    "node-fetch": "^2.6.7"
   }
 }
