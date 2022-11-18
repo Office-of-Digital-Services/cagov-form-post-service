@@ -26,13 +26,13 @@ module.exports = async function (context, req) {
 
 const GetResponseHTML = `
 <html>
-    <head>
-        <title>
-            cagov-form-post-service AirTable
-        </title>
-    </head>
-    <body>
-        <h1>cagov-form-post-service AirTable</h1>
+  <head>
+    <title>
+      cagov-form-post-service AirTable
+    </title>
+  </head>
+  <body>
+    <h1>cagov-form-post-service AirTable</h1>
 
     <p>What do you want to do?</p>
     <ul>
