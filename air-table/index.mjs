@@ -1,9 +1,9 @@
 //@ts-check
-const fetch = require("node-fetch/lib");
+import fetch from "node-fetch";
 
 const airTableApiUrl = "https://api.airtable.com/v0";
 
-module.exports = async function (context, req) {
+export default async function (context, req) {
   context.log('JavaScript HTTP trigger function processed a request.');
 
   const PersonalAccessToken = process.env["AirTablePersonalAccessToken"];
@@ -36,4 +36,4 @@ module.exports = async function (context, req) {
       body: 'Service only responds to POST'
     };
   }
-};
+}

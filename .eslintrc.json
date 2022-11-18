@@ -2,7 +2,7 @@
   "$schema": "https://json.schemastore.org/eslintrc",
   "env": {
     "browser": false,
-    "commonjs": true,
+    "commonjs": false,
     "es2021": true,
     "node": true
   },
