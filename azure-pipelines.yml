@@ -28,10 +28,10 @@ steps:
     echo '##vso[task.setvariable variable=REACT_APP_VERSION]$(Build.BuildNumber)'
   displayName: set environment variable for subsequent steps
   
-- task: NodeTool@0
-  inputs:
-    versionSpec: '16.x'
-  displayName: 'Install Node.js'
+# - task: NodeTool@0
+#   inputs:
+#     versionSpec: '16.x'
+#   displayName: 'Install Node.js'
 
 # - task: SonarQubePrepare@5
 #   displayName: 'SonarQube Prepare Analysis Configuration'
@@ -42,10 +42,10 @@ steps:
 #     cliProjectKey: '$(SonarQubeProjectName)'
 #     cliProjectName: '$(SonarQubeProjectName)'
 
-- task: Npm@1
-  inputs:
-    command: 'install'
-  displayName: "npm install"
+# - task: Npm@1
+#   inputs:
+#     command: 'install'
+#   displayName: "npm install"
 
 # - script: npm run test
 #   displayName: "npm test"
