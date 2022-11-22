@@ -7,6 +7,10 @@
     "name": "Carter Medlin",
     "email": "carter.medlin@gmail.com"
   },
+  "scripts": {
+    "test": "echo \"No Tests\" && exit 1",
+    "build": "echo \"No Build Needed\" && exit 1"
+  },
   "dependencies": {
     "node-fetch": "^3.3.0"
   },
