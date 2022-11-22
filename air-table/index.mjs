@@ -13,24 +13,24 @@ export default async function (context, req) {
   const tableIdOrName = process.env["AirTableTableIdOrName"];
 
   if (req.method === 'POST') {
-    // POST
-    const headers = {
-      "Content-Type": "application/json",
-      "Authorization": `Bearer ${PersonalAccessToken}`
+    /** @type { import("node-fetch").RequestInit } */
+    const request = {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": `Bearer ${PersonalAccessToken}`
+      },
+      body: JSON.stringify(req.body)
     };
 
-    const rawResponse = await fetch(`${airTableApiUrl}/${baseId}/${tableIdOrName}`, {
-      method: "POST",
-      headers,
-      body: JSON.stringify(req.body)
-    });
+    const response = await fetch(`${airTableApiUrl}/${baseId}/${tableIdOrName}`, request);
 
     context.res = {
-      body: await rawResponse.json(),
+      body: await response.json(),
       headers: {
-        "Content-Type": rawResponse.headers.get("content-type")
+        "Content-Type": response.headers.get("content-type")
       },
-      status: rawResponse.status
+      status: response.status
     };
   } else {
     // NOT POST
