@@ -27,9 +27,9 @@ async function submitForm(/** @type { SubmitEvent } */ e) {
   // eslint-disable-next-line no-extra-parens
   const form = /** @type { HTMLFormElement } */ (e.target);
 
-  const jsonFormData = { fields: {} };
+  const jsonFormData = {};
   for (const pair of new FormData(form)) {
-    jsonFormData.fields[pair[0]] = pair[1];
+    jsonFormData[pair[0]] = pair[1];
   }
 
   /** @type { RequestInit } */
