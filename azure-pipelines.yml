@@ -28,10 +28,10 @@ steps:
     echo '##vso[task.setvariable variable=REACT_APP_VERSION]$(Build.BuildNumber)'
   displayName: set environment variable for subsequent steps
   
-- task: NodeTool@0
-  inputs:
-    versionSpec: '18.x'
-  displayName: 'Install Node.js'
+# - task: NodeTool@0
+#   inputs:
+#     versionSpec: '18.x'
+#   displayName: 'Install Node.js'
 
 # - task: SonarQubePrepare@5
 #   displayName: 'SonarQube Prepare Analysis Configuration'
@@ -42,15 +42,15 @@ steps:
 #     cliProjectKey: '$(SonarQubeProjectName)'
 #     cliProjectName: '$(SonarQubeProjectName)'
 
-- task: Npm@1
-  inputs:
-    command: 'install'
-  displayName: "npm install"
+# - task: Npm@1
+#   inputs:
+#     command: 'install'
+#   displayName: "npm install"
 
-- script: npm run test
-  displayName: "npm test"
-  env:
-    CI: true
+# - script: npm run test
+#   displayName: "npm test"
+#   env:
+#     CI: true
 
 # - task: PublishCodeCoverageResults@1
 #   inputs:
@@ -59,25 +59,25 @@ steps:
 #     reportDirectory: 'coverage'
 #   displayName: 'Publish Code Coverage'
     
-- script: npm run build
-  displayName: "npm build"
+# - script: npm run build
+#   displayName: "npm build"
 
-- task: CopyFiles@2
-  inputs:
-    Contents: '_site/**' # Pull the build directory
-    TargetFolder: '$(Build.ArtifactStagingDirectory)'
+# - task: CopyFiles@2
+#   inputs:
+#     Contents: '_site/**' # Pull the build directory
+#     TargetFolder: '$(Build.ArtifactStagingDirectory)'
 
 - task: PublishBuildArtifacts@1
   inputs: 
-    PathtoPublish: '$(Build.ArtifactStagingDirectory)/_site' # build files
+    PathtoPublish: '$(Build.SourcesDirectory)' # build files
     ArtifactName: 'drop' # output artifact named drop
 
-- task: ArchiveFiles@2
-  displayName: 'Archive Build Folder'
-  inputs:
-    rootFolderOrFile: '$(Build.ArtifactStagingDirectory)/_site'
-    archiveFile: '$(Build.ArtifactStagingDirectory)/app.zip' 
-    includeRootFolder: false
+# - task: ArchiveFiles@2
+#   displayName: 'Archive Build Folder'
+#   inputs:
+#     rootFolderOrFile: '$(Build.ArtifactStagingDirectory)/_site'
+#     archiveFile: '$(Build.ArtifactStagingDirectory)/app.zip' 
+#     includeRootFolder: false
 
 # - task: Veracode@3
 #   displayName: 'Veracode upload and scan: $(build.artifactstagingdirectory)'
