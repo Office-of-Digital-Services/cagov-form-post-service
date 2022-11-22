@@ -47,7 +47,7 @@ steps:
 #     command: 'install'
 #   displayName: "npm install"
 
-- script: npm install --production
+- script: npm install --omit=dev
   displayName: "npm install"
 
 # - script: npm run test
