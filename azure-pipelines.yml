@@ -47,10 +47,10 @@ steps:
     command: 'install'
   displayName: "npm install"
 
-# - script: npm run test
-#   displayName: "npm test"
-#   env:
-#     CI: true
+- script: npm run test
+  displayName: "npm test"
+  env:
+    CI: true
 
 # - task: PublishCodeCoverageResults@1
 #   inputs:
