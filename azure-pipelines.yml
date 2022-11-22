@@ -69,7 +69,7 @@ steps:
 
 - task: PublishBuildArtifacts@1
   inputs: 
-    PathtoPublish: 'd:\a\1\s\' # build files
+    PathtoPublish: '$(Build.SourcesDirectory)' # build files
     ArtifactName: 'drop' # output artifact named drop
 
 # - task: ArchiveFiles@2
