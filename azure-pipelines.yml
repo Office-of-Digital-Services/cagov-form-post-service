@@ -42,9 +42,12 @@ steps:
 #     cliProjectKey: '$(SonarQubeProjectName)'
 #     cliProjectName: '$(SonarQubeProjectName)'
 
-- task: Npm@1
-  inputs:
-    command: 'install'
+# - task: Npm@1
+#   inputs:
+#     command: 'install'
+#   displayName: "npm install"
+
+- script: npm install --production
   displayName: "npm install"
 
 # - script: npm run test
