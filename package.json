@@ -8,8 +8,8 @@
     "email": "carter.medlin@gmail.com"
   },
   "scripts": {
-    "test": "echo \"No Tests\" && exit 1",
-    "build": "echo \"No Build Needed\" && exit 1"
+    "test": "echo \"No Tests\"",
+    "build": "echo \"No Build Needed\""
   },
   "dependencies": {
     "node-fetch": "^3.3.0"
