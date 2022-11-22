@@ -46,8 +46,6 @@ export default async function (context, req) {
     context.res = res;
   } else {
     // NOT POST
-    context.res = {
-      body: 'Service only responds to POST'
-    };
+    context.res.body = "Service is running, but it only responds to POST";
   }
 }
