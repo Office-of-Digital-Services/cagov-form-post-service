@@ -19,7 +19,7 @@ export default async function (context, req) {
   //PersonalAccessToken is a secret and should be kept in a key vault
   const PersonalAccessToken = process.env["AirTablePersonalAccessToken"];
 
-  const contentType = req.headers["content-type"].trim().toLowerCase();
+  const contentType = req.headers["content-type"]?.trim().toLowerCase();
 
   if (req.method === "POST" && contentType.includes("application/json")) {
     /** @type { import("node-fetch").RequestInit } */
