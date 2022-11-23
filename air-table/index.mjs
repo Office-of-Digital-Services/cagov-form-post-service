@@ -11,7 +11,7 @@ const airTableTableIdOrName = "tblN7oCcLMOSPvbM6"; //Carter TESTING
 
 /**
  * @type {import("@azure/functions").AzureFunction}
- * @param {import("@azure/functions").HttpRequest} req 
+ * @param {import("@azure/functions").HttpRequest} req
  */
 export default async function (context, req) {
   context.log('JavaScript HTTP trigger function processed a request.');
@@ -19,7 +19,9 @@ export default async function (context, req) {
   //PersonalAccessToken is a secret and should be kept in a key vault
   const PersonalAccessToken = process.env["AirTablePersonalAccessToken"];
 
-  if (req.method === "POST") {
+  const contentType = req.headers["content-type"].trim().toLowerCase();
+
+  if (req.method === "POST" && contentType.includes("application/json")) {
     /** @type { import("node-fetch").RequestInit } */
     const fetchRequest = {
       method: "POST",
@@ -46,6 +48,17 @@ export default async function (context, req) {
     context.res = res;
   } else {
     // NOT POST
-    context.res.body = "Service is running, but it only responds to POST";
+    context.res = {
+      body: {
+        error: {
+          type: "Method Not Allowed",
+          message: `Service is running, but it only responds to POST with 'application/json' content type. (Method was:${req.method}, Content-type was:${contentType})`
+        }
+      },
+      headers: {
+        "Content-Type": "application/json"
+      },
+      status: 405 // Method Not Allowed
+    };
   }
 }
