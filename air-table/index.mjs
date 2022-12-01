@@ -7,7 +7,7 @@ const airTableApiUrl = "https://api.airtable.com/v0";
 
 // AitTable Base and Table IDs are not treated as secrets
 const airTableBaseId = "appu01tGlmTTMm5uX"; //State Web Template - Feedback
-const airTableTableIdOrName = "tblN7oCcLMOSPvbM6"; //Carter TESTING
+const airTableTableIdOrName = "tblzXJo4byB53ssWE"; //Contact us responses
 
 /**
  * @type {import("@azure/functions").AzureFunction}
