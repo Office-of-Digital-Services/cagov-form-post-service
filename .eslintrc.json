@@ -25,7 +25,7 @@
       2
     ],
     "no-extra-bind": "warn",
-    "no-extra-parens": "warn",
+    "no-extra-parens": "off",
     "no-lonely-if": "warn",
     "no-multiple-empty-lines": "warn",
     "no-shadow": "warn",

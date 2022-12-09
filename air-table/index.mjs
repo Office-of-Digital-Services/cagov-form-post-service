@@ -9,6 +9,19 @@ const airTableApiUrl = "https://api.airtable.com/v0";
 const airTableBaseId = "appu01tGlmTTMm5uX"; //State Web Template - Feedback
 const airTableTableIdOrName = "tblzXJo4byB53ssWE"; //Contact us responses
 
+const recaptchaApiUrl = "https://www.google.com/recaptcha/api/siteverify";
+// https://developers.google.com/recaptcha/docs/verify
+
+/**
+ * @typedef recaptchaResult
+ * @property {boolean} success
+ * @property {string?} action
+ * @property {string?} challenge_ts
+ * @property {string?} hostname
+ * @property {number?} score
+ * @property {string[]?} [error-codes]
+ */
+
 /**
  * @type {import("@azure/functions").AzureFunction}
  * @param {import("@azure/functions").HttpRequest} req
@@ -19,36 +32,81 @@ export default async function (context, req) {
   //PersonalAccessToken is a secret and should be kept in a key vault
   const PersonalAccessToken = process.env["AirTablePersonalAccessToken"];
 
+  //ReCaptchaSecret is a secret and should be kept in a key vault
+  const recaptchaSecret = process.env["ReCaptchaSecret"];
+
   const contentType = req.headers["content-type"]?.trim().toLowerCase();
 
+  /** @type { import("@azure/functions").HttpResponseSimple} */
+  let contextRes = null;
+
   if (req.method === "POST" && contentType.includes("application/json")) {
-    /** @type { import("node-fetch").RequestInit } */
-    const fetchRequest = {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "Authorization": `Bearer ${PersonalAccessToken}`
-      },
-      body: JSON.stringify({
-        fields: req.body
+    //verify captcha
+    const captchaPostTargert = `${recaptchaApiUrl}?secret=${recaptchaSecret}&response=${req.body.captcha["g-recaptcha-response"]}`;
+
+    const fetchResponse_captcha = /** @type { recaptchaResult }*/ (await fetch(captchaPostTargert, { method: "POST" })
+      .then(async response => {
+        if (response.ok) {
+          return await response.json();
+        }
+
+        console.error(response);
+
+        throw new Error(
+          `captcha failed`
+        );
       })
-    };
+      .catch(error => {
+        console.error(error);
+        return { success: false };
+      }));
 
-    const fetchResponse = await fetch(`${airTableApiUrl}/${airTableBaseId}/${airTableTableIdOrName}`, fetchRequest);
+    if (fetchResponse_captcha.success) {
+      // captcha is good, post to database
 
-    /** @type { import("@azure/functions").HttpResponseSimple} */
-    const res = {
-      body: await fetchResponse.json(),
-      headers: {
-        "Content-Type": fetchResponse.headers.get("content-type")
-      },
-      status: fetchResponse.status
-    };
+      //we can use the domain from captcha in data
+      req.body.fields["Form Source"] = fetchResponse_captcha.hostname;
 
-    context.res = res;
+      // Post data to database
+      /** @type { import("node-fetch").RequestInit } */
+      const fetchRequest = {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${PersonalAccessToken}`
+        },
+        body: JSON.stringify({
+          fields: req.body.fields
+        })
+      };
+
+      const fetchResponse = await fetch(`${airTableApiUrl}/${airTableBaseId}/${airTableTableIdOrName}`, fetchRequest);
+
+      contextRes = {
+        body: await fetchResponse.json(),
+        headers: {
+          "Content-Type": fetchResponse.headers.get("content-type")
+        },
+        status: fetchResponse.status
+      };
+    } else {
+      // Failed captcha
+      contextRes = {
+        body: {
+          error: {
+            type: "Captcha failed",
+            message: `Failed human detection. Error Codes ${JSON.stringify(fetchResponse_captcha["error-codes"])}`
+          }
+        },
+        headers: {
+          "Content-Type": "application/json"
+        },
+        status: 401 //Unauthorized
+      };
+    }
   } else {
     // NOT POST
-    context.res = {
+    contextRes = {
       body: {
         error: {
           type: "Method Not Allowed",
@@ -61,4 +119,6 @@ export default async function (context, req) {
       status: 405 // Method Not Allowed
     };
   }
+
+  context.res = contextRes;
 }
