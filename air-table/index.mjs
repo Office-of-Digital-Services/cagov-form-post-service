@@ -10,17 +10,8 @@ const airTableBaseId = "appu01tGlmTTMm5uX"; //State Web Template - Feedback
 const airTableTableIdOrName = "tblzXJo4byB53ssWE"; //Contact us responses
 
 const recaptchaApiUrl = "https://www.google.com/recaptcha/api/siteverify";
+// ReCAPTCHA Verifying the user's response
 // https://developers.google.com/recaptcha/docs/verify
-
-/**
- * @typedef recaptchaResult
- * @property {boolean} success
- * @property {string?} action
- * @property {string?} challenge_ts
- * @property {string?} hostname
- * @property {number?} score
- * @property {string[]?} [error-codes]
- */
 
 /**
  * @type {import("@azure/functions").AzureFunction}
@@ -40,26 +31,9 @@ export default async function (context, req) {
   /** @type { import("@azure/functions").HttpResponseSimple} */
   let contextRes = null;
 
-  if (req.method === "POST" && contentType.includes("application/json")) {
+  if (req.method === "POST" && contentType.includes("application/json") && req.body?.fields) {
     //verify captcha
-    const captchaPostTargert = `${recaptchaApiUrl}?secret=${recaptchaSecret}&response=${req.body.captcha["g-recaptcha-response"]}`;
-
-    const fetchResponse_captcha = /** @type { recaptchaResult }*/ (await fetch(captchaPostTargert, { method: "POST" })
-      .then(async response => {
-        if (response.ok) {
-          return await response.json();
-        }
-
-        console.error(response);
-
-        throw new Error(
-          `captcha failed`
-        );
-      })
-      .catch(error => {
-        console.error(error);
-        return { success: false };
-      }));
+    const fetchResponse_captcha = await verifyCaptcha(recaptchaSecret, req.body.captcha["g-recaptcha-response"]);
 
     if (fetchResponse_captcha.success) {
       // captcha is good, post to database
@@ -67,27 +41,14 @@ export default async function (context, req) {
       //we can use the domain from captcha in data
       req.body.fields["Form Source"] = fetchResponse_captcha.hostname;
 
-      // Post data to database
-      /** @type { import("node-fetch").RequestInit } */
-      const fetchRequest = {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "Authorization": `Bearer ${PersonalAccessToken}`
-        },
-        body: JSON.stringify({
-          fields: req.body.fields
-        })
-      };
-
-      const fetchResponse = await fetch(`${airTableApiUrl}/${airTableBaseId}/${airTableTableIdOrName}`, fetchRequest);
+      const fetchResponse = await postToAirTable(PersonalAccessToken, req.body.fields);
 
       contextRes = {
         body: await fetchResponse.json(),
         headers: {
           "Content-Type": fetchResponse.headers.get("content-type")
         },
-        status: fetchResponse.status
+        statusCode: fetchResponse.status
       };
     } else {
       // Failed captcha
@@ -101,7 +62,7 @@ export default async function (context, req) {
         headers: {
           "Content-Type": "application/json"
         },
-        status: 401 //Unauthorized
+        statusCode: 401 //Unauthorized
       };
     }
   } else {
@@ -110,15 +71,69 @@ export default async function (context, req) {
       body: {
         error: {
           type: "Method Not Allowed",
-          message: `Service is running, but it only responds to POST with 'application/json' content type. (Method was:${req.method}, Content-type was:${contentType})`
+          message: `Service is running, but it only responds to POST with 'application/json' content type. (Method was:${req.method}, Content-type was:${contentType}, Body was :${JSON.stringify(req.body)})`
         }
       },
       headers: {
         "Content-Type": "application/json"
       },
-      status: 405 // Method Not Allowed
+      statusCode: 405 // Method Not Allowed
     };
   }
 
   context.res = contextRes;
 }
+
+/**
+ * @typedef recaptchaResult
+ * @property {boolean} success
+ * @property {string?} action
+ * @property {string?} challenge_ts
+ * @property {string?} hostname
+ * @property {number?} score
+ * @property {string[]?} [error-codes]
+ */
+
+/**
+ * @param {string} recaptchaSecret
+ * @param {string} g_recaptcha_response
+ */
+const verifyCaptcha = (recaptchaSecret, g_recaptcha_response) => /** @type { Promise<recaptchaResult> }*/(
+  fetch(`${recaptchaApiUrl}?secret=${recaptchaSecret}&response=${g_recaptcha_response}`,
+    { method: "POST" })
+    .then(async response => {
+      if (response.ok) {
+        return await response.json();
+      }
+
+      console.error(response);
+
+      throw new Error(
+        `captcha failed`
+      );
+    })
+    .catch(error => {
+      console.error(error);
+      return { success: false };
+    }));
+
+
+/**
+ * @param {string} PersonalAccessToken
+ * @param {{}} fields
+ */
+const postToAirTable = (PersonalAccessToken, fields) => {
+  /** @type { import("node-fetch").RequestInit } */
+  const fetchRequest = {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      "Authorization": `Bearer ${PersonalAccessToken}`
+    },
+    body: JSON.stringify({
+      fields
+    })
+  };
+
+  return fetch(`${airTableApiUrl}/${airTableBaseId}/${airTableTableIdOrName}`, fetchRequest);
+};
