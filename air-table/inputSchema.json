@@ -10,32 +10,38 @@
       "properties": {
         "g-recaptcha-response": {
           "type": "string",
-          "minLength": 1
+          "minLength": 1,
+          "maxLength": 1000
         }
       }
     },
     "fields": {
       "type": "object",
-      "required": ["Name", "Email", "Comments", "Department"],
+      "required": ["Name", "Email", "Comments"],
       "additionalProperties": false,
       "properties": {
         "Name": {
           "type": "string",
-          "minLength": 1
+          "minLength": 1,
+          "maxLength": 200
         },
         "Email": {
           "type": "string",
-          "minLength": 1
+          "minLength": 1,
+          "maxLength": 200
         },
         "Department": {
-          "type": "string"
+          "type": "string",
+          "maxLength": 200
         },
         "Role": {
-          "type": "string"
+          "type": "string",
+          "maxLength": 200
         },
         "Comments": {
           "type": "string",
-          "minLength": 1
+          "minLength": 1,
+          "maxLength": 1000
         }
       }
     }

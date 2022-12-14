@@ -143,7 +143,7 @@ const verifyCaptcha = (recaptchaSecret, g_recaptcha_response) => /** @type { Pro
  * @param {string} PersonalAccessToken
  * @param {{}} fields
  */
-const postToAirTable = (PersonalAccessToken, fields) => {
+function postToAirTable(PersonalAccessToken, fields) {
   /** @type { import("node-fetch").RequestInit } */
   const fetchRequest = {
     method: "POST",
@@ -157,7 +157,7 @@ const postToAirTable = (PersonalAccessToken, fields) => {
   };
 
   return fetch(`${airTableApiUrl}/${airTableBaseId}/${airTableTableIdOrName}`, fetchRequest);
-};
+}
 
 import { createRequire } from "module";
 const require = createRequire(import.meta.url);
@@ -166,8 +166,11 @@ const jsonSchema = require('./inputSchema.json');
 /**
  * @param {{}} data
  */
-const validateInputJson = data => {
-  const ajv = new Ajv({ allErrors: true });
+function validateInputJson(data) {
+  /** @type { import("ajv").Options } */
+  const ajvOptions = { allErrors: true };
+
+  const ajv = new Ajv(ajvOptions);
 
   const validate = ajv.compile(jsonSchema);
   const valid = validate(data);
@@ -175,4 +178,4 @@ const validateInputJson = data => {
     console.log(validate.errors);
     return validate.errors;
   }
-};
+}
