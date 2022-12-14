@@ -1,0 +1,43 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema",
+  "type": "object",
+  "required": ["captcha", "fields"],
+  "additionalProperties": false,
+  "properties": {
+    "captcha": {
+      "type": "object",
+      "required": ["g-recaptcha-response"],
+      "properties": {
+        "g-recaptcha-response": {
+          "type": "string",
+          "minLength": 1
+        }
+      }
+    },
+    "fields": {
+      "type": "object",
+      "required": ["Name", "Email", "Comments", "Department"],
+      "additionalProperties": false,
+      "properties": {
+        "Name": {
+          "type": "string",
+          "minLength": 1
+        },
+        "Email": {
+          "type": "string",
+          "minLength": 1
+        },
+        "Department": {
+          "type": "string"
+        },
+        "Role": {
+          "type": "string"
+        },
+        "Comments": {
+          "type": "string",
+          "minLength": 1
+        }
+      }
+    }
+  }
+}

@@ -1,5 +1,6 @@
 //@ts-check
 import fetch from "node-fetch";
+import Ajv from "ajv"; // For JSON Schema validation
 
 const airTableApiUrl = "https://api.airtable.com/v0";
 // AirTable Create Records API Reference
@@ -32,38 +33,58 @@ export default async function (context, req) {
   let contextRes = null;
 
   if (req.method === "POST" && contentType.includes("application/json") && req.body?.fields) {
-    //verify captcha
-    const fetchResponse_captcha = await verifyCaptcha(recaptchaSecret, req.body.captcha["g-recaptcha-response"]);
+    // Valid POST with Json content
 
-    if (fetchResponse_captcha.success) {
-      // captcha is good, post to database
-
-      //we can use the domain from captcha in data
-      req.body.fields["Form Source"] = fetchResponse_captcha.hostname;
-
-      const fetchResponse = await postToAirTable(PersonalAccessToken, req.body.fields);
-
-      contextRes = {
-        body: await fetchResponse.json(),
-        headers: {
-          "Content-Type": fetchResponse.headers.get("content-type")
-        },
-        statusCode: fetchResponse.status
-      };
-    } else {
-      // Failed captcha
+    // Validate input
+    const validationErrors = validateInputJson(req.body);
+    if (validationErrors) {
+      // Failed validation
       contextRes = {
         body: {
           error: {
-            type: "Captcha failed",
-            message: `Failed human detection. Error Codes ${JSON.stringify(fetchResponse_captcha["error-codes"])}`
+            type: "validation failed",
+            message: validationErrors
           }
         },
         headers: {
           "Content-Type": "application/json"
         },
-        statusCode: 401 //Unauthorized
+        statusCode: 400 // Bad Request
       };
+    } else {
+      //verify captcha
+      const fetchResponse_captcha = await verifyCaptcha(recaptchaSecret, req.body.captcha["g-recaptcha-response"]);
+
+      if (fetchResponse_captcha.success) {
+        // captcha is good, post to database
+
+        //we can use the domain from captcha in data
+        req.body.fields["Form Source"] = fetchResponse_captcha.hostname;
+
+        const fetchResponse = await postToAirTable(PersonalAccessToken, req.body.fields);
+
+        contextRes = {
+          body: await fetchResponse.json(),
+          headers: {
+            "Content-Type": fetchResponse.headers.get("content-type")
+          },
+          statusCode: fetchResponse.status
+        };
+      } else {
+        // Failed captcha
+        contextRes = {
+          body: {
+            error: {
+              type: "Captcha failed",
+              message: `Failed human detection. Error Codes ${JSON.stringify(fetchResponse_captcha["error-codes"])}`
+            }
+          },
+          headers: {
+            "Content-Type": "application/json"
+          },
+          statusCode: 401 //Unauthorized
+        };
+      }
     }
   } else {
     // NOT POST
@@ -136,4 +157,22 @@ const postToAirTable = (PersonalAccessToken, fields) => {
   };
 
   return fetch(`${airTableApiUrl}/${airTableBaseId}/${airTableTableIdOrName}`, fetchRequest);
+};
+
+import { createRequire } from "module";
+const require = createRequire(import.meta.url);
+const jsonSchema = require('./inputSchema.json');
+
+/**
+ * @param {{}} data
+ */
+const validateInputJson = data => {
+  const ajv = new Ajv({ allErrors: true });
+
+  const validate = ajv.compile(jsonSchema);
+  const valid = validate(data);
+  if (!valid) {
+    console.log(validate.errors);
+    return validate.errors;
+  }
 };
