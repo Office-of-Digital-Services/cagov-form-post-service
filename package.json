@@ -12,6 +12,7 @@
     "build": "echo \"No Build Needed\""
   },
   "dependencies": {
+    "ajv": "^8.11.2",
     "node-fetch": "^3.3.0"
   },
   "devDependencies": {
