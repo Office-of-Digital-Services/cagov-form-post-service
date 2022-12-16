@@ -2,6 +2,15 @@
 
 Service code for making your own form data post service.
 
+This service runs as an Azure [Function App](https://portal.azure.com/#create/Microsoft.FunctionApp).
+
+## File descriptions
+
+| Name                             | Description                                            |
+| :------------------------------- | :----------------------------------------------------- |
+| **`air-table\index.mjs`**        | Main function.                                         |
+| **`air-table\inputSchema.json`** | JSON Valiation Schema used to validate API input body. |
+
 This implementation is used for https://beta.template.webstandards.ca.gov/contact-us.html
 
 A working example using this can be found [here](https://github.com/Office-of-Digital-Services/California-State-Web-Template-Website/blob/6.0.9/pages/contact-us-form.html).
