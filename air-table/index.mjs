@@ -31,8 +31,21 @@ export default async function (context, req) {
 
   /** @type { import("@azure/functions").HttpResponseSimple} */
   let contextRes = null;
-
-  if (req.method === "POST" && contentType.includes("application/json") && req.body?.fields) {
+  if (req.method === "GET") {
+    contextRes = {
+      body: {
+        error: {
+          type: "Method Not Allowed",
+          message: `Service is running, but it only responds to POST with 'application/json' content type.`
+        }
+      },
+      headers: {
+        "Content-Type": "application/json",
+        "X-Robots-Tag": "noindex" //For preventing search indexing
+      },
+      statusCode: 200
+    };
+  } else if (req.method === "POST" && contentType.includes("application/json") && req.body?.fields) {
     // Valid POST with Json content
 
     // Validate input
