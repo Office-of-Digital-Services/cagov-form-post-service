@@ -29,22 +29,19 @@ export default async function (context, req) {
 
   const contentType = req.headers["content-type"]?.trim().toLowerCase();
 
-  /** @type { import("@azure/functions").HttpResponseSimple} */
-  let contextRes = null;
+  const res = /** @type { import("@azure/functions").HttpResponseFull} */ (
+    context.res
+  );
   if (req.method === "GET") {
-    contextRes = {
-      body: {
-        error: {
-          type: "Method Not Allowed",
-          message: `Service is running, but it only responds to POST with 'application/json' content type.`
-        }
-      },
-      headers: {
-        "Content-Type": "application/json",
-        "X-Robots-Tag": "noindex" //For preventing search indexing
-      },
-      statusCode: 200
+    res.body = {
+      error: {
+        type: "Method Not Allowed",
+        message: `Service is running, but it only responds to POST with 'application/json' content type.`
+      }
     };
+    res.type("application/json");
+    res.set("X-Robots-Tag", "noindex"); //For preventing search indexing
+    //Status 200.
   } else if (
     req.method === "POST" &&
     contentType.includes("application/json") &&
@@ -56,18 +53,14 @@ export default async function (context, req) {
     const validationErrors = validateInputJson(req.body);
     if (validationErrors) {
       // Failed validation
-      contextRes = {
-        body: {
-          error: {
-            type: "validation failed",
-            message: validationErrors
-          }
-        },
-        headers: {
-          "Content-Type": "application/json"
-        },
-        statusCode: 400 // Bad Request
+      res.body = {
+        error: {
+          type: "validation failed",
+          message: validationErrors
+        }
       };
+      res.type("application/json");
+      res.status(400); // Bad Request
     } else {
       //verify captcha
       const fetchResponse_captcha = await verifyCaptcha(
@@ -85,53 +78,38 @@ export default async function (context, req) {
           PersonalAccessToken,
           req.body.fields
         );
-
-        contextRes = {
-          body: await fetchResponse.json(),
-          headers: {
-            "Content-Type": fetchResponse.headers.get("content-type")
-          },
-          statusCode: fetchResponse.status
-        };
+        res.body = await fetchResponse.json();
+        res.type(fetchResponse.headers.get("content-type"));
+        res.status(fetchResponse.status);
       } else {
         // Failed captcha
-        contextRes = {
-          body: {
-            error: {
-              type: "Captcha failed",
-              message: `Failed human detection. Error Codes ${JSON.stringify(
-                fetchResponse_captcha["error-codes"]
-              )}`
-            }
-          },
-          headers: {
-            "Content-Type": "application/json"
-          },
-          statusCode: 401 //Unauthorized
+        res.body = {
+          error: {
+            type: "Captcha failed",
+            message: `Failed human detection. Error Codes ${JSON.stringify(
+              fetchResponse_captcha["error-codes"]
+            )}`
+          }
         };
+        res.type("application/json");
+        res.status(401); //Unauthorized
       }
     }
   } else {
     // NOT POST
-    contextRes = {
-      body: {
-        error: {
-          type: "Method Not Allowed",
-          message: `Service is running, but it only responds to POST with 'application/json' content type. (Method was:${
-            req.method
-          }, Content-type was:${contentType}, Body was :${JSON.stringify(
-            req.body
-          )})`
-        }
-      },
-      headers: {
-        "Content-Type": "application/json"
-      },
-      statusCode: 405 // Method Not Allowed
+    res.body = {
+      error: {
+        type: "Method Not Allowed",
+        message: `Service is running, but it only responds to POST with 'application/json' content type. (Method was:${
+          req.method
+        }, Content-type was:${contentType}, Body was :${JSON.stringify(
+          req.body
+        )})`
+      }
     };
+    res.type("application/json");
+    res.status(405); // Method Not Allowed
   }
-
-  context.res = contextRes;
 }
 
 /**

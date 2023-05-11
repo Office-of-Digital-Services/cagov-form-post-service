@@ -5,8 +5,8 @@
       "type": "httpTrigger",
       "direction": "in",
       "name": "req",
-      "methods": ["get", "post"],
-      "route": "api/air-table"
+      "methods": ["get"],
+      "route": "{page?}"
     },
     {
       "type": "http",
