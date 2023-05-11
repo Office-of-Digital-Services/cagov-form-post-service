@@ -8,8 +8,8 @@
     "email": "carter.medlin@gmail.com"
   },
   "repository": {
-    "type" : "git",
-    "url" : "https://github.com/Office-of-Digital-Services/cagov-form-post-service.git"
+    "type": "git",
+    "url": "https://github.com/Office-of-Digital-Services/cagov-form-post-service.git"
   },
   "scripts": {
     "test": "echo \"No Tests\"",
@@ -20,6 +20,9 @@
     "node-fetch": "^3.3.0"
   },
   "devDependencies": {
-    "@azure/functions": "^3.2.0"
+    "@azure/functions": "^3.2.0",
+    "eslint": "8.33.0",
+    "eslint-config-prettier": "^8.8.0",
+    "prettier": "2.8.3"
   }
 }

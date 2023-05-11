@@ -19,7 +19,7 @@ const recaptchaApiUrl = "https://www.google.com/recaptcha/api/siteverify";
  * @param {import("@azure/functions").HttpRequest} req
  */
 export default async function (context, req) {
-  context.log('JavaScript HTTP trigger function processed a request.');
+  context.log("JavaScript HTTP trigger function processed a request.");
 
   //PersonalAccessToken is a secret and should be kept in a key vault
   const PersonalAccessToken = process.env["AirTablePersonalAccessToken"];
@@ -45,7 +45,11 @@ export default async function (context, req) {
       },
       statusCode: 200
     };
-  } else if (req.method === "POST" && contentType.includes("application/json") && req.body?.fields) {
+  } else if (
+    req.method === "POST" &&
+    contentType.includes("application/json") &&
+    req.body?.fields
+  ) {
     // Valid POST with Json content
 
     // Validate input
@@ -66,7 +70,10 @@ export default async function (context, req) {
       };
     } else {
       //verify captcha
-      const fetchResponse_captcha = await verifyCaptcha(recaptchaSecret, req.body.captcha["g-recaptcha-response"]);
+      const fetchResponse_captcha = await verifyCaptcha(
+        recaptchaSecret,
+        req.body.captcha["g-recaptcha-response"]
+      );
 
       if (fetchResponse_captcha.success) {
         // captcha is good, post to database
@@ -74,7 +81,10 @@ export default async function (context, req) {
         //we can use the domain from captcha in data
         req.body.fields["Form Source"] = fetchResponse_captcha.hostname;
 
-        const fetchResponse = await postToAirTable(PersonalAccessToken, req.body.fields);
+        const fetchResponse = await postToAirTable(
+          PersonalAccessToken,
+          req.body.fields
+        );
 
         contextRes = {
           body: await fetchResponse.json(),
@@ -89,7 +99,9 @@ export default async function (context, req) {
           body: {
             error: {
               type: "Captcha failed",
-              message: `Failed human detection. Error Codes ${JSON.stringify(fetchResponse_captcha["error-codes"])}`
+              message: `Failed human detection. Error Codes ${JSON.stringify(
+                fetchResponse_captcha["error-codes"]
+              )}`
             }
           },
           headers: {
@@ -105,7 +117,11 @@ export default async function (context, req) {
       body: {
         error: {
           type: "Method Not Allowed",
-          message: `Service is running, but it only responds to POST with 'application/json' content type. (Method was:${req.method}, Content-type was:${contentType}, Body was :${JSON.stringify(req.body)})`
+          message: `Service is running, but it only responds to POST with 'application/json' content type. (Method was:${
+            req.method
+          }, Content-type was:${contentType}, Body was :${JSON.stringify(
+            req.body
+          )})`
         }
       },
       headers: {
@@ -132,25 +148,26 @@ export default async function (context, req) {
  * @param {string} recaptchaSecret
  * @param {string} g_recaptcha_response
  */
-const verifyCaptcha = (recaptchaSecret, g_recaptcha_response) => /** @type { Promise<recaptchaResult> }*/(
-  fetch(`${recaptchaApiUrl}?secret=${recaptchaSecret}&response=${g_recaptcha_response}`,
-    { method: "POST" })
-    .then(async response => {
-      if (response.ok) {
-        return await response.json();
-      }
+const verifyCaptcha = (recaptchaSecret, g_recaptcha_response) =>
+  /** @type { Promise<recaptchaResult> }*/ (
+    fetch(
+      `${recaptchaApiUrl}?secret=${recaptchaSecret}&response=${g_recaptcha_response}`,
+      { method: "POST" }
+    )
+      .then(async response => {
+        if (response.ok) {
+          return await response.json();
+        }
 
-      console.error(response);
+        console.error(response);
 
-      throw new Error(
-        `captcha failed`
-      );
-    })
-    .catch(error => {
-      console.error(error);
-      return { success: false };
-    }));
-
+        throw new Error(`captcha failed`);
+      })
+      .catch(error => {
+        console.error(error);
+        return { success: false };
+      })
+  );
 
 /**
  * @param {string} PersonalAccessToken
@@ -162,19 +179,22 @@ function postToAirTable(PersonalAccessToken, fields) {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
-      "Authorization": `Bearer ${PersonalAccessToken}`
+      Authorization: `Bearer ${PersonalAccessToken}`
     },
     body: JSON.stringify({
       fields
     })
   };
 
-  return fetch(`${airTableApiUrl}/${airTableBaseId}/${airTableTableIdOrName}`, fetchRequest);
+  return fetch(
+    `${airTableApiUrl}/${airTableBaseId}/${airTableTableIdOrName}`,
+    fetchRequest
+  );
 }
 
 import { createRequire } from "module";
 const require = createRequire(import.meta.url);
-const jsonSchema = require('./inputSchema.json');
+const jsonSchema = require("./inputSchema.json");
 
 /**
  * @param {{}} data
