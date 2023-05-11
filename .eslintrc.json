@@ -7,7 +7,8 @@
     "node": true
   },
   "extends": [
-    "eslint:recommended"
+    "eslint:recommended",
+    "prettier"
   ],
   "parserOptions": {
     "ecmaVersion": 12,
@@ -20,10 +21,6 @@
     ],
     "block-scoped-var": "warn",
     "class-methods-use-this": "warn",
-    "indent": [
-      "warn",
-      2
-    ],
     "no-extra-bind": "warn",
     "no-extra-parens": "off",
     "no-lonely-if": "warn",
