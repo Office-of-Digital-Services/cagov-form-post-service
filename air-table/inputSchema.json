@@ -1,23 +1,32 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema",
   "type": "object",
-  "required": ["captcha", "fields"],
+  "required": [
+    "captcha",
+    "fields"
+  ],
   "additionalProperties": false,
   "properties": {
     "captcha": {
       "type": "object",
-      "required": ["g-recaptcha-response"],
+      "required": [
+        "g-recaptcha-response"
+      ],
       "properties": {
         "g-recaptcha-response": {
           "type": "string",
           "minLength": 1,
-          "maxLength": 1000
+          "maxLength": 10000
         }
       }
     },
     "fields": {
       "type": "object",
-      "required": ["Name", "Email", "Comments"],
+      "required": [
+        "Name",
+        "Email",
+        "Comments"
+      ],
       "additionalProperties": false,
       "properties": {
         "Name": {
