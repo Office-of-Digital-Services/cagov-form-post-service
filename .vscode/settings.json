@@ -12,7 +12,7 @@
   },
   "editor.tabSize": 2,
   "editor.detectIndentation": false,
-  "formattingToggle.affects": [
-    "editor.formatOnSave"
-  ],
+  "formattingToggle.affects": ["editor.formatOnSave"],
+  "liveServer.settings.host": "localhost",
+  "liveServer.settings.root": "/sample/"
 }

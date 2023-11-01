@@ -7,8 +7,8 @@ const airTableApiUrl = "https://api.airtable.com/v0";
 // https://airtable.com/developers/web/api/create-records
 
 // AitTable Base and Table IDs are not treated as secrets
-const airTableBaseId = "appu01tGlmTTMm5uX"; //State Web Template - Feedback
-const airTableTableIdOrName = "tblzXJo4byB53ssWE"; //Contact us responses
+const airTableBaseId = "appu01tGlmTTMm5uX"; //Enter your Airtable base ID
+const airTableTableIdOrName = "tblzXJo4byB53ssWE"; //Enter your Airtable table ID
 
 const recaptchaApiUrl = "https://www.google.com/recaptcha/api/siteverify";
 // ReCAPTCHA Verifying the user's response
@@ -78,9 +78,12 @@ export default async function (context, req) {
           PersonalAccessToken,
           req.body.fields
         );
-        res.body = await fetchResponse.json();
         res.type(fetchResponse.headers.get("content-type"));
         res.status(fetchResponse.status);
+        res.body = await fetchResponse.json();
+        if (res.body.error) {
+          res.body.error.message = `Airtable POST failed - ${res.body.error.message}`;
+        }
       } else {
         // Failed captcha
         res.body = {
