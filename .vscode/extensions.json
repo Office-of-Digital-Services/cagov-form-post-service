@@ -3,6 +3,7 @@
     "ms-azuretools.vscode-azurefunctions",
     "dbaeumer.vscode-eslint",
     "esbenp.prettier-vscode",
-    "tombonnike.vscode-status-bar-format-toggle"
+    "tombonnike.vscode-status-bar-format-toggle",
+    "ritwickdey.LiveServer"
   ]
 }
