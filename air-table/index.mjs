@@ -7,8 +7,8 @@ const airTableApiUrl = "https://api.airtable.com/v0";
 // https://airtable.com/developers/web/api/create-records
 
 // AitTable Base and Table IDs are not treated as secrets
-const airTableBaseId = "appprn2mWnev0xDDQ"; //Enter your Airtable base ID
-const airTableTableIdOrName = "tblYx6JoBnJGOncHa"; //Enter your Airtable table ID
+const airTableBaseId = "appu01tGlmTTMm5uX"; //Enter your Airtable base ID
+const airTableTableIdOrName = "tblzXJo4byB53ssWE"; //Enter your Airtable table ID
 
 const recaptchaApiUrl = "https://www.google.com/recaptcha/api/siteverify";
 // ReCAPTCHA Verifying the user's response
