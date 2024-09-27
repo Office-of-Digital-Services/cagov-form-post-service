@@ -20,6 +20,13 @@ export default async function (context, req) {
 
       res.set("Cache-Control", "max-age=2592000"); //1 month
       break;
+    case "sample":
+      res.body = fs.readFileSync(
+        `${context.executionContext.functionDirectory}/sample.html`,
+        "utf8"
+      );
+      res.type("html");
+      break;
     default:
       res.body = "File not found.";
       res.status(404);
