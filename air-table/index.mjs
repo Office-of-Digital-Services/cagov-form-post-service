@@ -16,6 +16,7 @@ const recaptchaApiUrl = "https://www.google.com/recaptcha/api/siteverify";
 
 /**
  * @type {import("@azure/functions").AzureFunction}
+ * @param {import("@azure/functions").Context} context
  * @param {import("@azure/functions").HttpRequest} req
  */
 export default async function (context, req) {
@@ -23,9 +24,17 @@ export default async function (context, req) {
 
   //PersonalAccessToken is a secret and should be kept in a key vault
   const PersonalAccessToken = process.env["AirTablePersonalAccessToken"];
+  if (!PersonalAccessToken) {
+    throw new Error(
+      "AirTablePersonalAccessToken is not set in environment variables"
+    );
+  }
 
   //ReCaptchaSecret is a secret and should be kept in a key vault
   const recaptchaSecret = process.env["ReCaptchaSecret"];
+  if (!recaptchaSecret) {
+    throw new Error("ReCaptchaSecret is not set in environment variables");
+  }
 
   const contentType = req.headers["content-type"]?.trim().toLowerCase();
 
@@ -78,7 +87,10 @@ export default async function (context, req) {
           PersonalAccessToken,
           req.body.fields
         );
-        res.type(fetchResponse.headers.get("content-type"));
+
+        const responseContentType = fetchResponse.headers.get("content-type");
+        if (responseContentType) res.type(responseContentType);
+
         res.status(fetchResponse.status);
         res.body = await fetchResponse.json();
         if (res.body.error) {

@@ -2,6 +2,7 @@
 import fs from "fs";
 /**
  * @type {import("@azure/functions").AzureFunction}
+ * @param {import("@azure/functions").Context} context
  * @param {import("@azure/functions").HttpRequest} req
  */
 export default async function (context, req) {
