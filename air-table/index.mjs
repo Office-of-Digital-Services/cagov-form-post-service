@@ -45,7 +45,7 @@ export default async function (context, req) {
     res.body = {
       error: {
         type: "Method Not Allowed",
-        message: `Service is running, but it only responds to POST with 'application/json' content type.`
+        message: `Service is running, but it only responds to POST with 'application/json' content type.  (2025-10-06)`
       }
     };
     res.type("application/json");
