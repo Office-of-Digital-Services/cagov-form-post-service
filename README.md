@@ -34,3 +34,15 @@ The following secrets need to be defined in your Azure Function App
 | :--------------------------------- | :------------------------------------------------------------------- |
 | **`AirTablePersonalAccessToken`** | API Personal access token to post to AirTable. [AirTable tokens](https://airtable.com/create/tokens) |
 | **`ReCaptchaSecret`** | Google ReCaptch Secret Key. [V3 Admin Console](https://www.google.com/recaptcha/admin) |
+
+## Existing Deployments
+
+- (Production)
+  - https://api.template.webstandards.ca.gov/api/air-table
+- (Staging)
+  - https://fa-cdt-pub-migr-betaws-w-p-001-stage.azurewebsites.net/api/air-table
+
+## Azure DevOps Locations
+
+- https://calenterprise.visualstudio.com/CDT.beta.template.webtools.website/_build
+- https://calenterprise.visualstudio.com/CDT.beta.template.webtools.website/_release
