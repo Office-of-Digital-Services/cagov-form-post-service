@@ -1,0 +1,49 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema",
+  "type": "object",
+  "required": ["captcha", "fields"],
+  "additionalProperties": false,
+  "properties": {
+    "captcha": {
+      "type": "object",
+      "required": ["g-recaptcha-response"],
+      "properties": {
+        "g-recaptcha-response": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 10000
+        }
+      }
+    },
+    "fields": {
+      "type": "object",
+      "required": ["Name", "Email", "Comments"],
+      "additionalProperties": false,
+      "properties": {
+        "Name": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 150
+        },
+        "Email": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 250
+        },
+        "Department": {
+          "type": "string",
+          "maxLength": 150
+        },
+        "Role": {
+          "type": "string",
+          "maxLength": 150
+        },
+        "Comments": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 100000
+        }
+      }
+    }
+  }
+}
