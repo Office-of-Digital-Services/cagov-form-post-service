@@ -1,6 +1,13 @@
 //@ts-check
 import fetch from "node-fetch";
 
+// eslint-disable-next-line
+import siteconfig from "./siteconfig.json" assert { type: "json" };
+
+const yo = siteconfig.allowedUrls.find(
+  e => e === "https://api.airtable.com/v0"
+);
+
 const airTableApiUrl = "https://api.airtable.com/v0";
 // AirTable Create Records API Reference
 // https://airtable.com/developers/web/api/create-records
