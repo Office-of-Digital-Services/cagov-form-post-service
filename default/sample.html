@@ -23,7 +23,8 @@
     <script src="https://www.google.com/recaptcha/api.js" defer></script>
     <script>
       // const serviceUrl = "https://api.template.webstandards.ca.gov/api/air-table";
-      const serviceUrl = "http://localhost:12345/api/air-table";
+      // const serviceUrl = "http://localhost:12345/api/air-table";
+      const serviceUrl = "http://localhost:12345/api/v2";
 
       const siteKey = "6Lcf3GYjAAAAAGPae1QeEf0jJ8xjTwrwPAHOhZIJ"; // Set this to your recaptch site key
     </script>
@@ -70,7 +71,8 @@
                 size="65"
                 maxlength="150"
                 minlength="1"
-                role="textbox" />
+                role="textbox"
+                value="Test Name" />
               <div class="mt-2 invalid-feedback font-weight-600 d-block">
                 Enter your name
               </div>
@@ -90,7 +92,8 @@
                 size="65"
                 maxlength="250"
                 minlength="1"
-                role="textbox" />
+                role="textbox"
+                value="test@test.com" />
               <div class="mt-2 invalid-feedback font-weight-600 d-block">
                 Enter a valid email. Example: name@email.com
               </div>
@@ -108,7 +111,8 @@
                 size="65"
                 maxlength="150"
                 minlength="1"
-                role="textbox" />
+                role="textbox"
+                value="Test" />
 
               <label class="form-control-label  m-t-lg" for="InputRole">
                 Main role
@@ -126,7 +130,7 @@
                 <option value="Product">Product</option>
                 <option value="Program">Program</option>
                 <option value="Research">Research</option>
-                <option value="Other">Other</option>
+                <option value="Other" selected>Other</option>
               </select>
 
               <label class="form-control-label  m-t-lg" for="InputComments">
@@ -143,7 +147,9 @@
                 required
                 maxlength="100000"
                 minlength="10"
-                role="textbox"></textarea>
+                role="textbox">
+Test Test Test</textarea
+              >
               <div class="mt-2 invalid-feedback font-weight-600 d-block">
                 Provide information about why you're contacting us.
               </div>
