@@ -7,12 +7,14 @@ const airTableApiUrl = "https://api.airtable.com/v0";
 // https://airtable.com/developers/web/api/create-records
 
 // AitTable Base and Table IDs are not treated as secrets
-const airTableBaseId = "appu01tGlmTTMm5uX"; //Enter your Airtable base ID
-const airTableTableIdOrName = "tblzXJo4byB53ssWE"; //Enter your Airtable table ID
+const airTableBaseId = "appXfKtM85FrT0Ipc"; //Enter your Airtable base ID
+const airTableTableIdOrName = "tblrWC8qRNId3mSaL"; //Enter your Airtable table ID
 
 const recaptchaApiUrl = "https://www.google.com/recaptcha/api/siteverify";
 // ReCAPTCHA Verifying the user's response
 // https://developers.google.com/recaptcha/docs/verify
+
+/** @typedef {{name: string, value: string}[]} FormData */
 
 /**
  * @type {import("@azure/functions").AzureFunction}
@@ -53,8 +55,7 @@ export default async function (context, req) {
     //Status 200.
   } else if (
     req.method === "POST" &&
-    contentType.includes("application/json") &&
-    req.body?.fields
+    contentType.includes("application/json")
   ) {
     // Valid POST with Json content
 
@@ -80,12 +81,12 @@ export default async function (context, req) {
       if (fetchResponse_captcha.success) {
         // captcha is good, post to database
 
-        //we can use the domain from captcha in data
-        req.body.fields["Form Source"] = fetchResponse_captcha.hostname;
+        /** @type {FormData} */
+        const formData = req.body.formData;
 
         const fetchResponse = await postToAirTable(
           PersonalAccessToken,
-          req.body.fields
+          formData
         );
 
         const responseContentType = fetchResponse.headers.get("content-type");
@@ -164,9 +165,21 @@ const verifyCaptcha = (recaptchaSecret, g_recaptcha_response) =>
 
 /**
  * @param {string} PersonalAccessToken
- * @param {{}} fields
+ * @param {FormData} formData
  */
-function postToAirTable(PersonalAccessToken, fields) {
+function postToAirTable(PersonalAccessToken, formData) {
+  // convert formData to fields object
+  /** @type {{ [key: string]: string | number }} */
+  const fields = {};
+  formData.forEach(item => {
+    // Try to convert value to number if it's a number string
+    const num = Number(item.value);
+    fields[item.name] =
+      item.value !== "" && !isNaN(num) && typeof item.value === "string"
+        ? num
+        : item.value;
+  });
+
   /** @type { import("node-fetch").RequestInit } */
   const fetchRequest = {
     method: "POST",
@@ -178,6 +191,8 @@ function postToAirTable(PersonalAccessToken, fields) {
       fields
     })
   };
+
+  console.log("Posting to Airtable:", fields);
 
   return fetch(
     `${airTableApiUrl}/${airTableBaseId}/${airTableTableIdOrName}`,

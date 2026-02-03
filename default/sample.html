@@ -64,7 +64,7 @@
                 type="text"
                 class="form-control rounded-5"
                 id="InputName"
-                name="Name"
+                name="My Name"
                 autocomplete="name"
                 required
                 aria-required="true"
@@ -77,6 +77,23 @@
                 Enter your name
               </div>
 
+              <label class="form-control-label m-t-md" for="InputNumber">
+                A Number
+                <span class="required-label" aria-hidden="true">*</span>
+              </label>
+              <input
+                type="number"
+                class="form-control rounded-5"
+                id="InputNumber"
+                name="My Number"
+                required
+                aria-required="true"
+                role="textbox"
+                value="12345" />
+              <div class="mt-2 invalid-feedback font-weight-600 d-block">
+                Enter a number
+              </div>
+
               <label class="form-control-label m-t-lg" for="InputEmail">
                 Email
                 <span class="required-label" aria-hidden="true">*</span>
@@ -85,7 +102,7 @@
                 type="email"
                 class="form-control rounded-5"
                 id="InputEmail"
-                name="Email"
+                name="My Email"
                 autocomplete="email"
                 required
                 aria-required="true"
@@ -98,61 +115,20 @@
                 Enter a valid email. Example: name@email.com
               </div>
 
-              <label class="form-control-label  m-t-lg" for="InputDepartment">
-                Department or agency
-              </label>
-              <input
-                type="text"
-                class="form-control rounded-5"
-                id="InputDepartment"
-                name="Department"
-                autocomplete="organization"
-                aria-required="false"
-                size="65"
-                maxlength="150"
-                minlength="1"
-                role="textbox"
-                value="Test" />
-
-              <label class="form-control-label  m-t-lg" for="InputRole">
-                Main role
+              <label class="form-control-label  m-t-lg" for="InputOption">
+                Select an option
               </label>
 
               <select
                 class="form-select form-select-lg mb-3"
-                id="InputRole"
-                name="Role">
+                id="InputOption"
+                name="My Option">
                 <option value="">Select an option</option>
-                <option value="Analytics">Analytics</option>
-                <option value="Content">Content</option>
-                <option value="Design">Design</option>
-                <option value="Development">Development</option>
-                <option value="Product">Product</option>
-                <option value="Program">Program</option>
-                <option value="Research">Research</option>
-                <option value="Other" selected>Other</option>
+                <option value="Option 1" selected>Option 1</option>
+                <option value="Option 2">Option 2</option>
+                <option value="Option 3">Option 3</option>
+                <option value="Invalid">Invalid</option>
               </select>
-
-              <label class="form-control-label  m-t-lg" for="InputComments">
-                How can we help?
-                <span class="required-label" aria-hidden="true">*</span>
-              </label>
-              <textarea
-                id="InputComments"
-                class="form-control rounded-5"
-                rows="5"
-                cols="80"
-                name="Comments"
-                aria-required="true"
-                required
-                maxlength="100000"
-                minlength="10"
-                role="textbox">
-Test Test Test</textarea
-              >
-              <div class="mt-2 invalid-feedback font-weight-600 d-block">
-                Provide information about why you're contacting us.
-              </div>
 
               <input
                 type="submit"
@@ -359,14 +335,16 @@ Test Test Test</textarea
       function recaptchaCallback(/** @type { string } */ g_recaptcha_response) {
         const postBody = {
           captcha: { "g-recaptcha-response": g_recaptcha_response },
-          fields: {},
+          formData: [],
         };
 
-        for (const pair of new FormData(getForm())) {
-          postBody.fields[pair[0]] = pair[1];
-        }
+        const fd = new FormData(getForm());
 
-        delete postBody.fields["g-recaptcha-response"]; //we already have it from the callback
+        for (const [name, value] of fd.entries()) {
+          if (name !== "g-recaptcha-response") {
+            postBody.formData.push({ name, value });
+          }
+        }
 
         /** @type { RequestInit } */
         const request = {
