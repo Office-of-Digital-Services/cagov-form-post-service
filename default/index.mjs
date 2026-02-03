@@ -12,7 +12,9 @@ export default async function (context, req) {
     context.res
   );
 
-  switch (req.params.page?.trim().toLowerCase()) {
+  const file = req.params.page?.trim().toLowerCase();
+
+  switch (file) {
     case "robots.txt":
       res.body = fs.readFileSync(
         `${context.executionContext.functionDirectory}/robots.txt`,
@@ -22,8 +24,9 @@ export default async function (context, req) {
       res.set("Cache-Control", "max-age=2592000"); //1 month
       break;
     case "sample":
+    case "success":
       res.body = fs.readFileSync(
-        `${context.executionContext.functionDirectory}/sample.html`,
+        `${context.executionContext.functionDirectory}/${file}.html`,
         "utf8"
       );
       res.type("html");

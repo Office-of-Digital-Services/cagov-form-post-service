@@ -17,6 +17,44 @@ const recaptchaApiUrl = "https://www.google.com/recaptcha/api/siteverify";
 /** @typedef {{name: string, value: string}[]} FormData */
 
 /**
+ * @typedef {object} TableFieldOption
+ * @property {string} id - The unique identifier for the option.
+ * @property {string} name - The display name of the option.
+ * @property {string} color - The color associated with the option.
+ */
+
+/**
+ * @typedef {object} TableField
+ * @property {string} type - The type of the field (e.g., "singleLineText", "number", "email", "date", "singleSelect").
+ * @property {string} id - The unique identifier for the field.
+ * @property {string} name - The display name of the field.
+ * @property {string} [description] - The description of the field.
+ * @property {{ precision?: number, dateFormat?: { name: string, format: string }, choices?: TableFieldOption[] }} [options] - Field-specific options.
+ */
+
+/**
+ * @typedef {object} TableView
+ * @property {string} id - The unique identifier for the view.
+ * @property {string} name - The display name of the view.
+ * @property {string} type - The type of the view (e.g., "grid").
+ */
+
+/**
+ * @typedef {object} Table
+ * @property {string} id - The unique identifier for the table.
+ * @property {string} name - The display name of the table.
+ * @property {string} primaryFieldId - The ID of the primary field.
+ * @property {string} [description] - The description of the table.
+ * @property {TableField[]} fields - The fields in the table.
+ * @property {TableView[]} views - The views available for the table.
+ */
+
+/**
+ * @typedef {object} TablesInfo
+ * @property {Table[]} tables - The list of tables.
+ */
+
+/**
  * @type {import("@azure/functions").AzureFunction}
  * @param {import("@azure/functions").Context} context
  * @param {import("@azure/functions").HttpRequest} req
@@ -39,92 +77,153 @@ export default async function (context, req) {
   }
 
   const contentType = req.headers["content-type"]?.trim().toLowerCase();
-
   const res = /** @type { import("@azure/functions").HttpResponseFull} */ (
     context.res
   );
-  if (req.method === "GET") {
-    res.body = {
-      error: {
-        type: "Method Not Allowed",
-        message: `Service is running, but it only responds to POST with 'application/json' content type.  (2025-10-06)`
-      }
-    };
-    res.type("application/json");
-    res.set("X-Robots-Tag", "noindex"); //For preventing search indexing
-    //Status 200.
-  } else if (
-    req.method === "POST" &&
-    contentType.includes("application/json")
-  ) {
-    // Valid POST with Json content
-
-    // Validate input
-    const validationErrors = validateInputJson(req.body);
-    if (validationErrors) {
-      // Failed validation
+  try {
+    if (req.method === "GET") {
       res.body = {
         error: {
-          type: "validation failed",
-          message: validationErrors
+          type: "Method Not Allowed",
+          message: `Service is running, but it only responds to POST with 'application/json' content type.  (2025-10-06)`
         }
       };
       res.type("application/json");
-      res.status(400); // Bad Request
-    } else {
-      //verify captcha
-      const fetchResponse_captcha = await verifyCaptcha(
-        recaptchaSecret,
-        req.body.captcha["g-recaptcha-response"]
-      );
+      res.set("X-Robots-Tag", "noindex"); //For preventing search indexing
+      //Status 200.
+    } else if (
+      req.method === "POST" &&
+      contentType.includes("application/json")
+    ) {
+      // Valid POST with Json content
 
-      if (fetchResponse_captcha.success) {
-        // captcha is good, post to database
-
-        /** @type {FormData} */
-        const formData = req.body.formData;
-
-        const fetchResponse = await postToAirTable(
-          PersonalAccessToken,
-          formData
-        );
-
-        const responseContentType = fetchResponse.headers.get("content-type");
-        if (responseContentType) res.type(responseContentType);
-
-        res.status(fetchResponse.status);
-        res.body = await fetchResponse.json();
-        if (res.body.error) {
-          res.body.error.message = `Airtable POST failed - ${res.body.error.message}`;
-        }
-      } else {
-        // Failed captcha
+      // Validate input
+      const validationErrors = validateInputJson(req.body);
+      if (validationErrors) {
+        // Failed validation
         res.body = {
           error: {
-            type: "Captcha failed",
-            message: `Failed human detection. Error Codes ${JSON.stringify(
-              fetchResponse_captcha["error-codes"]
-            )}`
+            type: "validation failed",
+            message: validationErrors
           }
         };
         res.type("application/json");
-        res.status(401); //Unauthorized
+        res.status(400); // Bad Request
+      } else {
+        //verify captcha
+        const fetchResponse_captcha = await verifyCaptcha(
+          recaptchaSecret,
+          req.body.captcha["g-recaptcha-response"]
+        );
+
+        if (fetchResponse_captcha.success) {
+          // captcha is good, post to database
+
+          // Get table info from airtable API
+          /** @type { import("node-fetch").RequestInit } */
+          const infoRequest = {
+            method: "GET",
+            headers: {
+              Authorization: `Bearer ${PersonalAccessToken}`
+            }
+          };
+
+          const result = await fetch(
+            `${airTableApiUrl}/meta/bases/${airTableBaseId}/tables`,
+            infoRequest
+          );
+
+          const tablesInfo = /** @type {TablesInfo} */ (await result.json());
+          const myTable = tablesInfo.tables.find(
+            table =>
+              table.id === airTableTableIdOrName ||
+              table.name === airTableTableIdOrName
+          );
+          if (!myTable) {
+            throw new Error(
+              `Table with ID or Name '${airTableTableIdOrName}' not found in base '${airTableBaseId}'`
+            );
+          }
+
+          //console.log("Tables Info:", JSON.stringify(tablesInfo.tables, null, 2));
+
+          /** @type {FormData} */
+          const formData = req.body.formData;
+
+          // convert formData to fields object
+          /** @type {{ [key: string]: string | number }} */
+          const fields = {};
+          formData.forEach(item => {
+            const metaField = myTable.fields.find(f => f.name === item.name);
+            if (!metaField) {
+              throw new Error(
+                `Field with name '${item.name}' not found in table '${myTable.name}'.`
+              );
+            }
+
+            const isNumberfield = metaField.type === "number";
+
+            if (isNumberfield) {
+              fields[item.name] = Number(item.value);
+            } else {
+              fields[item.name] = item.value;
+            }
+          });
+
+          const fetchResponse = await postToAirTable(
+            PersonalAccessToken,
+            fields
+          );
+
+          const responseContentType = fetchResponse.headers.get("content-type");
+          if (responseContentType) res.type(responseContentType);
+
+          res.status(fetchResponse.status);
+          res.body = await fetchResponse.json();
+          if (res.body.error) {
+            res.body.error.message = `Airtable POST failed - ${res.body.error.message}`;
+          }
+        } else {
+          // Failed captcha
+          res.body = {
+            error: {
+              type: "Captcha failed",
+              message: `Failed human detection. Error Codes ${JSON.stringify(
+                fetchResponse_captcha["error-codes"]
+              )}`
+            }
+          };
+          res.type("application/json");
+          res.status(401); //Unauthorized
+        }
       }
+    } else {
+      // NOT POST
+      res.body = {
+        error: {
+          type: "Method Not Allowed",
+          message: `Service is running, but it only responds to POST with 'application/json' content type. (Method was:${
+            req.method
+          }, Content-type was:${contentType}, Body was :${JSON.stringify(
+            req.body
+          )})`
+        }
+      };
+      res.type("application/json");
+      res.status(405); // Method Not Allowed
     }
-  } else {
-    // NOT POST
+  } catch (error) {
+    // ERROR
     res.body = {
       error: {
-        type: "Method Not Allowed",
-        message: `Service is running, but it only responds to POST with 'application/json' content type. (Method was:${
-          req.method
-        }, Content-type was:${contentType}, Body was :${JSON.stringify(
-          req.body
-        )})`
+        // @ts-ignore
+        type: error.name,
+        // @ts-ignore
+        message: error.message
       }
     };
     res.type("application/json");
-    res.status(405); // Method Not Allowed
+    res.status(400);
   }
 }
 
@@ -165,21 +264,9 @@ const verifyCaptcha = (recaptchaSecret, g_recaptcha_response) =>
 
 /**
  * @param {string} PersonalAccessToken
- * @param {FormData} formData
+ * @param {{ [key: string]: string | number }} fields
  */
-function postToAirTable(PersonalAccessToken, formData) {
-  // convert formData to fields object
-  /** @type {{ [key: string]: string | number }} */
-  const fields = {};
-  formData.forEach(item => {
-    // Try to convert value to number if it's a number string
-    const num = Number(item.value);
-    fields[item.name] =
-      item.value !== "" && !isNaN(num) && typeof item.value === "string"
-        ? num
-        : item.value;
-  });
-
+function postToAirTable(PersonalAccessToken, fields) {
   /** @type { import("node-fetch").RequestInit } */
   const fetchRequest = {
     method: "POST",
@@ -191,8 +278,6 @@ function postToAirTable(PersonalAccessToken, formData) {
       fields
     })
   };
-
-  console.log("Posting to Airtable:", fields);
 
   return fetch(
     `${airTableApiUrl}/${airTableBaseId}/${airTableTableIdOrName}`,

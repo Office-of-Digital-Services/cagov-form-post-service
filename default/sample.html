@@ -115,8 +115,27 @@
                 Enter a valid email. Example: name@email.com
               </div>
 
+              <label class="form-control-label m-t-lg" for="InputDate">
+                Date
+                <span class="required-label" aria-hidden="true">*</span>
+              </label>
+              <input
+                type="date"
+                class="form-control rounded-5"
+                id="InputDate"
+                name="My Date"
+                autocomplete="bday"
+                required
+                aria-required="true"
+                role="textbox"
+                value="2024-06-01" />
+              <div class="mt-2 invalid-feedback font-weight-600 d-block">
+                Enter a valid date.
+              </div>
+
               <label class="form-control-label  m-t-lg" for="InputOption">
                 Select an option
+                <span class="required-label" aria-hidden="true">*</span>
               </label>
 
               <select
@@ -280,11 +299,7 @@
       class="hidden"
       data-bs-toggle="modal"
       data-bs-target="#modalResponse"></button>
-    <a
-      href="contact-us-thankyou.html"
-      id="urlThankyou"
-      class="hidden"
-      rel="noindex"></a>
+    <a href="/success/" id="urlThankyou" class="hidden" rel="noindex"></a>
 
     <script>
       document.querySelector("button.g-recaptcha").dataset.sitekey = siteKey;
