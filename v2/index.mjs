@@ -31,25 +31,25 @@ export default async function (context, req) {
     context.res
   );
 
+  /**
+   * Marks the response as an error with the given type, message, and status code.
+   * @param {string} type
+   * @param {string | {}} message
+   * @param {number} [status]
+   */
+  const errorResponse = (type, message, status = 500) => {
+    res.body = {
+      error: {
+        type,
+        message
+      }
+    };
+    res.type("application/json");
+    res.status(status);
+  };
+
   try {
     const contentType = req.headers["content-type"]?.trim().toLowerCase();
-
-    /**
-     * Marks the response as an error with the given type, message, and status code.
-     * @param {string} type
-     * @param {string | {}} message
-     * @param {number} [status]
-     */
-    const errorResponse = (type, message, status = 500) => {
-      res.body = {
-        error: {
-          type,
-          message
-        }
-      };
-      res.type("application/json");
-      res.status(status);
-    };
 
     //PersonalAccessToken is a secret and should be kept in a key vault
     const PersonalAccessToken = process.env["AirTablePersonalAccessToken"];
