@@ -41,6 +41,8 @@ The following secrets need to be defined in your Azure Function App
   - https://api.template.webstandards.ca.gov/api/air-table
 - (Staging)
   - https://fa-cdt-pub-migr-betaws-w-p-001-stage.azurewebsites.net/api/air-table
+- (Dev)
+  - https://dev.api.template.webstandards.ca.gov/api/air-table
 
 ## Azure DevOps Locations
 
