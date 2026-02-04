@@ -27,43 +27,50 @@ const airTableTableIdOrName = "tblrWC8qRNId3mSaL"; //Enter your Airtable table I
 export default async function (context, req) {
   context.log("JavaScript HTTP trigger function processed a request.");
 
-  //PersonalAccessToken is a secret and should be kept in a key vault
-  const PersonalAccessToken = process.env["AirTablePersonalAccessToken"];
-  if (!PersonalAccessToken) {
-    throw new Error(
-      "AirTablePersonalAccessToken is not set in environment variables"
-    );
-  }
-
-  //ReCaptchaSecret is a secret and should be kept in a key vault
-  const recaptchaSecret = process.env["ReCaptchaSecret"];
-  if (!recaptchaSecret) {
-    throw new Error("ReCaptchaSecret is not set in environment variables");
-  }
-
-  const contentType = req.headers["content-type"]?.trim().toLowerCase();
   const res = /** @type { import("@azure/functions").HttpResponseFull} */ (
     context.res
   );
 
-  /**
-   * Marks the response as an error with the given type, message, and status code.
-   * @param {string} type
-   * @param {string | {}} message
-   * @param {number} [status]
-   */
-  const errorResponse = (type, message, status = 400) => {
-    res.body = {
-      error: {
-        type,
-        message
-      }
-    };
-    res.type("application/json");
-    res.status(status);
-  };
-
   try {
+    const contentType = req.headers["content-type"]?.trim().toLowerCase();
+
+    /**
+     * Marks the response as an error with the given type, message, and status code.
+     * @param {string} type
+     * @param {string | {}} message
+     * @param {number} [status]
+     */
+    const errorResponse = (type, message, status = 500) => {
+      res.body = {
+        error: {
+          type,
+          message
+        }
+      };
+      res.type("application/json");
+      res.status(status);
+    };
+
+    //PersonalAccessToken is a secret and should be kept in a key vault
+    const PersonalAccessToken = process.env["AirTablePersonalAccessToken"];
+    if (!PersonalAccessToken) {
+      errorResponse(
+        "Server Configuration Error",
+        "'AirTablePersonalAccessToken' is not set in environment variables"
+      );
+      return;
+    }
+
+    //ReCaptchaSecret is a secret and should be kept in a key vault
+    const recaptchaSecret = process.env["ReCaptchaSecret"];
+    if (!recaptchaSecret) {
+      errorResponse(
+        "Server Configuration Error",
+        "'ReCaptchaSecret' is not set in environment variables"
+      );
+      return;
+    }
+
     if (req.method === "GET") {
       errorResponse(
         "Method Not Allowed",
@@ -83,7 +90,11 @@ export default async function (context, req) {
       const validationErrors = validateInputJson(req.body);
       if (validationErrors) {
         // Failed validation
-        errorResponse("validation failed", validationErrors, 400);
+        errorResponse(
+          "validation failed",
+          validationErrors,
+          422 // Unprocessable Entity
+        );
       } else {
         //verify captcha
         const fetchResponse_captcha = await verifyCaptcha(
@@ -93,6 +104,29 @@ export default async function (context, req) {
 
         if (fetchResponse_captcha.success) {
           // captcha is good, post to database
+
+          /**
+           * @param {import("node-fetch").Response} fetchResponse
+           */
+          const airTableProcessResponse = async fetchResponse => {
+            const responseContentType =
+              fetchResponse.headers.get("content-type");
+            if (responseContentType) res.type(responseContentType);
+
+            /** @type {*} */
+            const json = await fetchResponse.json();
+
+            if (json.error) {
+              errorResponse(
+                `Airtable Error - ${json.error.type}`,
+                json.error.message,
+                fetchResponse.status
+              );
+
+              return;
+            }
+            return json;
+          };
 
           // Get table info from airtable API
           /** @type { import("node-fetch").RequestInit } */
@@ -108,64 +142,81 @@ export default async function (context, req) {
             infoRequest
           );
 
-          const tablesInfo = /** @type {TablesInfo} */ (await result.json());
+          const tablesInfo = /** @type {TablesInfo} */ (
+            await airTableProcessResponse(result)
+          );
+          if (!tablesInfo) {
+            return; // airTableProcessResponse already handled the error response
+          }
+
           const myTable = tablesInfo.tables.find(
             table =>
               table.id === airTableTableIdOrName ||
               table.name === airTableTableIdOrName
           );
           if (!myTable) {
-            throw new Error(
-              `Table with ID or Name '${airTableTableIdOrName}' not found in base '${airTableBaseId}'`
+            errorResponse(
+              "Table Not Found",
+              `Table with ID or Name '${airTableTableIdOrName}' not found in base '${airTableBaseId}'`,
+              422 // Unprocessable Entity
             );
+
+            return;
           }
 
-          //console.log("Tables Info:", JSON.stringify(tablesInfo.tables, null, 2));
+          const convertFormDataToFields = () => {
+            /** @type {FormData} */
+            const formData = req.body.formData;
 
-          /** @type {FormData} */
-          const formData = req.body.formData;
+            /** @type {{ [key: string]: string | number }} */
+            const fields = {};
 
-          // convert formData to fields object
-          /** @type {{ [key: string]: string | number }} */
-          const fields = {};
-          formData.forEach(item => {
-            const metaField = myTable.fields.find(f => f.name === item.name);
-            if (!metaField) {
-              throw new Error(
-                `Field with name '${item.name}' not found in table '${myTable.name}'.`
-              );
+            for (const item of formData) {
+              const metaField = myTable.fields.find(f => f.name === item.name);
+              if (metaField) {
+                const isNumberfield = metaField.type === "number";
+
+                fields[item.name] = isNumberfield
+                  ? Number(item.value)
+                  : item.value;
+              } else {
+                errorResponse(
+                  "Field Not Found",
+                  `Field with name '${item.name}' not found in table '${myTable.name}'.`,
+                  422 // Unprocessable Entity
+                );
+
+                return;
+              }
             }
+            return fields;
+          };
 
-            const isNumberfield = metaField.type === "number";
+          const fields = convertFormDataToFields();
+          if (fields) {
+            const fetchResponse = await postToAirTable(
+              PersonalAccessToken,
+              airTableBaseId,
+              airTableTableIdOrName,
+              fields
+            );
 
-            if (isNumberfield) {
-              fields[item.name] = Number(item.value);
-            } else {
-              fields[item.name] = item.value;
+            const responseContentType =
+              fetchResponse.headers.get("content-type");
+            if (responseContentType) res.type(responseContentType);
+
+            res.status(fetchResponse.status);
+            res.body = await fetchResponse.json();
+            if (res.body.error) {
+              res.body.error.message = `Airtable POST failed - ${res.body.error.message}`;
             }
-          });
-
-          const fetchResponse = await postToAirTable(
-            PersonalAccessToken,
-            airTableBaseId,
-            airTableTableIdOrName,
-            fields
-          );
-
-          const responseContentType = fetchResponse.headers.get("content-type");
-          if (responseContentType) res.type(responseContentType);
-
-          res.status(fetchResponse.status);
-          res.body = await fetchResponse.json();
-          if (res.body.error) {
-            res.body.error.message = `Airtable POST failed - ${res.body.error.message}`;
           }
         } else {
           // Failed captcha
           errorResponse(
             "Captcha failed",
             `Failed human detection. Error Codes ${JSON.stringify(fetchResponse_captcha["error-codes"])}`,
-            401
+            422 // Unprocessable Entity
           );
         }
       }
