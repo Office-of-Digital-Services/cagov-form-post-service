@@ -71,19 +71,7 @@ export default async function (context, req) {
       return;
     }
 
-    if (req.method === "GET") {
-      errorResponse(
-        "Method Not Allowed",
-        `Service is running, but it only responds to POST with 'application/json' content type.  (2025-10-06)`,
-        405
-      );
-
-      res.set("X-Robots-Tag", "noindex"); //For preventing search indexing
-      //Status 200.
-    } else if (
-      req.method === "POST" &&
-      contentType.includes("application/json")
-    ) {
+    if (req.method === "POST" && contentType.includes("application/json")) {
       // Valid POST with Json content
 
       // Validate input
@@ -222,11 +210,13 @@ export default async function (context, req) {
       }
     } else {
       // NOT POST
-      errorResponse(
-        "Method Not Allowed",
-        `Service is running, but it only responds to POST with 'application/json' content type. (Method was:${req.method}, Content-type was:${contentType}, Body was :${JSON.stringify(req.body)})`,
-        405
+      //res.set("X-Robots-Tag", "noindex"); //For preventing search indexing
+      res.status(302);
+      res.setHeader(
+        "location",
+        "https://github.com/Office-of-Digital-Services/cagov-form-post-service"
       );
+      res.body = undefined;
     }
   } catch (e) {
     // ERROR
