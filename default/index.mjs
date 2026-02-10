@@ -12,7 +12,7 @@ export default async function (context, req) {
     context.res
   );
 
-  const file = req.params.page?.trim().toLowerCase();
+  const file = req.params.page?.trim().toLowerCase() || "index";
 
   switch (file) {
     case "robots.txt":
@@ -23,6 +23,7 @@ export default async function (context, req) {
 
       res.set("Cache-Control", "max-age=2592000"); //1 month
       break;
+    case "index":
     case "sample":
     case "success":
       res.body = fs.readFileSync(
@@ -32,7 +33,7 @@ export default async function (context, req) {
       res.type("html");
       break;
     default:
-      res.body = "File not found.";
+      res.body = `File not found - ${file}`;
       res.status(404);
   }
 }

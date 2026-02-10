@@ -212,10 +212,7 @@ export default async function (context, req) {
       // NOT POST
       //res.set("X-Robots-Tag", "noindex"); //For preventing search indexing
       res.status(302);
-      res.setHeader(
-        "location",
-        "https://github.com/Office-of-Digital-Services/cagov-form-post-service"
-      );
+      res.setHeader("location", "/");
       res.body = undefined;
     }
   } catch (e) {
