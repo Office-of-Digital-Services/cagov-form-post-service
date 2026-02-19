@@ -343,7 +343,7 @@
         };
 
         fetch(serviceUrl, request)
-          .then(async (response) => {
+          .then(async response => {
             if (response.ok) {
               return response.json();
             }
@@ -352,11 +352,10 @@
               `Can't submit - ${response.status}:${response.statusText} ${await response.text()}`
             );
           })
-          .then((responseJson) => {
-
+          .then(responseJson => {
             goToThanksPage();
           })
-          .catch((error) => {
+          .catch(error => {
             console.error(error);
 
             openModal();

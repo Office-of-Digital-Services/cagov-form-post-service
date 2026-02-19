@@ -46,6 +46,7 @@ export default async function (context, req) {
     };
     res.type("application/json");
     res.status(status);
+    console.warn(`Error Response - ${type}:`, message);
   };
 
   try {
@@ -195,8 +196,12 @@ export default async function (context, req) {
 
             res.status(fetchResponse.status);
             res.body = await fetchResponse.json();
-            if (res.body.error) {
-              res.body.error.message = `Airtable POST failed - ${res.body.error.message}`;
+            if (!fetchResponse.ok) {
+              errorResponse(
+                `Airtable POST failed - ${res.body.error.type}`,
+                res.body.error.message,
+                fetchResponse.status
+              );
             }
           }
         } else {
