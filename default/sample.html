@@ -17,6 +17,76 @@
       integrity="sha256-lk7aRdDqQaM3lRyR9FNIz2BDZHOCLTOHYr3wPpHn+uU="
       defer
       crossorigin="anonymous"></script>
+
+    <style type="text/css">
+      form:not(form[submit_attempted]) .form-control+.invalid-feedback,
+      form:not(form[submit_attempted]) .alert,
+      form:valid .alert,
+      .form-control:valid+.invalid-feedback {
+        display: none !important;
+      }
+
+
+      /* new */
+
+      .invalid-feedback {
+        position: relative;
+      }
+
+      .invalid-feedback::before {
+        content: "\ea2f";
+        position: absolute;
+        font-family: "CaGov";
+        font-size: 1.5rem;
+        right: 10px;
+        top: -51px;
+      }
+
+      form[submit_attempted] .alert {
+        border-left: 5px solid;
+      }
+
+      form[submit_attempted] .alert .container {
+        padding-top: 2px;
+      }
+
+      form[submit_attempted] .form-control:invalid {
+        border-bottom: 4px solid #cd402d;
+        position: relative;
+      }
+
+
+
+      .error-icon {
+        display: none;
+        float: right;
+        position: relative;
+        top: -2.7rem !important;
+        right: 10px;
+        font-size: 1.5rem;
+      }
+
+      form[submit_attempted] .form-control:invalid~.error-icon {
+        display: block;
+      }
+
+      .form-control[role="combobox"]::placeholder {
+        font-size: 1.1rem !important;
+      }
+
+      /* masking combobox carrot */
+      .combobox::before {
+        content: "\33";
+        position: absolute;
+        font-family: "CaGov";
+        font-size: 1.4rem;
+        width: 30px;
+        height: 30px;
+        background-color: white;
+        right: 5px;
+        top: 8px;
+      }
+    </style>
   </head>
 
   <body>
@@ -162,104 +232,6 @@
             </form>
           </div>
         </div>
-
-        <h2>Get support from developers</h2>
-        <p>
-          Post questions on
-          <a href="https://github.com/Office-of-Digital-Services/">
-            <span class="sr-only">Digital Services</span>
-            GitHub
-          </a>
-          and leverage our digital community.
-        </p>
-
-        <h2>Technical feedback</h2>
-        <p>
-          To provide State Web Template V6 code level feedback, visit our
-          <a
-            href="https://github.com/Office-of-Digital-Services/California-State-Web-Template-Development">
-            State Web Template GitHub Development Repo
-          </a>
-          .
-        </p>
-
-        <h2>Subscribe to our network</h2>
-        <p>
-          Join our community of digital teams and share your own best practices.
-          From product managers to content designers, the
-          <a href="https://cdt.ca.gov/dwsn/">Digital Web Services Network</a>
-          offers a collaborative space for all members of state digital teams.
-        </p>
-
-        <style type="text/css">
-          form:not(form[submit_attempted]) .form-control+.invalid-feedback,
-          form:not(form[submit_attempted]) .alert,
-          form:valid .alert,
-          .form-control:valid+.invalid-feedback {
-            display: none !important;
-          }
-
-
-          /* new */
-
-          .invalid-feedback {
-            position: relative;
-          }
-
-          .invalid-feedback::before {
-            content: "\ea2f";
-            position: absolute;
-            font-family: "CaGov";
-            font-size: 1.5rem;
-            right: 10px;
-            top: -51px;
-          }
-
-          form[submit_attempted] .alert {
-            border-left: 5px solid;
-          }
-
-          form[submit_attempted] .alert .container {
-            padding-top: 2px;
-          }
-
-          form[submit_attempted] .form-control:invalid {
-            border-bottom: 4px solid #cd402d;
-            position: relative;
-          }
-
-
-
-          .error-icon {
-            display: none;
-            float: right;
-            position: relative;
-            top: -2.7rem !important;
-            right: 10px;
-            font-size: 1.5rem;
-          }
-
-          form[submit_attempted] .form-control:invalid~.error-icon {
-            display: block;
-          }
-
-          .form-control[role="combobox"]::placeholder {
-            font-size: 1.1rem !important;
-          }
-
-          /* masking combobox carrot */
-          .combobox::before {
-            content: "\33";
-            position: absolute;
-            font-family: "CaGov";
-            font-size: 1.4rem;
-            width: 30px;
-            height: 30px;
-            background-color: white;
-            right: 5px;
-            top: 8px;
-          }
-        </style>
 
         <div class="modal fade" id="modalResponse" role="dialog" tabindex="-1">
           <div class="modal-dialog modal-lg">
