@@ -3,10 +3,7 @@ import fetch from "node-fetch";
 import { validateInputJson } from "./support/JsonValidate.mjs";
 import { verifyCaptcha } from "./support/recaptcha.mjs";
 import { airTableApiUrl, postToAirTable } from "./support/airTable.mjs";
-
-// AitTable Base and Table IDs are not treated as secrets
-const airTableBaseId = "appXfKtM85FrT0Ipc"; //Enter your Airtable base ID
-const airTableTableIdOrName = "tblrWC8qRNId3mSaL"; //Enter your Airtable table ID
+import { getServerConfigByHost } from "./support/serverList.mjs";
 
 /**
  * @typedef {{name: string, value: string}[]} FormData
@@ -50,24 +47,28 @@ export default async function (context, req) {
   };
 
   try {
+    const host = req.headers.host;
+    const serverConfig = getServerConfigByHost(host); // Validate host and get server config, will throw if invalid
+
     const contentType = req.headers["content-type"]?.trim().toLowerCase();
 
     //PersonalAccessToken is a secret and should be kept in a key vault
-    const PersonalAccessToken = process.env["AirTablePersonalAccessToken"];
+    const PersonalAccessToken =
+      process.env[serverConfig.AirTablePersonalAccessTokenKeyName];
     if (!PersonalAccessToken) {
       errorResponse(
         "Server Configuration Error",
-        "'AirTablePersonalAccessToken' is not set in environment variables"
+        `'${serverConfig.AirTablePersonalAccessTokenKeyName}' is not set in environment variables`
       );
       return;
     }
 
     //ReCaptchaSecret is a secret and should be kept in a key vault
-    const recaptchaSecret = process.env["ReCaptchaSecret"];
+    const recaptchaSecret = process.env[serverConfig.ReCaptchaSecretKeyName];
     if (!recaptchaSecret) {
       errorResponse(
         "Server Configuration Error",
-        "'ReCaptchaSecret' is not set in environment variables"
+        `'${serverConfig.ReCaptchaSecretKeyName}' is not set in environment variables`
       );
       return;
     }
@@ -127,7 +128,7 @@ export default async function (context, req) {
           };
 
           const result = await fetch(
-            `${airTableApiUrl}/meta/bases/${airTableBaseId}/tables`,
+            `${airTableApiUrl}/meta/bases/${serverConfig.airTableBaseId}/tables`,
             infoRequest
           );
 
@@ -140,13 +141,13 @@ export default async function (context, req) {
 
           const myTable = tablesInfo.tables.find(
             table =>
-              table.id === airTableTableIdOrName ||
-              table.name === airTableTableIdOrName
+              table.id === serverConfig.airTableTableIdOrName ||
+              table.name === serverConfig.airTableTableIdOrName
           );
           if (!myTable) {
             errorResponse(
               "Table Not Found",
-              `Table with ID or Name '${airTableTableIdOrName}' not found in base '${airTableBaseId}'`,
+              `Table with ID or Name '${serverConfig.airTableTableIdOrName}' not found in base '${serverConfig.airTableBaseId}'`,
               422 // Unprocessable Entity
             );
 
@@ -185,8 +186,8 @@ export default async function (context, req) {
           if (fields) {
             const fetchResponse = await postToAirTable(
               PersonalAccessToken,
-              airTableBaseId,
-              airTableTableIdOrName,
+              serverConfig.airTableBaseId,
+              serverConfig.airTableTableIdOrName,
               fields
             );
 
