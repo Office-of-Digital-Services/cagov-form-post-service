@@ -47,8 +47,7 @@ export default async function (context, req) {
   };
 
   try {
-    const host = req.headers.host;
-    const serverConfig = getServerConfigByHost(host); // Validate host and get server config, will throw if invalid
+    const serverConfig = getServerConfigByHost(req.headers.host); // Validate host and get server config, will throw if invalid
 
     const contentType = req.headers["content-type"]?.trim().toLowerCase();
 
