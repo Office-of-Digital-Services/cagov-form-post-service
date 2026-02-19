@@ -54,21 +54,21 @@ export default async function (context, req) {
 
     //PersonalAccessToken is a secret and should be kept in a key vault
     const PersonalAccessToken =
-      process.env[serverConfig.AirTablePersonalAccessTokenKeyName];
+      process.env[serverConfig.airTablePersonalAccessTokenKeyName];
     if (!PersonalAccessToken) {
       errorResponse(
         "Server Configuration Error",
-        `'${serverConfig.AirTablePersonalAccessTokenKeyName}' is not set in environment variables`
+        `'${serverConfig.airTablePersonalAccessTokenKeyName}' is not set in environment variables`
       );
       return;
     }
 
     //ReCaptchaSecret is a secret and should be kept in a key vault
-    const recaptchaSecret = process.env[serverConfig.ReCaptchaSecretKeyName];
+    const recaptchaSecret = process.env[serverConfig.reCaptchaSecretKeyName];
     if (!recaptchaSecret) {
       errorResponse(
         "Server Configuration Error",
-        `'${serverConfig.ReCaptchaSecretKeyName}' is not set in environment variables`
+        `'${serverConfig.reCaptchaSecretKeyName}' is not set in environment variables`
       );
       return;
     }

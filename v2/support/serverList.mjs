@@ -9,8 +9,8 @@ const require = createRequire(import.meta.url);
  * @property {string} name
  * @property {string} airTableBaseId
  * @property {string} airTableTableIdOrName
- * @property {string} AirTablePersonalAccessTokenKeyName
- * @property {string} ReCaptchaSecretKeyName
+ * @property {string} airTablePersonalAccessTokenKeyName
+ * @property {string} reCaptchaSecretKeyName
  */
 
 /** @type {Array<ServerConfig>} */

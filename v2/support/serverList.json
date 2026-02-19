@@ -4,7 +4,7 @@
     "name": "Local Server",
     "airTableBaseId": "appXfKtM85FrT0Ipc",
     "airTableTableIdOrName": "tblrWC8qRNId3mSaL",
-    "AirTablePersonalAccessTokenKeyName": "AirTablePersonalAccessToken",
-    "ReCaptchaSecretKeyName": "ReCaptchaSecret"
+    "airTablePersonalAccessTokenKeyName": "AirTablePersonalAccessToken",
+    "reCaptchaSecretKeyName": "ReCaptchaSecret"
   }
 ]
