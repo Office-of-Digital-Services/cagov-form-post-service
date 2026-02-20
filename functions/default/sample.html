@@ -320,18 +320,12 @@
       }
 
       function recaptchaCallback(/** @type { string } */ g_recaptcha_response) {
-        const postBody = {
-          captcha: { "g-recaptcha-response": g_recaptcha_response },
-          formData: [],
-        };
-
         const fd = new FormData(getForm());
 
-        for (const [name, value] of fd.entries()) {
-          if (name !== "g-recaptcha-response") {
-            postBody.formData.push({ name, value });
-          }
-        }
+        const postBody = {
+          captcha: { "g-recaptcha-response": g_recaptcha_response },
+          formData: [...fd.entries()].map(([name, value]) => ({ name, value })).filter(x => x.name !== "g-recaptcha-response"),
+        };
 
         /** @type { RequestInit } */
         const request = {
