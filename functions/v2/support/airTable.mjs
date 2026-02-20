@@ -48,7 +48,7 @@ const airTableApiUrl = "https://api.airtable.com/v0";
  * @param {string} PersonalAccessToken
  * @param {string} airTableBaseId
  * @param {string} airTableTableIdOrName
- * @param {{ [key: string]: string | number }} fields
+ * @param {*} fields
  */
 function postToAirTable(
   PersonalAccessToken,
