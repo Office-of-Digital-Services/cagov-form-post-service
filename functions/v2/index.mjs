@@ -28,7 +28,7 @@ export default async function (req, context) {
     /** @type {Record<string, string>} */
     headers: {},
     status: 200,
-    body: ""
+    jsonBody: {}
   };
 
   /**
@@ -38,12 +38,12 @@ export default async function (req, context) {
    * @param {number} [ResponseStatus]
    */
   const errorResponse = (type, message, ResponseStatus = 500) => {
-    res.body = JSON.stringify({
+    res.jsonBody = {
       error: {
         type,
         message
       }
-    });
+    };
 
     res.headers["Content-Type"] = "application/json";
     res.status = ResponseStatus;
@@ -197,18 +197,7 @@ export default async function (req, context) {
               res.headers["Content-Type"] = responseContentType;
 
             res.status = fetchResponse.status;
-            if (fetchResponse.ok) {
-              res.body = await fetchResponse.text();
-            } else {
-              // @ts-ignore
-              const jsonError = (await fetchResponse.json())["error"];
-
-              return errorResponse(
-                `Airtable Error - ${jsonError.type}`,
-                jsonError.message,
-                fetchResponse.status
-              );
-            }
+            res.jsonBody = /** @type {*} */ (await fetchResponse.json());
           }
         } else {
           // Failed captcha
