@@ -191,13 +191,19 @@ export default async function (req, context) {
               fields
             );
 
-            const responseContentType =
-              fetchResponse.headers.get("content-type");
-            if (responseContentType)
-              res.headers["Content-Type"] = responseContentType;
+            if (fetchResponse.ok) {
+              res.status = 204; // No Content
+              return res;
+            } else {
+              // Airtable API error
+              const responseContentType =
+                fetchResponse.headers.get("content-type");
+              if (responseContentType)
+                res.headers["Content-Type"] = responseContentType;
 
-            res.status = fetchResponse.status;
-            res.jsonBody = /** @type {*} */ (await fetchResponse.json());
+              res.status = fetchResponse.status;
+              res.jsonBody = /** @type {*} */ (await fetchResponse.json());
+            }
           }
         } else {
           // Failed captcha
