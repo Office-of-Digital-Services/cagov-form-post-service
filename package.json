@@ -7,20 +7,22 @@
     "name": "Carter Medlin",
     "email": "carter.medlin@gmail.com"
   },
+  "main": "index.mjs",
   "repository": {
     "type": "git",
     "url": "https://github.com/Office-of-Digital-Services/cagov-form-post-service.git"
   },
   "scripts": {
+    "start": "func start",
     "test": "echo \"No Tests\"",
     "build": "echo \"No Build Needed\""
   },
   "dependencies": {
     "ajv": "^8.11.2",
-    "node-fetch": "^3.3.0"
+    "node-fetch": "^3.3.0",
+    "@azure/functions": "^4.11.2"
   },
   "devDependencies": {
-    "@azure/functions": "^3.5.1",
     "@babel/eslint-parser": "^7.28.4",
     "@babel/plugin-syntax-import-assertions": "^7.27.1",
     "eslint": "^8.57.0",
