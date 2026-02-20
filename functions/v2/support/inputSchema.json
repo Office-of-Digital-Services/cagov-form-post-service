@@ -6,20 +6,24 @@
   "uniqueItems": true,
   "items": {
     "type": "array",
+    "minItems": 2,
+    "maxItems": 2,
     "items": [
       { "type": "string", "minLength": 1 },
       { "type": "string", "minLength": 1 }
     ],
     "additionalItems": false
   },
+
   "contains": {
     "type": "array",
+    "minItems": 2,
+    "maxItems": 2,
     "items": [
       { "const": "g-recaptcha-response" },
       { "type": "string", "minLength": 1 }
     ],
-    "additionalItems": false,
-    "description": "The required captcha field: g-recaptcha-response"
+    "additionalItems": false
   },
   "examples": [
     [
