@@ -17,69 +17,75 @@ import { getServerConfigByHost } from "./support/serverList.mjs";
  * Environment Variables:
  * - AirTablePersonalAccessToken: Airtable API access token (required)
  * - ReCaptchaSecret: reCAPTCHA secret key (required)
- * @param {import("@azure/functions").Context} context - Azure Function context object.
  * @param {import("@azure/functions").HttpRequest} req - HTTP request object.
+ * @param {import("@azure/functions").InvocationContext} context - Azure Function context object.
  * @throws {Error} If required environment variables are missing or if table/field validation fails.
  */
-export default async function (context, req) {
+export default async function (req, context) {
   context.log("JavaScript HTTP trigger function processed a request.");
 
-  const res = /** @type { import("@azure/functions").HttpResponseFull} */ (
-    context.res
-  );
+  const res = {
+    /** @type {Record<string, string>} */
+    headers: {},
+    status: 200,
+    jsonBody: {}
+  };
 
   /**
    * Marks the response as an error with the given type, message, and status code.
    * @param {string} type
    * @param {string | {}} message
-   * @param {number} [status]
+   * @param {number} [ResponseStatus]
    */
-  const errorResponse = (type, message, status = 500) => {
-    res.body = {
+  const errorResponse = (type, message, ResponseStatus = 500) => {
+    res.jsonBody = {
       error: {
         type,
         message
       }
     };
-    res.type("application/json");
-    res.status(status);
+
+    res.headers["Content-Type"] = "application/json";
+    res.status = ResponseStatus;
     console.warn(`Error Response - ${type}:`, message);
+    return res;
   };
 
   try {
-    const serverConfig = getServerConfigByHost(req.headers.host); // Validate host and get server config, will throw if invalid
+    const serverConfig = getServerConfigByHost(req.headers.get("host") || ""); // Validate host and get server config, will throw if invalid
 
-    const contentType = req.headers["content-type"]?.trim().toLowerCase();
+    const contentType =
+      req.headers.get("content-type")?.trim().toLowerCase() || "";
 
     //PersonalAccessToken is a secret and should be kept in a key vault
     const PersonalAccessToken =
       process.env[serverConfig.airTablePersonalAccessTokenKeyName];
     if (!PersonalAccessToken) {
-      errorResponse(
+      return errorResponse(
         "Server Configuration Error",
         `'${serverConfig.airTablePersonalAccessTokenKeyName}' is not set in environment variables`
       );
-      return;
     }
 
     //ReCaptchaSecret is a secret and should be kept in a key vault
     const recaptchaSecret = process.env[serverConfig.reCaptchaSecretKeyName];
     if (!recaptchaSecret) {
-      errorResponse(
+      return errorResponse(
         "Server Configuration Error",
         `'${serverConfig.reCaptchaSecretKeyName}' is not set in environment variables`
       );
-      return;
     }
 
     if (req.method === "POST" && contentType.includes("application/json")) {
       // Valid POST with Json content
 
+      const requestBody = /** @type {Record<string, any>} */ (await req.json());
+
       // Validate input
-      const validationErrors = validateInputJson(req.body);
+      const validationErrors = validateInputJson(requestBody);
       if (validationErrors) {
         // Failed validation
-        errorResponse(
+        return errorResponse(
           "validation failed",
           validationErrors,
           422 // Unprocessable Entity
@@ -88,7 +94,7 @@ export default async function (context, req) {
         //verify captcha
         const fetchResponse_captcha = await verifyCaptcha(
           recaptchaSecret,
-          req.body.captcha["g-recaptcha-response"]
+          requestBody.captcha["g-recaptcha-response"]
         );
 
         if (fetchResponse_captcha.success) {
@@ -100,19 +106,18 @@ export default async function (context, req) {
           const airTableProcessResponse = async fetchResponse => {
             const responseContentType =
               fetchResponse.headers.get("content-type");
-            if (responseContentType) res.type(responseContentType);
+            if (responseContentType)
+              res.headers["Content-Type"] = responseContentType;
 
             /** @type {*} */
             const json = await fetchResponse.json();
 
             if (json.error) {
-              errorResponse(
+              return errorResponse(
                 `Airtable Error - ${json.error.type}`,
                 json.error.message,
                 fetchResponse.status
               );
-
-              return;
             }
             return json;
           };
@@ -134,8 +139,8 @@ export default async function (context, req) {
           const tablesInfo = /** @type {TablesInfo} */ (
             await airTableProcessResponse(result)
           );
-          if (!tablesInfo) {
-            return; // airTableProcessResponse already handled the error response
+          if (!tablesInfo.tables) {
+            return tablesInfo; // Actually an error response
           }
 
           const myTable = tablesInfo.tables.find(
@@ -144,18 +149,16 @@ export default async function (context, req) {
               table.name === serverConfig.airTableTableIdOrName
           );
           if (!myTable) {
-            errorResponse(
+            return errorResponse(
               "Table Not Found",
               `Table with ID or Name '${serverConfig.airTableTableIdOrName}' not found in base '${serverConfig.airTableBaseId}'`,
               422 // Unprocessable Entity
             );
-
-            return;
           }
 
           const convertFormDataToFields = () => {
             /** @type {FormData} */
-            const formData = req.body.formData;
+            const formData = requestBody.formData;
 
             /** @type {{ [key: string]: string | number }} */
             const fields = {};
@@ -169,13 +172,11 @@ export default async function (context, req) {
                   ? Number(item.value)
                   : item.value;
               } else {
-                errorResponse(
+                return errorResponse(
                   "Field Not Found",
                   `Field with name '${item.name}' not found in table '${myTable.name}'.`,
                   422 // Unprocessable Entity
                 );
-
-                return;
               }
             }
             return fields;
@@ -190,23 +191,23 @@ export default async function (context, req) {
               fields
             );
 
-            const responseContentType =
-              fetchResponse.headers.get("content-type");
-            if (responseContentType) res.type(responseContentType);
+            if (fetchResponse.ok) {
+              res.status = 204; // No Content
+              return res;
+            } else {
+              // Airtable API error
+              const responseContentType =
+                fetchResponse.headers.get("content-type");
+              if (responseContentType)
+                res.headers["Content-Type"] = responseContentType;
 
-            res.status(fetchResponse.status);
-            res.body = await fetchResponse.json();
-            if (!fetchResponse.ok) {
-              errorResponse(
-                `Airtable POST failed - ${res.body.error.type}`,
-                res.body.error.message,
-                fetchResponse.status
-              );
+              res.status = fetchResponse.status;
+              res.jsonBody = /** @type {*} */ (await fetchResponse.json());
             }
           }
         } else {
           // Failed captcha
-          errorResponse(
+          return errorResponse(
             "Captcha failed",
             `Failed human detection. Error Codes ${JSON.stringify(fetchResponse_captcha["error-codes"])}`,
             422 // Unprocessable Entity
@@ -216,13 +217,14 @@ export default async function (context, req) {
     } else {
       // NOT POST
       //res.set("X-Robots-Tag", "noindex"); //For preventing search indexing
-      res.status(302);
-      res.setHeader("location", "/");
-      res.body = undefined;
+      res.status = 302;
+      res.headers = { location: "/" };
     }
   } catch (e) {
     // ERROR
     //@ts-ignore
-    errorResponse(e.name, e.message);
+    return errorResponse(e.name, e.message);
   }
+
+  return res;
 }

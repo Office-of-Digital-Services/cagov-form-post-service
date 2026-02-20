@@ -345,11 +345,13 @@
         fetch(serviceUrl, request)
           .then(async response => {
             if (response.ok) {
-              return response.json();
+              return await response.json();
             }
 
+            console.error(await response.json());
+
             throw new Error(
-              `Can't submit - ${response.status}:${response.statusText} ${await response.text()}`
+              `Can't submit - ${response.status}:${response.statusText}`
             );
           })
           .then(responseJson => {
