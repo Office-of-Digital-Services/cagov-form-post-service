@@ -28,6 +28,7 @@ export default async function (req, context) {
     /** @type {Record<string, string>} */
     headers: {},
     status: 200,
+    /** @type {*} */
     jsonBody: {}
   };
 
@@ -206,7 +207,7 @@ export default async function (req, context) {
                 res.headers["Content-Type"] = responseContentType;
 
               res.status = fetchResponse.status;
-              res.jsonBody = /** @type {*} */ (await fetchResponse.json());
+              res.jsonBody = await fetchResponse.json();
             }
           }
         } else {
