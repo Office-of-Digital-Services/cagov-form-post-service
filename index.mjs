@@ -1,6 +1,6 @@
 import { app } from "@azure/functions";
 import v2 from "./v2/index.mjs";
-import mydefault from "./default/index.mjs";
+import mydefault from "./functions/default/index.mjs";
 
 app.http("helloPost", {
   route: "hello",
@@ -26,9 +26,7 @@ app.http("helloGet", {
 
 app.http("default", {
   route: "{page?}",
-  methods: ["GET", "POST", "PUT", "DELETE", "PATCH"],
+  methods: ["GET"],
   authLevel: "anonymous",
-  handler: async (request, context, test, foo) => {
-    return await mydefault(context, request);
-  }
+  handler: async (request, context) => mydefault(context, request)
 });
