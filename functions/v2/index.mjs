@@ -79,7 +79,7 @@ export default async function (req, context) {
     if (req.method === "POST" && contentType.includes("application/json")) {
       // Valid POST with Json content
 
-      const requestBody = /** @type {string[][]} */ (await req.json());
+      const requestBody = /** @type {[string, string][]} */ (await req.json());
 
       // Validate input
       const validationErrors = validateInputJson(requestBody);
