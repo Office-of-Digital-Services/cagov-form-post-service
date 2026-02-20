@@ -4,9 +4,9 @@ import { validateInputJson } from "./support/JsonValidate.mjs";
 import { verifyCaptcha } from "./support/recaptcha.mjs";
 import { airTableApiUrl, postToAirTable } from "./support/airTable.mjs";
 import { getServerConfigByHost } from "./support/serverList.mjs";
+const captchaKey = "g-recaptcha-response";
 
 /**
- * @typedef {{name: string, value: string}[]} FormData
  * @typedef {import("./support/airTable.mjs").TablesInfo} TablesInfo
  *
  * Azure Function HTTP trigger for processing form submissions.
@@ -79,7 +79,7 @@ export default async function (req, context) {
     if (req.method === "POST" && contentType.includes("application/json")) {
       // Valid POST with Json content
 
-      const requestBody = /** @type {Record<string, any>} */ (await req.json());
+      const requestBody = /** @type {string[][]} */ (await req.json());
 
       // Validate input
       const validationErrors = validateInputJson(requestBody);
@@ -91,11 +91,16 @@ export default async function (req, context) {
           422 // Unprocessable Entity
         );
       } else {
+        /** @type {{ [key: string]: string }} */
+        const requestNameValues = Object.fromEntries(requestBody);
+
         //verify captcha
         const fetchResponse_captcha = await verifyCaptcha(
           recaptchaSecret,
-          requestBody.captcha["g-recaptcha-response"]
+          requestNameValues[captchaKey]
         );
+
+        delete requestNameValues[captchaKey]; // No need to keep this around
 
         if (fetchResponse_captcha.success) {
           // captcha is good, post to database
@@ -157,24 +162,23 @@ export default async function (req, context) {
           }
 
           const convertFormDataToFields = () => {
-            /** @type {FormData} */
-            const formData = requestBody.formData;
+            const formData = requestNameValues;
 
             /** @type {{ [key: string]: string | number }} */
             const fields = {};
 
-            for (const item of formData) {
-              const metaField = myTable.fields.find(f => f.name === item.name);
+            for (const key of Object.keys(formData)) {
+              const metaField = myTable.fields.find(f => f.name === key);
               if (metaField) {
                 const isNumberfield = metaField.type === "number";
 
-                fields[item.name] = isNumberfield
-                  ? Number(item.value)
-                  : item.value;
+                fields[key] = isNumberfield
+                  ? Number(formData[key])
+                  : formData[key];
               } else {
                 return errorResponse(
                   "Field Not Found",
-                  `Field with name '${item.name}' not found in table '${myTable.name}'.`,
+                  `Field with name '${key}' not found in table '${myTable.name}'.`,
                   422 // Unprocessable Entity
                 );
               }

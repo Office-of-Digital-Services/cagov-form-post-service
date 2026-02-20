@@ -319,21 +319,14 @@
         triggerRecaptcha();
       }
 
-      function recaptchaCallback(/** @type { string } */ g_recaptcha_response) {
-        const fd = new FormData(getForm());
-
-        const postBody = {
-          captcha: { "g-recaptcha-response": g_recaptcha_response },
-          formData: [...fd.entries()].map(([name, value]) => ({ name, value })).filter(x => x.name !== "g-recaptcha-response"),
-        };
-
+      function recaptchaCallback() {
         /** @type { RequestInit } */
         const request = {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
           },
-          body: JSON.stringify(postBody),
+          body: JSON.stringify([...new FormData(getForm())]),
         };
 
         fetch(serviceUrl, request)
