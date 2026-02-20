@@ -27,6 +27,5 @@ app.http("helloGet", {
 app.http("default", {
   route: "{page?}",
   methods: ["GET"],
-  authLevel: "anonymous",
-  handler: async (request, context) => mydefault(context, request)
+  handler: mydefault
 });

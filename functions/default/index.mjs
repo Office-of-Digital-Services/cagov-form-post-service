@@ -6,10 +6,10 @@ import { fileURLToPath } from "node:url";
 const __dirname = dirname(fileURLToPath(import.meta.url));
 
 /**
- * @param {import("@azure/functions").InvocationContext} context
  * @param {import("@azure/functions").HttpRequest} req
+ * @param {import("@azure/functions").InvocationContext} context
  */
-export default async function (context, req) {
+export default async function (req, context) {
   context.log("JavaScript HTTP trigger function processed a request.");
 
   const res = {
