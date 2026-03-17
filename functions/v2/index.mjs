@@ -29,7 +29,7 @@ export default async function (req, context) {
     headers: {},
     status: 200,
     /** @type {*} */
-    jsonBody: {}
+    jsonBody: undefined
   };
 
   /**
@@ -198,7 +198,6 @@ export default async function (req, context) {
 
             if (fetchResponse.ok) {
               res.status = 204; // No Content
-              return res;
             } else {
               // Airtable API error
               const responseContentType =

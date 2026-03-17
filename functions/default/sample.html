@@ -332,7 +332,7 @@
         fetch(serviceUrl, request)
           .then(async response => {
             if (response.ok) {
-              return await response.json();
+              return;
             }
 
             console.error(await response.json());
