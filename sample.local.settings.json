@@ -3,9 +3,11 @@
   "IsEncrypted": false,
   "Values": {
     "FUNCTIONS_WORKER_RUNTIME": "node",
-    "AzureWebJobsStorage": "",
-    "AirTablePersonalAccessToken": "Your AirTable Personal Access Token here",
-    "ReCaptchaSecret": "Your ReCaptcha Secret here"
+    "HostList": "LOCALHOST|localhost:12345",
+    "LOCALHOST_airTableBaseId": "appXfKtM85FrT0Ipc",
+    "LOCALHOST_airTableTableIdOrName": "tblrWC8qRNId3mSaL",
+    "LOCALHOST_airTablePersonalAccessTokenKey": "Your AirTable Personal Access Token here",
+    "LOCALHOST_ReCaptchaSecret": "Your ReCaptcha Secret here"
   },
   "Host": {
     "LocalHttpPort": 12345,

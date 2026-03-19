@@ -58,24 +58,7 @@ export default async function (req, context) {
     const contentType =
       req.headers.get("content-type")?.trim().toLowerCase() || "";
 
-    //PersonalAccessToken is a secret and should be kept in a key vault
-    const PersonalAccessToken =
-      process.env[serverConfig.airTablePersonalAccessTokenKeyName];
-    if (!PersonalAccessToken) {
-      return errorResponse(
-        "Server Configuration Error",
-        `'${serverConfig.airTablePersonalAccessTokenKeyName}' is not set in environment variables`
-      );
-    }
-
-    //ReCaptchaSecret is a secret and should be kept in a key vault
-    const recaptchaSecret = process.env[serverConfig.reCaptchaSecretKeyName];
-    if (!recaptchaSecret) {
-      return errorResponse(
-        "Server Configuration Error",
-        `'${serverConfig.reCaptchaSecretKeyName}' is not set in environment variables`
-      );
-    }
+    const PersonalAccessToken = serverConfig.airTablePersonalAccessTokenKey;
 
     if (req.method === "POST" && contentType.includes("application/json")) {
       // Valid POST with Json content
@@ -97,7 +80,7 @@ export default async function (req, context) {
 
         //verify captcha
         const fetchResponse_captcha = await verifyCaptcha(
-          recaptchaSecret,
+          serverConfig.reCaptchaSecretKey,
           requestNameValues[captchaKey]
         );
 

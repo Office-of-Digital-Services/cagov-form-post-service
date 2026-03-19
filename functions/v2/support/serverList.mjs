@@ -1,6 +1,4 @@
 //@ts-check
-import { createRequire } from "module";
-const require = createRequire(import.meta.url);
 
 // AitTable Base and Table IDs are not treated as secrets
 /**
@@ -9,12 +7,43 @@ const require = createRequire(import.meta.url);
  * @property {string} name
  * @property {string} airTableBaseId
  * @property {string} airTableTableIdOrName
- * @property {string} airTablePersonalAccessTokenKeyName
- * @property {string} reCaptchaSecretKeyName
+ * @property {string} airTablePersonalAccessTokenKey
+ * @property {string} reCaptchaSecretKey
  */
 
+const hostListString = process.env.HostList || "";
 /** @type {Array<ServerConfig>} */
-const jsonServerList = require("./serverList.json");
+const jsonServerList = hostListString
+  .split(",")
+  .map(pair => pair.split("|"))
+  .map(parts => {
+    const name = parts[0].trim();
+    const host = parts[1].trim();
+
+    const getEnvVar = (/** @type {string} */ key) => {
+      const value = process.env[key];
+      if (!value) {
+        throw new Error(`Missing environment variable: ${key}`);
+      }
+      return value;
+    };
+
+    const airTableTableIdOrName = getEnvVar(`${name}_airTableTableIdOrName`);
+    const airTableBaseId = getEnvVar(`${name}_airTableBaseId`);
+    const airTablePersonalAccessTokenKey = getEnvVar(
+      `${name}_airTablePersonalAccessTokenKey`
+    );
+    const reCaptchaSecretKey = getEnvVar(`${name}_ReCaptchaSecret`);
+
+    return {
+      name,
+      host,
+      airTableBaseId,
+      airTableTableIdOrName,
+      airTablePersonalAccessTokenKey,
+      reCaptchaSecretKey
+    };
+  });
 
 /**
  * @param {string} host
