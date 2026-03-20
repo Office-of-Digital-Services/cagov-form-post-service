@@ -121,3 +121,11 @@ This service runs as an **Azure Function App** using the JavaScript v4 programmi
 The function will be available at:
 
     http://localhost:12345/api/air-table
+
+All relavant links will be running at
+
+    http://localhost:12345/
+
+Running Sample will be found at
+
+    http://localhost:12345/sample/
