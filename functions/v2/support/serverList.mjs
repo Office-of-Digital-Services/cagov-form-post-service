@@ -5,45 +5,38 @@
  * @typedef {object} ServerConfig
  * @property {string} host
  * @property {string} name
- * @property {string} airTableBaseId
- * @property {string} airTableTableIdOrName
- * @property {string} airTablePersonalAccessTokenKey
- * @property {string} reCaptchaSecretKey
+ * @property {string} airtableBaseId
+ * @property {string} airtableTable
+ * @property {string} airtableToken
+ * @property {string} recaptchaSecret
  */
 
-const hostListString = process.env.HostList || "";
+const getEnvVar = (/** @type {string} */ key) => {
+  const value = process.env[key];
+  if (!value) {
+    throw new Error(`Missing environment variable: ${key}`);
+  }
+  return value;
+};
+
+const hostListString = getEnvVar("HostList");
 /** @type {Array<ServerConfig>} */
-const jsonServerList = hostListString
-  .split(",")
-  .map(pair => pair.split("|"))
-  .map(parts => {
-    const name = parts[0].trim();
-    const host = parts[1].trim();
+const jsonServerList = hostListString.split(",").map(name => {
+  const host = getEnvVar(`${name}_host`);
+  const airtableTable = getEnvVar(`${name}_airtableTable`);
+  const airtableBaseId = getEnvVar(`${name}_airtableBaseId`);
+  const airtableToken = getEnvVar(`${name}_airtableToken`);
+  const recaptchaSecret = getEnvVar(`${name}_recaptchaSecret`);
 
-    const getEnvVar = (/** @type {string} */ key) => {
-      const value = process.env[key];
-      if (!value) {
-        throw new Error(`Missing environment variable: ${key}`);
-      }
-      return value;
-    };
-
-    const airTableTableIdOrName = getEnvVar(`${name}_airTableTableIdOrName`);
-    const airTableBaseId = getEnvVar(`${name}_airTableBaseId`);
-    const airTablePersonalAccessTokenKey = getEnvVar(
-      `${name}_airTablePersonalAccessTokenKey`
-    );
-    const reCaptchaSecretKey = getEnvVar(`${name}_ReCaptchaSecret`);
-
-    return {
-      name,
-      host,
-      airTableBaseId,
-      airTableTableIdOrName,
-      airTablePersonalAccessTokenKey,
-      reCaptchaSecretKey
-    };
-  });
+  return {
+    name,
+    host,
+    airtableBaseId,
+    airtableTable,
+    airtableToken,
+    recaptchaSecret
+  };
+});
 
 /**
  * @param {string} host

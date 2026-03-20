@@ -60,26 +60,35 @@ The function:
 
 Each site is configured through environment variables. These can be stored directly in the Function App or in Azure Key Vault.
 
+### Required host list variable
+
+| Variable   | Sample                     |
+| ---------- | -------------------------- |
+| `HostList` | "LOCALHOST,PARKS,TEMPLATE" |
+
 ### Required per‑site variables
 
-| Variable                                     | Description                    |
-| -------------------------------------------- | ------------------------------ |
-| `<SITE_NAME>_airTablePersonalAccessTokenKey` | Airtable personal access token |
-| `<SITE_NAME>_airTableBaseId`                 | Airtable base ID               |
-| `<SITE_NAME>_airTableTableIdOrName`          | Airtable table name            |
-| `<SITE_NAME>_ReCaptchaSecret`                | reCAPTCHA v3 secret            |
+| Variable                            | Description                    |
+| ----------------------------------- | ------------------------------ |
+| `<SITE_NAME>_host`                  | Full URL of requesting site    |
+| `<SITE_NAME>_airtableToken`         | Airtable personal access token |
+| `<SITE_NAME>_airTableBaseId`        | Airtable base ID               |
+| `<SITE_NAME>_airTableTableIdOrName` | Airtable table name            |
+| `<SITE_NAME>_ReCaptchaSecret`       | reCAPTCHA v3 secret            |
 
 You can add as many sites as needed:
 
-    SITE_TEMPLATE_AIRTABLE_TOKEN=...
-    SITE_TEMPLATE_AIRTABLE_BASE=...
-    SITE_TEMPLATE_AIRTABLE_TABLE=Contact
-    SITE_TEMPLATE_ALLOWED_ORIGIN=https://template.webstandards.ca.gov
+    TEMPLATE_airtableToken_=pat...
+    TEMPLATE_airTableBaseId=app...
+    TEMPLATE_airTableTableIdOrName=tbl...
+    TEMPLATE_host=https://template.webstandards.ca.gov
+    TEMPLATE_recaptchaSecret=...
 
-    SITE_PARKS_AIRTABLE_TOKEN=...
-    SITE_PARKS_AIRTABLE_BASE=...
-    SITE_PARKS_AIRTABLE_TABLE=Feedback
-    SITE_PARKS_ALLOWED_ORIGIN=https://parks.ca.gov
+    PARKS_airtableToken=pat...
+    PARKS_airTableBaseId=app...
+    PARKS_airTableTableIdOrName=tbl...
+    PARKS_host=https://parks.ca.gov
+    PARKS_recaptchaSecret=...
 
 The service automatically selects the correct site configuration based on the request origin.
 

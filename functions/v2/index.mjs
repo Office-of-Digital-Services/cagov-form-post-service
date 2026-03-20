@@ -58,7 +58,7 @@ export default async function (req, context) {
     const contentType =
       req.headers.get("content-type")?.trim().toLowerCase() || "";
 
-    const PersonalAccessToken = serverConfig.airTablePersonalAccessTokenKey;
+    const PersonalAccessToken = serverConfig.airtableToken;
 
     if (req.method === "POST" && contentType.includes("application/json")) {
       // Valid POST with Json content
@@ -80,7 +80,7 @@ export default async function (req, context) {
 
         //verify captcha
         const fetchResponse_captcha = await verifyCaptcha(
-          serverConfig.reCaptchaSecretKey,
+          serverConfig.recaptchaSecret,
           requestNameValues[captchaKey]
         );
 
@@ -121,7 +121,7 @@ export default async function (req, context) {
           };
 
           const result = await fetch(
-            `${airTableApiUrl}/meta/bases/${serverConfig.airTableBaseId}/tables`,
+            `${airTableApiUrl}/meta/bases/${serverConfig.airtableBaseId}/tables`,
             infoRequest
           );
 
@@ -134,13 +134,13 @@ export default async function (req, context) {
 
           const myTable = tablesInfo.tables.find(
             table =>
-              table.id === serverConfig.airTableTableIdOrName ||
-              table.name === serverConfig.airTableTableIdOrName
+              table.id === serverConfig.airtableTable ||
+              table.name === serverConfig.airtableTable
           );
           if (!myTable) {
             return errorResponse(
               "Table Not Found",
-              `Table with ID or Name '${serverConfig.airTableTableIdOrName}' not found in base '${serverConfig.airTableBaseId}'`,
+              `Table with ID or Name '${serverConfig.airtableTable}' not found in base '${serverConfig.airtableBaseId}'`,
               422 // Unprocessable Entity
             );
           }
@@ -174,8 +174,8 @@ export default async function (req, context) {
           if (fields) {
             const fetchResponse = await postToAirTable(
               PersonalAccessToken,
-              serverConfig.airTableBaseId,
-              serverConfig.airTableTableIdOrName,
+              serverConfig.airtableBaseId,
+              serverConfig.airtableTable,
               fields
             );
 
