@@ -100,9 +100,9 @@ This service runs as an **Azure Function App** using the JavaScript v4 programmi
 
 ### Existing deployments
 
-- **Production:** https://api.template.webstandards.ca.gov/api/air-table
-- **Staging:** https://fa-cdt-pub-migr-betaws-w-p-001-stage.azurewebsites.net/api/air-table
-- **Dev:** https://dev.api.template.webstandards.ca.gov/api/air-table
+- **Production:** https://api.template.webstandards.ca.gov/api/v2
+- **Staging:** https://fa-cdt-pub-migr-betaws-w-p-001-stage.azurewebsites.net/v2
+- **Dev:** https://dev.api.template.webstandards.ca.gov/v2
 
 ---
 
@@ -120,7 +120,7 @@ This service runs as an **Azure Function App** using the JavaScript v4 programmi
 
 The function will be available at:
 
-    http://localhost:12345/api/air-table
+    http://localhost:12345/api/v2
 
 All relavant links will be running at
 
