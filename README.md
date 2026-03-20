@@ -66,28 +66,28 @@ Each site is configured through environment variables. These can be stored direc
 | ---------- | -------------------------- |
 | `HostList` | "LOCALHOST,PARKS,TEMPLATE" |
 
-### Required per‑site variables
+### Per‑site variables
 
-| Variable                            | Description                    |
-| ----------------------------------- | ------------------------------ |
-| `<SITE_NAME>_host`                  | Full URL of requesting site    |
-| `<SITE_NAME>_airtableToken`         | Airtable personal access token |
-| `<SITE_NAME>_airTableBaseId`        | Airtable base ID               |
-| `<SITE_NAME>_airTableTableIdOrName` | Airtable table name            |
-| `<SITE_NAME>_ReCaptchaSecret`       | reCAPTCHA v3 secret            |
+| Variable                      | Description                    |
+| ----------------------------- | ------------------------------ |
+| `<SITE_NAME>_host`            | Full URL of requesting site    |
+| `<SITE_NAME>_airtableToken`   | Airtable personal access token |
+| `<SITE_NAME>_airtableBaseId`  | Airtable base ID               |
+| `<SITE_NAME>_airtableTable`   | Airtable table name            |
+| `<SITE_NAME>_recaptchaSecret` | reCAPTCHA v3 secret            |
 
 You can add as many sites as needed:
 
-    TEMPLATE_airtableToken_=pat...
-    TEMPLATE_airTableBaseId=app...
-    TEMPLATE_airTableTableIdOrName=tbl...
     TEMPLATE_host=https://template.webstandards.ca.gov
+    TEMPLATE_airtableToken_=pat...
+    TEMPLATE_airtableBaseId=app...
+    TEMPLATE_airtableTable=tbl...
     TEMPLATE_recaptchaSecret=...
 
-    PARKS_airtableToken=pat...
-    PARKS_airTableBaseId=app...
-    PARKS_airTableTableIdOrName=tbl...
     PARKS_host=https://parks.ca.gov
+    PARKS_airtableToken=pat...
+    PARKS_airtableBaseId=app...
+    PARKS_airtableTable=tbl...
     PARKS_recaptchaSecret=...
 
 The service automatically selects the correct site configuration based on the request origin.
@@ -122,7 +122,7 @@ The function will be available at:
 
     http://localhost:12345/api/v2
 
-All relavant links will be running at
+All relevant links will be running at
 
     http://localhost:12345/
 
