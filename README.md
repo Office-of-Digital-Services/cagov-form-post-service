@@ -7,7 +7,7 @@ This version replaces the older “copy‑and‑deploy per site” template. Ins
 The service performs:
 
 - Input parsing from `FormData` POST requests
-- Optional reCAPTCHA v3 verification
+- reCAPTCHA v3 verification
 - Airtable table/field validation (using Airtable’s own error messages)
 - Record creation in Airtable
 - Consistent JSON responses for success and error states
