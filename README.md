@@ -101,8 +101,8 @@ This service runs as an **Azure Function App** using the JavaScript v4 programmi
 ### Existing deployments
 
 - **Production:** https://api.template.webstandards.ca.gov/api/v2
-- **Staging:** https://fa-cdt-pub-migr-betaws-w-p-001-stage.azurewebsites.net/v2
-- **Dev:** https://dev.api.template.webstandards.ca.gov/v2
+- **Staging:** https://fa-cdt-pub-migr-betaws-w-p-001-stage.azurewebsites.net/api/v2
+- **Dev:** https://dev.api.template.webstandards.ca.gov/api/v2
 
 ---
 
