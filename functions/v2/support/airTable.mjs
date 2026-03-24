@@ -45,6 +45,11 @@ const airTableApiUrl = "https://api.airtable.com/v0";
  */
 
 /**
+ * @typedef {object} AirTableErrorResponse
+ * @property {{type: string, message: string}} error - The error message from Airtable.
+ */
+
+/**
  * @param {string} PersonalAccessToken
  * @param {string} airTableBaseId
  * @param {string} airTableTableIdOrName
@@ -56,17 +61,9 @@ function postToAirTable(
   airTableTableIdOrName,
   fields
 ) {
-  /** @type { import("node-fetch").RequestInit } */
-  const fetchRequest = {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: `Bearer ${PersonalAccessToken}`
-    },
-    body: JSON.stringify({
-      fields
-    })
-  };
+  const fetchRequest = getRequestInit(PersonalAccessToken, "POST", {
+    fields
+  });
 
   return fetch(
     `${airTableApiUrl}/${airTableBaseId}/${airTableTableIdOrName}`,
@@ -74,4 +71,60 @@ function postToAirTable(
   );
 }
 
-export { postToAirTable, airTableApiUrl };
+/**
+ * @param {import("node-fetch").Response} fetchResponse
+ */
+const airTableProcessError = async fetchResponse => {
+  if (fetchResponse.ok) {
+    throw new Error(
+      `Expected error response, got success: ${fetchResponse.status}`
+    );
+  }
+
+  const json = /** @type {AirTableErrorResponse} */ (
+    await fetchResponse.json()
+  );
+
+  if (!json.error.type) {
+    // Handles unexpected error format
+    json.error = { type: "UnknownError", message: json.error.toString() };
+  }
+
+  return json;
+};
+
+/**
+ * Gets the RequestInit object for fetch calls to Airtable API, including the Authorization header and optional body.
+ * @param {string} PersonalAccessToken
+ * @param {"GET" | "POST"} method
+ * @param {*} [body]
+ * @returns {import("node-fetch").RequestInit}
+ */
+const getRequestInit = (
+  PersonalAccessToken,
+  method = "GET",
+  body = undefined
+) => {
+  const Authorization = `Bearer ${PersonalAccessToken}`;
+
+  /** @type { import("node-fetch").RequestInit } */
+  const fetchRequest = body
+    ? {
+        method,
+        headers: {
+          Authorization,
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify(body)
+      }
+    : {
+        method,
+        headers: {
+          Authorization
+        }
+      };
+
+  return fetchRequest;
+};
+
+export { postToAirTable, airTableApiUrl, airTableProcessError, getRequestInit };

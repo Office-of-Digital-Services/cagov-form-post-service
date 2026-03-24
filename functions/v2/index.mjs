@@ -2,12 +2,16 @@
 import fetch from "node-fetch";
 import { validateInputJson } from "./support/JsonValidate.mjs";
 import { verifyCaptcha } from "./support/recaptcha.mjs";
-import { airTableApiUrl, postToAirTable } from "./support/airTable.mjs";
+import {
+  airTableApiUrl,
+  postToAirTable,
+  airTableProcessError,
+  getRequestInit
+} from "./support/airTable.mjs";
 import { getServerConfigByHost } from "./support/serverList.mjs";
 const captchaKey = "g-recaptcha-response";
 
 /**
- * @typedef {import("./support/airTable.mjs").TablesInfo} TablesInfo
  *
  * Azure Function HTTP trigger for processing form submissions.
  *
@@ -17,17 +21,16 @@ const captchaKey = "g-recaptcha-response";
  * Environment Variables:
  * - AirTablePersonalAccessToken: Airtable API access token (required)
  * - ReCaptchaSecret: reCAPTCHA secret key (required)
- * @param {import("@azure/functions").HttpRequest} req - HTTP request object.
+ * @param {import("@azure/functions").HttpRequest} httpRequest - HTTP request object.
  * @param {import("@azure/functions").InvocationContext} context - Azure Function context object.
- * @throws {Error} If required environment variables are missing or if table/field validation fails.
  */
-export default async function (req, context) {
+export default async function (httpRequest, context) {
   context.log("JavaScript HTTP trigger function processed a request.");
 
-  const res = {
+  const httpResponse = {
     /** @type {Record<string, string>} */
     headers: {},
-    status: 200,
+    status: 500,
     /** @type {*} */
     jsonBody: undefined
   };
@@ -36,41 +39,48 @@ export default async function (req, context) {
    * Marks the response as an error with the given type, message, and status code.
    * @param {string} type
    * @param {string | {}} message
-   * @param {number} [ResponseStatus]
+   * @param {number} [responseStatus]
    */
-  const errorResponse = (type, message, ResponseStatus = 500) => {
-    res.jsonBody = {
+  const errorResponse = (type, message, responseStatus = 500) => {
+    httpResponse.jsonBody = {
       error: {
         type,
         message
       }
     };
 
-    res.headers["Content-Type"] = "application/json";
-    res.status = ResponseStatus;
+    httpResponse.headers["Content-Type"] = "application/json";
+    httpResponse.status = responseStatus;
     console.warn(`Error Response - ${type}:`, message);
-    return res;
+    return httpResponse;
   };
 
   try {
-    const serverConfig = getServerConfigByHost(req.headers.get("host") || ""); // Validate host and get server config, will throw if invalid
+    const serverConfig = getServerConfigByHost(
+      httpRequest.headers.get("host") || ""
+    ); // Validate host and get server config, will throw if invalid
 
     const contentType =
-      req.headers.get("content-type")?.trim().toLowerCase() || "";
+      httpRequest.headers.get("content-type")?.trim().toLowerCase() || "";
 
     const PersonalAccessToken = serverConfig.airtableToken;
 
-    if (req.method === "POST" && contentType.includes("application/json")) {
+    if (
+      httpRequest.method === "POST" &&
+      contentType.includes("application/json")
+    ) {
       // Valid POST with Json content
 
-      const requestBody = /** @type {[string, string][]} */ (await req.json());
+      const requestBody = /** @type {[string, string][]} */ (
+        await httpRequest.json()
+      );
 
       // Validate input
       const validationErrors = validateInputJson(requestBody);
       if (validationErrors) {
         // Failed validation
         return errorResponse(
-          "validation failed",
+          "JSON validation failed",
           validationErrors,
           422 // Unprocessable Entity
         );
@@ -96,41 +106,42 @@ export default async function (req, context) {
             const responseContentType =
               fetchResponse.headers.get("content-type");
             if (responseContentType)
-              res.headers["Content-Type"] = responseContentType;
+              httpResponse.headers["Content-Type"] = responseContentType;
 
-            /** @type {*} */
-            const json = await fetchResponse.json();
+            if (fetchResponse.ok) {
+              return await fetchResponse.json();
+            } else {
+              // Airtable API error
+              const error = await airTableProcessError(fetchResponse);
 
-            if (json.error) {
               return errorResponse(
-                `Airtable Error - ${json.error.type}`,
-                json.error.message,
+                `Airtable Error - ${error.error.type}`,
+                error.error.message,
                 fetchResponse.status
               );
             }
-            return json;
           };
 
           // Get table info from airtable API
-          /** @type { import("node-fetch").RequestInit } */
-          const infoRequest = {
-            method: "GET",
-            headers: {
-              Authorization: `Bearer ${PersonalAccessToken}`
-            }
-          };
+          const infoRequest = getRequestInit(PersonalAccessToken);
 
           const result = await fetch(
             `${airTableApiUrl}/meta/bases/${serverConfig.airtableBaseId}/tables`,
             infoRequest
           );
 
-          const tablesInfo = /** @type {TablesInfo} */ (
-            await airTableProcessResponse(result)
-          );
-          if (!tablesInfo.tables) {
-            return tablesInfo; // Actually an error response
+          if (!result.ok) {
+            return errorResponse(
+              "Base Not Found",
+              `Base ID '${serverConfig.airtableBaseId}' not found.`,
+              422 // Unprocessable Entity
+            );
           }
+
+          const tablesInfo =
+            /** @type {import("./support/airTable.mjs").TablesInfo} */ (
+              await airTableProcessResponse(result)
+            );
 
           const myTable = tablesInfo.tables.find(
             table =>
@@ -180,16 +191,18 @@ export default async function (req, context) {
             );
 
             if (fetchResponse.ok) {
-              res.status = 204; // No Content
+              httpResponse.status = 204; // No Content
             } else {
               // Airtable API error
+              const error = await airTableProcessError(fetchResponse);
+
               const responseContentType =
                 fetchResponse.headers.get("content-type");
               if (responseContentType)
-                res.headers["Content-Type"] = responseContentType;
+                httpResponse.headers["Content-Type"] = responseContentType;
 
-              res.status = fetchResponse.status;
-              res.jsonBody = await fetchResponse.json();
+              httpResponse.status = fetchResponse.status;
+              httpResponse.jsonBody = error;
             }
           }
         } else {
@@ -204,14 +217,16 @@ export default async function (req, context) {
     } else {
       // NOT POST
       //res.set("X-Robots-Tag", "noindex"); //For preventing search indexing
-      res.status = 302;
-      res.headers = { location: "/" };
+
+      // Redirect to root as HTTP - GET.
+      httpResponse.status = 302;
+      httpResponse.headers = { location: "/" };
     }
-  } catch (e) {
+  } catch (/** @type {*} **/ e) {
     // ERROR
-    //@ts-ignore
+
     return errorResponse(e.name, e.message);
   }
 
-  return res;
+  return httpResponse;
 }
