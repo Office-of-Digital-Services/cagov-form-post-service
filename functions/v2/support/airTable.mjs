@@ -61,17 +61,9 @@ function postToAirTable(
   airTableTableIdOrName,
   fields
 ) {
-  /** @type { import("node-fetch").RequestInit } */
-  const fetchRequest = {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: `Bearer ${PersonalAccessToken}`
-    },
-    body: JSON.stringify({
-      fields
-    })
-  };
+  const fetchRequest = getRequestInit(PersonalAccessToken, "POST", {
+    fields
+  });
 
   return fetch(
     `${airTableApiUrl}/${airTableBaseId}/${airTableTableIdOrName}`,
@@ -101,4 +93,38 @@ const airTableProcessError = async fetchResponse => {
   return json;
 };
 
-export { postToAirTable, airTableApiUrl, airTableProcessError };
+/**
+ * Gets the RequestInit object for fetch calls to Airtable API, including the Authorization header and optional body.
+ * @param {string} PersonalAccessToken
+ * @param {"GET" | "POST"} method
+ * @param {*} [body]
+ * @returns {import("node-fetch").RequestInit}
+ */
+const getRequestInit = (
+  PersonalAccessToken,
+  method = "GET",
+  body = undefined
+) => {
+  const Authorization = `Bearer ${PersonalAccessToken}`;
+
+  /** @type { import("node-fetch").RequestInit } */
+  const fetchRequest = body
+    ? {
+        method,
+        headers: {
+          Authorization,
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify(body)
+      }
+    : {
+        method,
+        headers: {
+          Authorization
+        }
+      };
+
+  return fetchRequest;
+};
+
+export { postToAirTable, airTableApiUrl, airTableProcessError, getRequestInit };

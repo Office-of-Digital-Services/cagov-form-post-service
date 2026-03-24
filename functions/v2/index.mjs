@@ -5,7 +5,8 @@ import { verifyCaptcha } from "./support/recaptcha.mjs";
 import {
   airTableApiUrl,
   postToAirTable,
-  airTableProcessError
+  airTableProcessError,
+  getRequestInit
 } from "./support/airTable.mjs";
 import { getServerConfigByHost } from "./support/serverList.mjs";
 const captchaKey = "g-recaptcha-response";
@@ -122,13 +123,7 @@ export default async function (httpRequest, context) {
           };
 
           // Get table info from airtable API
-          /** @type { import("node-fetch").RequestInit } */
-          const infoRequest = {
-            method: "GET",
-            headers: {
-              Authorization: `Bearer ${PersonalAccessToken}`
-            }
-          };
+          const infoRequest = getRequestInit(PersonalAccessToken);
 
           const result = await fetch(
             `${airTableApiUrl}/meta/bases/${serverConfig.airtableBaseId}/tables`,
