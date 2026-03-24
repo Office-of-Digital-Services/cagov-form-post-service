@@ -10,6 +10,7 @@
   "parser": "@babel/eslint-parser",
   "parserOptions": {
     "requireConfigFile": false,
+    "sourceType": "module",
     "babelOptions": {
       "plugins": ["@babel/plugin-syntax-import-assertions"]
     }
@@ -32,13 +33,20 @@
     "no-useless-computed-key": "warn",
     "no-useless-concat": "warn",
     "no-useless-return": "warn",
-    "no-var": "warn",
+    "no-var": "error",
     "operator-assignment": "warn",
     "prefer-arrow-callback": "warn",
-    "prefer-const": "warn",
+    "prefer-const": "error",
     "prefer-template": "warn",
     "semi": "warn",
     "yoda": "warn",
+    "no-restricted-syntax": [
+      "error",
+      {
+        "selector": "CallExpression[callee.name='require']",
+        "message": "Use ESM imports instead of require()"
+      }
+    ],
     "jsdoc/require-jsdoc": "off",
     "jsdoc/require-returns": "off",
     "jsdoc/require-property-description": "off",
