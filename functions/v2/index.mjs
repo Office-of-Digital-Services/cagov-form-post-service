@@ -67,7 +67,7 @@ export default async function (httpRequest, context) {
       contentType.includes("application/json")
     ) {
       // Valid POST with Json content
-      const host = httpRequest.headers.get("host") || "";
+      const host = httpRequest.headers.get("origin") || "";
 
       console.log("Using server config for host:", host);
 
