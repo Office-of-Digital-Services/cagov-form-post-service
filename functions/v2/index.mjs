@@ -42,6 +42,7 @@ export default async function (httpRequest, context) {
    * @param {number} [responseStatus]
    */
   const errorResponse = (type, message, responseStatus = 500) => {
+    console.warn(`Error Response - ${type}:`, message);
     httpResponse.jsonBody = {
       error: {
         type,
@@ -51,25 +52,29 @@ export default async function (httpRequest, context) {
 
     httpResponse.headers["Content-Type"] = "application/json";
     httpResponse.status = responseStatus;
-    console.warn(`Error Response - ${type}:`, message);
+
     return httpResponse;
   };
 
   try {
-    const serverConfig = getServerConfigByHost(
-      httpRequest.headers.get("host") || ""
-    ); // Validate host and get server config, will throw if invalid
+    console.log("Received request with method:", httpRequest.method);
 
     const contentType =
       httpRequest.headers.get("content-type")?.trim().toLowerCase() || "";
-
-    const PersonalAccessToken = serverConfig.airtableToken;
 
     if (
       httpRequest.method === "POST" &&
       contentType.includes("application/json")
     ) {
       // Valid POST with Json content
+      const host = httpRequest.headers.get("host") || "";
+
+      console.log("Using server config for host:", host);
+
+      const serverConfig = getServerConfigByHost(host); // Validate host and get server config, will throw if invalid
+      const PersonalAccessToken = serverConfig.airtableToken;
+
+      console.log("Parsed server config successfully.");
 
       const requestBody = /** @type {[string, string][]} */ (
         await httpRequest.json()
@@ -125,10 +130,17 @@ export default async function (httpRequest, context) {
           // Get table info from airtable API
           const infoRequest = getRequestInit(PersonalAccessToken);
 
+          console.log(
+            "Fetching Airtable base and table information for Base ID:",
+            serverConfig.airtableBaseId
+          );
+
           const result = await fetch(
             `${airTableApiUrl}/meta/bases/${serverConfig.airtableBaseId}/tables`,
             infoRequest
           );
+
+          console.log("Airtable response status:", result.status);
 
           if (!result.ok) {
             return errorResponse(
@@ -181,6 +193,8 @@ export default async function (httpRequest, context) {
             return fields;
           };
 
+          console.log("Converting form data to Airtable fields format.");
+
           const fields = convertFormDataToFields();
           if (fields) {
             const fetchResponse = await postToAirTable(
@@ -207,6 +221,7 @@ export default async function (httpRequest, context) {
           }
         } else {
           // Failed captcha
+          console.log("Failed Captcha verification");
           return errorResponse(
             "Captcha failed",
             `Failed human detection. Error Codes ${JSON.stringify(fetchResponse_captcha["error-codes"])}`,
@@ -217,7 +232,7 @@ export default async function (httpRequest, context) {
     } else {
       // NOT POST
       //res.set("X-Robots-Tag", "noindex"); //For preventing search indexing
-
+      console.log("redirect to Root");
       // Redirect to root as HTTP - GET.
       httpResponse.status = 302;
       httpResponse.headers = { location: "/" };

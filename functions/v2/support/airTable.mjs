@@ -81,6 +81,10 @@ const airTableProcessError = async fetchResponse => {
     );
   }
 
+  console.error(
+    `Airtable API error: ${fetchResponse.status} ${fetchResponse.statusText}`
+  );
+
   const json = /** @type {AirTableErrorResponse} */ (
     await fetchResponse.json()
   );
