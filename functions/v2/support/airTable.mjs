@@ -74,4 +74,19 @@ function postToAirTable(
   );
 }
 
-export { postToAirTable, airTableApiUrl };
+/**
+ * @param {import("node-fetch").Response} fetchResponse
+ */
+const airTableProcessError = async fetchResponse => {
+  if (fetchResponse.ok) {
+    throw new Error(
+      `Expected error response, got success: ${fetchResponse.status}`
+    );
+  }
+
+  const json = /** @type {{ error: string }} */ (await fetchResponse.json());
+
+  return json;
+};
+
+export { postToAirTable, airTableApiUrl, airTableProcessError };

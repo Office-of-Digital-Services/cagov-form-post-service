@@ -2,7 +2,11 @@
 import fetch from "node-fetch";
 import { validateInputJson } from "./support/JsonValidate.mjs";
 import { verifyCaptcha } from "./support/recaptcha.mjs";
-import { airTableApiUrl, postToAirTable } from "./support/airTable.mjs";
+import {
+  airTableApiUrl,
+  postToAirTable,
+  airTableProcessError
+} from "./support/airTable.mjs";
 import { getServerConfigByHost } from "./support/serverList.mjs";
 const captchaKey = "g-recaptcha-response";
 
@@ -25,7 +29,7 @@ export default async function (httpRequest, context) {
   const httpResponse = {
     /** @type {Record<string, string>} */
     headers: {},
-    status: 200,
+    status: 500,
     /** @type {*} */
     jsonBody: undefined
   };
@@ -130,13 +134,20 @@ export default async function (httpRequest, context) {
             infoRequest
           );
 
+          if (!result.ok) {
+            const error = await airTableProcessError(result);
+
+            return errorResponse(
+              "Base Not Found",
+              `Base ID '${serverConfig.airtableBaseId}' not found. Error = '${error.error}'`,
+              422 // Unprocessable Entity
+            );
+          }
+
           const tablesInfo =
             /** @type {import("./support/airTable.mjs").TablesInfo} */ (
               await airTableProcessResponse(result)
             );
-          if (!tablesInfo.tables) {
-            return tablesInfo; // Actually an error response
-          }
 
           const myTable = tablesInfo.tables.find(
             table =>
