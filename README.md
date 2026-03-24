@@ -129,3 +129,13 @@ All relevant links will be running at
 Running Sample will be found at
 
     http://localhost:12345/sample/
+
+## Azure DevOps Locations
+
+- https://calenterprise.visualstudio.com/CDT.beta.template.webtools.website/_build
+- https://calenterprise.visualstudio.com/CDT.beta.template.webtools.website/_release
+
+## Azure Locations
+
+- [Stage (fa-cdt-pub-migr-betaws-w-p-001/Stage)](https://portal.azure.com/#@digitalca.onmicrosoft.com/resource/subscriptions/005fa005-b981-47d8-8b39-5b82adf6569c/resourceGroups/rg-cdt-pub-migr-webstandards-w-p-001/providers/Microsoft.Web/sites/fa-cdt-pub-migr-betaws-w-p-001/slots/Stage/appServices)
+- [fa-cdt-pub-migr-betaws-w-p-001](https://portal.azure.com/#@digitalca.onmicrosoft.com/resource/subscriptions/005fa005-b981-47d8-8b39-5b82adf6569c/resourceGroups/RG-CDT-PUB-MIGR-WebStandards-W-P-001/providers/Microsoft.Web/sites/fa-cdt-pub-migr-betaws-w-p-001/appServices)
