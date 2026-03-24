@@ -45,6 +45,11 @@ const airTableApiUrl = "https://api.airtable.com/v0";
  */
 
 /**
+ * @typedef {object} AirTableErrorResponse
+ * @property {string | {type:string,message:string}} error - The error message from Airtable.
+ */
+
+/**
  * @param {string} PersonalAccessToken
  * @param {string} airTableBaseId
  * @param {string} airTableTableIdOrName
@@ -84,7 +89,9 @@ const airTableProcessError = async fetchResponse => {
     );
   }
 
-  const json = /** @type {{ error: string }} */ (await fetchResponse.json());
+  const json = /** @type {AirTableErrorResponse} */ (
+    await fetchResponse.json()
+  );
 
   return json;
 };

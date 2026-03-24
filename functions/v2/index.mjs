@@ -200,13 +200,15 @@ export default async function (httpRequest, context) {
               httpResponse.status = 204; // No Content
             } else {
               // Airtable API error
+              const error = await airTableProcessError(fetchResponse);
+
               const responseContentType =
                 fetchResponse.headers.get("content-type");
               if (responseContentType)
                 httpResponse.headers["Content-Type"] = responseContentType;
 
               httpResponse.status = fetchResponse.status;
-              httpResponse.jsonBody = await fetchResponse.json();
+              httpResponse.jsonBody = error;
             }
           }
         } else {
