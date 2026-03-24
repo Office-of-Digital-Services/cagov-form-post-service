@@ -16,7 +16,7 @@ app.http("default", {
 
 app.http("v2Options", {
   methods: ["OPTIONS"],
-  route: "v2/{*path}",
+  route: "api/v2",
   handler: async () => {
     return {
       status: 204,
