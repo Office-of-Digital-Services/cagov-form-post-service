@@ -98,7 +98,6 @@ const airTableProcessError = async fetchResponse => {
  * @param {string} PersonalAccessToken
  * @param {"GET" | "POST"} method
  * @param {*} [body]
- * @returns {import("node-fetch").RequestInit}
  */
 const getRequestInit = (
   PersonalAccessToken,
