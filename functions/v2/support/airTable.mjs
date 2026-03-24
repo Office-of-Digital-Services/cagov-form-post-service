@@ -46,7 +46,7 @@ const airTableApiUrl = "https://api.airtable.com/v0";
 
 /**
  * @typedef {object} AirTableErrorResponse
- * @property {string | {type:string,message:string}} error - The error message from Airtable.
+ * @property {{type: string, message: string}} error - The error message from Airtable.
  */
 
 /**
@@ -92,6 +92,11 @@ const airTableProcessError = async fetchResponse => {
   const json = /** @type {AirTableErrorResponse} */ (
     await fetchResponse.json()
   );
+
+  if (!json.error.type) {
+    // Handles unexpected error format
+    json.error = { type: "UnknownError", message: json.error.toString() };
+  }
 
   return json;
 };

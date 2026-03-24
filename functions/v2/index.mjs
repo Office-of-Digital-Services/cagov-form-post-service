@@ -107,17 +107,18 @@ export default async function (httpRequest, context) {
             if (responseContentType)
               httpResponse.headers["Content-Type"] = responseContentType;
 
-            /** @type {*} */
-            const json = await fetchResponse.json();
+            if (fetchResponse.ok) {
+              return await fetchResponse.json();
+            } else {
+              // Airtable API error
+              const error = await airTableProcessError(fetchResponse);
 
-            if (json.error) {
               return errorResponse(
-                `Airtable Error - ${json.error.type}`,
-                json.error.message,
+                `Airtable Error - ${error.error.type}`,
+                error.error.message,
                 fetchResponse.status
               );
             }
-            return json;
           };
 
           // Get table info from airtable API
@@ -135,11 +136,9 @@ export default async function (httpRequest, context) {
           );
 
           if (!result.ok) {
-            const error = await airTableProcessError(result);
-
             return errorResponse(
               "Base Not Found",
-              `Base ID '${serverConfig.airtableBaseId}' not found. Error = '${error.error}'`,
+              `Base ID '${serverConfig.airtableBaseId}' not found.`,
               422 // Unprocessable Entity
             );
           }
