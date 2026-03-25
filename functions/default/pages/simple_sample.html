@@ -1,0 +1,112 @@
+<html>
+  <head>
+    <script src="https://www.google.com/recaptcha/api.js" defer></script>
+    <script>
+      const serviceUrl = "https://fa-cdt-pub-migr-betaws-w-p-001-stage.azurewebsites.net/api/v2";
+      //const serviceUrl = "http://localhost:12345/api/v2";
+
+      const siteKey = "6Lcf3GYjAAAAAGPae1QeEf0jJ8xjTwrwPAHOhZIJ"; // Set this to your recaptch site key
+    </script>
+    <style>
+      body {
+        font-family: "Open Sans", sans-serif;
+        padding: 20px;
+      }
+
+      input,
+      select {
+        display: block;
+        margin-bottom: 10px;
+        padding: 5px;
+        width: 600px;
+      }
+
+      label {
+        font-weight: 600;
+        margin-top: 15px;
+      }
+    </style>
+  </head>
+  <body>
+    <form autocomplete="on" method="POST" id="ContactUsForm" role="form">
+      <label class="form-control-label m-t-md" for="InputName">
+        Your name
+      </label>
+      <input
+        autofocus
+        type="text"
+        id="InputName"
+        name="My Name"
+        autocomplete="name"
+        required
+        aria-required="true"
+        size="65"
+        maxlength="150"
+        minlength="1"
+        role="textbox"
+        value="Test Name" />
+      <div class="mt-2 invalid-feedback font-weight-600 d-block">
+        Enter your name
+      </div>
+
+      <label for="InputNumber">A Number</label>
+      <input
+        type="number"
+        id="InputNumber"
+        name="My Number"
+        required
+        aria-required="true"
+        role="textbox"
+        value="12345" />
+      <div class="mt-2 invalid-feedback font-weight-600 d-block">
+        Enter a number
+      </div>
+
+      <label for="InputEmail"> Email </label>
+      <input
+        type="email"
+        id="InputEmail"
+        name="My Email"
+        autocomplete="email"
+        required
+        aria-required="true"
+        size="65"
+        maxlength="250"
+        minlength="1"
+        role="textbox"
+        value="test@test.com" />
+      <div>Enter a valid email. Example: name@email.com</div>
+
+      <label for="InputDate">Date</label>
+      <input
+        type="date"
+        id="InputDate"
+        name="My Date"
+        autocomplete="bday"
+        required
+        aria-required="true"
+        role="textbox"
+        value="2024-06-01" />
+      <div class="mt-2 invalid-feedback font-weight-600 d-block">
+        Enter a valid date.
+      </div>
+
+      <label for="InputOption">Select an option</label>
+
+      <select id="InputOption" name="My Option">
+        <option value="">Select an option</option>
+        <option value="Option 1" selected>Option 1</option>
+        <option value="Option 2">Option 2</option>
+        <option value="Option 3">Option 3</option>
+        <option value="Invalid">Invalid Option</option>
+      </select>
+
+      <input type="submit" value="Submit" />
+
+      <button
+        data-sitekey=""
+        data-callback="recaptchaCallback"
+        data-action="submit"></button>
+    </form>
+  </body>
+</html>

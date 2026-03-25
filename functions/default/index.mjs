@@ -27,16 +27,17 @@ export default async function (req, context) {
       res.headers["Cache-Control"] = "max-age=2592000"; //1 month
 
       break;
-    case "index":
-    case "sample":
-    case "success":
-      res.body = fs.readFileSync(`${__dirname}/${file}.html`, "utf8");
+    default: {
+      const filePath = `${__dirname}/pages/${file}.html`;
 
-      res.headers["Content-Type"] = "text/html";
-      break;
-    default:
-      res.body = `File not found - ${file}`;
-      res.status = 404;
+      if (fs.existsSync(filePath)) {
+        res.body = fs.readFileSync(filePath, "utf8");
+        res.headers["Content-Type"] = "text/html";
+      } else {
+        res.body = `File not found - ${file}`;
+        res.status = 404;
+      }
+    }
   }
   return res;
 }
