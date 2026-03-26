@@ -16,36 +16,21 @@
       const siteKey = "6Lcf3GYjAAAAAGPae1QeEf0jJ8xjTwrwPAHOhZIJ"; // Set this to your recaptch site key
     </script>
 
-    <div id="main-content" class="main-content">
-      <div class="container p-t-md p-b-lg">
-        <h1 class="m-t-0">Contact us</h1>
+    <div>
+      <div>
+        <h1>Contact us</h1>
         <p>
           Have a question? Contact us for help with general inquiries, feedback,
           or bugs.
         </p>
-        <div class="row">
-          <div class="col-lg-8">
+        <div>
+          <div>
             <form
               autocomplete="on"
               method="POST"
               id="ContactUsForm"
               role="form">
-              <div
-                class="alert alert-danger alert-banner brd-0 brd-red p-l m-t-md"
-                role="alert">
-                <span
-                  class="alert-icon ca-gov-icon-warning-diamond color-red"
-                  aria-hidden="true"></span>
-                <div class="container m-l-md">
-                  <span class="alert-text gray-900 font-weight-600">
-                    Correct the errors to continue
-                  </span>
-                </div>
-              </div>
-              <label class="form-control-label m-t-md" for="InputName">
-                Your name
-                <span class="required-label" aria-hidden="true">*</span>
-              </label>
+              <label for="InputName"> Your name </label>
               <input
                 autofocus
                 type="text"
@@ -64,10 +49,7 @@
                 Enter your name
               </div>
 
-              <label class="form-control-label m-t-md" for="InputNumber">
-                A Number
-                <span class="required-label" aria-hidden="true">*</span>
-              </label>
+              <label for="InputNumber"> A Number </label>
               <input
                 type="number"
                 class="form-control rounded-5"
@@ -81,10 +63,7 @@
                 Enter a number
               </div>
 
-              <label class="form-control-label m-t-lg" for="InputEmail">
-                Email
-                <span class="required-label" aria-hidden="true">*</span>
-              </label>
+              <label for="InputEmail"> Email </label>
               <input
                 type="email"
                 class="form-control rounded-5"
@@ -102,10 +81,7 @@
                 Enter a valid email. Example: name@email.com
               </div>
 
-              <label class="form-control-label m-t-lg" for="InputDate">
-                Date
-                <span class="required-label" aria-hidden="true">*</span>
-              </label>
+              <label for="InputDate"> Date </label>
               <input
                 type="date"
                 class="form-control rounded-5"
@@ -120,15 +96,9 @@
                 Enter a valid date.
               </div>
 
-              <label class="form-control-label  m-t-lg" for="InputOption">
-                Select an option
-                <span class="required-label" aria-hidden="true">*</span>
-              </label>
+              <label for="InputOption"> Select an option </label>
 
-              <select
-                class="form-select form-select-lg mb-3"
-                id="InputOption"
-                name="My Option">
+              <select id="InputOption" name="My Option">
                 <option value="">Select an option</option>
                 <option value="Option 1" selected>Option 1</option>
                 <option value="Option 2">Option 2</option>
@@ -136,13 +106,10 @@
                 <option value="Invalid">Invalid</option>
               </select>
 
-              <input
-                type="submit"
-                value="Submit"
-                class="btn btn-primary m-t-lg" />
+              <input type="submit" value="Submit" />
 
               <button
-                class="g-recaptcha hidden"
+                class="g-recaptcha"
                 data-sitekey=""
                 data-callback="recaptchaCallback"
                 data-action="submit"></button>
@@ -153,15 +120,18 @@
     </div>
 
     <script>
-      document.querySelector("button.g-recaptcha").dataset.sitekey = siteKey;
-
       window.addEventListener("load", () => {
-
         getForm().addEventListener("submit", submitForm);
         getSubmitButton().addEventListener("click", () =>
           getForm().setAttribute("submit_attempted", "")
         );
       });
+
+      function getRecaptcha() {
+         return /** @type { HTMLButtonElement } */ (
+          getForm().querySelector("button.g-recaptcha")
+        );
+      }
 
       function getForm() {
         return /** @type {HTMLFormElement} */ (
@@ -175,10 +145,10 @@
         );
       }
 
-
+      getRecaptcha().dataset.sitekey = siteKey;
 
       function triggerRecaptcha() {
-        document.querySelector(".g-recaptcha").click(); //will trigger recaptchaCallback when complete
+        getRecaptcha().click(); //will trigger recaptchaCallback when complete
       }
 
       async function submitForm(/** @type { SubmitEvent } */ e) {
