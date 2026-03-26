@@ -5,83 +5,42 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Simple Sample AirTable Submit</title>
     <link rel="icon" href="data:," />
-    <script src="https://www.google.com/recaptcha/api.js" defer></script>
+
     <script>
       var recaptchaSiteKey = "6Lcf3GYjAAAAAGPae1QeEf0jJ8xjTwrwPAHOhZIJ"; // Set this to your recaptcha site key
-      var formPostServiceUrl = "https://fa-cdt-pub-migr-betaws-w-p-001-stage.azurewebsites.net/api/v2"; // Dev Form Post Service URL
-      //var formPostServiceUrl = "http://localhost:12345/api/v2"; // Local Host Service URL
+        //var formPostServiceUrl = "https://fa-cdt-pub-migr-betaws-w-p-001-stage.azurewebsites.net/api/v2"; // Dev Form Post Service URL
+      var formPostServiceUrl = "http://localhost:12345/api/v2"; // Local Host Service URL
 
-      /** @type { HTMLButtonElement } */
-      var recaptchaButton;
       window.addEventListener("DOMContentLoaded", () => {
-        // Dynamically add the invisible reCAPTCHA v3 button to the form.
-        if (!recaptchaButton) {
-          recaptchaButton = document.createElement("button");
-          recaptchaButton.ariaHidden = "true";
-          recaptchaButton.type = "button";
-          recaptchaButton.hidden = true;
-          recaptchaButton.setAttribute("data-sitekey", recaptchaSiteKey);
-          recaptchaButton.setAttribute("data-callback", "recaptchaCallback");
-          recaptchaButton.setAttribute("data-action", "submit");
-          recaptchaButton.classList.add("g-recaptcha");
-          getForm().appendChild(recaptchaButton);
-          getForm().addEventListener("submit", submitForm);
-        }
-      });
+        const form = document.getElementById("mySampleForm");
+        form.action = formPostServiceUrl;
 
-      function getForm() {
-        return /** @type {HTMLFormElement} */ (
-          document.querySelector("#mySampleForm")
-        );
-      }
+        form.addEventListener("submit", function (e) {
+          e.preventDefault(); // stop native submission for a moment
 
-      function getSubmitButton() {
-        return /** @type { HTMLButtonElement } */ (
-          getForm().querySelector("input[type=submit]")
-        );
-      }
 
-      async function submitForm(/** @type { SubmitEvent } */ e) {
-        e.preventDefault();
 
-        getSubmitButton().disabled = true;
-        setTimeout(() => (getSubmitButton().disabled = false), 5000);
+          grecaptcha.execute().then(function(token) {
 
-        // Trigger the invisible reCAPTCHA v3 flow.
-        // This will call recaptchaCallback() when complete.
-        recaptchaButton.click();
-      }
-      function recaptchaCallback() {
-        /** @type { RequestInit } */
-        const request = {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json"
-          },
-          body: JSON.stringify([...new FormData(getForm())])
-        };
+            document.getElementById("recaptchaToken").value = token;
 
-        fetch(formPostServiceUrl, request)
-          .then(async response => {
-            if (response.ok) {
-              console.log("Form submitted successfully");
-              alert("Form submitted successfully!");
-              return;
-            }
-
-            throw new Error(await response.text());
-          })
-          .catch(error => {
-            console.error(error);
-            alert("Form submission failed. See console for details.");
+            // Now that the token is injected, submit natively
+            form.submit();
           });
-      }
+        });
+      });
     </script>
   </head>
   <body>
     <main>
       <h1>Simple Sample Form with HTML5 validators</h1>
-      <form autocomplete="on" id="mySampleForm">
+      <form autocomplete="on" id="mySampleForm" method="post">
+        <button
+          class="g-recaptcha"
+          data-sitekey="6Lcf3GYjAAAAAGPae1QeEf0jJ8xjTwrwPAHOhZIJ"
+          data-action="submit"
+          hidden></button>
+        <input type="hidden" name="recaptchaToken" id="recaptchaToken" />
         <p>
           <label for="InputName">Your name</label>
           <input
@@ -140,5 +99,6 @@
         <input type="submit" value="Submit" />
       </form>
     </main>
+    <script src="https://www.google.com/recaptcha/api.js" async defer></script>
   </body>
 </html>
