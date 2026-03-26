@@ -7,10 +7,23 @@
     <link rel="icon" href="data:," />
     <script src="https://www.google.com/recaptcha/api.js" defer></script>
     <script>
-      const serviceUrl = "https://fa-cdt-pub-migr-betaws-w-p-001-stage.azurewebsites.net/api/v2";
-      //const serviceUrl = "http://localhost:12345/api/v2";
+      window.serviceUrl = "https://fa-cdt-pub-migr-betaws-w-p-001-stage.azurewebsites.net/api/v2";
+      //window.serviceUrl = "http://localhost:12345/api/v2";
 
-      const siteKey = "6Lcf3GYjAAAAAGPae1QeEf0jJ8xjTwrwPAHOhZIJ"; // Set this to your recaptch site key
+      window.addEventListener("DOMContentLoaded", () => {
+        const siteKey = "6Lcf3GYjAAAAAGPae1QeEf0jJ8xjTwrwPAHOhZIJ"; // Set this to your recaptch site key
+
+        // Dynamically add the invisible reCAPTCHA v3 button to the form.
+        const recaptchaButton = document.createElement("button");
+        recaptchaButton.ariaHidden = "true";
+        recaptchaButton.hidden = true;
+        recaptchaButton.dataset.sitekey = siteKey;
+        recaptchaButton.dataset.callback = "recaptchaCallback";
+        recaptchaButton.dataset.action = "submit";
+        recaptchaButton.classList.add("g-recaptcha");
+        getForm().appendChild(recaptchaButton);
+        getForm().addEventListener("submit", submitForm);
+      });
 
       function getRecaptcha() {
         return /** @type { HTMLButtonElement } */ (
@@ -20,7 +33,7 @@
 
       function getForm() {
         return /** @type {HTMLFormElement} */ (
-          document.getElementById("ContactUsForm")
+          document.querySelector("form")
         );
       }
 
@@ -36,9 +49,10 @@
         getSubmitButton().disabled = true;
         setTimeout(() => (getSubmitButton().disabled = false), 5000);
 
-        getRecaptcha().click(); //will trigger recaptchaCallback when complete
+        // Trigger the invisible reCAPTCHA v3 flow.
+        // This will call recaptchaCallback() when complete.
+        getRecaptcha().click();
       }
-
       function recaptchaCallback() {
         /** @type { RequestInit } */
         const request = {
@@ -49,7 +63,7 @@
           body: JSON.stringify([...new FormData(getForm())])
         };
 
-        fetch(serviceUrl, request)
+        fetch(window.serviceUrl, request)
           .then(async response => {
             if (response.ok) {
               console.log("Form submitted successfully");
@@ -63,24 +77,12 @@
             alert("Form submission failed. See console for details.");
           });
       }
-
-      window.addEventListener("DOMContentLoaded", () => {
-        const recaptchaButton = document.createElement("button");
-        recaptchaButton.ariaHidden = "true";
-        recaptchaButton.hidden = true;
-        recaptchaButton.dataset.sitekey = siteKey;
-        recaptchaButton.dataset.callback = "recaptchaCallback";
-        recaptchaButton.dataset.action = "submit";
-        recaptchaButton.classList.add("g-recaptcha");
-        getForm().appendChild(recaptchaButton);
-        getForm().addEventListener("submit", submitForm);
-      });
     </script>
   </head>
   <body>
     <main>
       <h1>Simple Sample Form with HTML5 validators</h1>
-      <form autocomplete="on" method="POST" id="ContactUsForm">
+      <form autocomplete="on">
         <p>
           <label for="InputName">Your name</label>
           <input
@@ -123,7 +125,6 @@
             type="date"
             id="InputDate"
             name="My Date"
-            autocomplete="bday"
             required
             value="2024-06-01" />
         </p>
