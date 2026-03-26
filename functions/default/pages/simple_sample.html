@@ -7,29 +7,27 @@
     <link rel="icon" href="data:," />
     <script src="https://www.google.com/recaptcha/api.js" defer></script>
     <script>
-      window.recaptchaSiteKey = "6Lcf3GYjAAAAAGPae1QeEf0jJ8xjTwrwPAHOhZIJ"; // Set this to your recaptcha site key
-      window.serviceUrl = "https://fa-cdt-pub-migr-betaws-w-p-001-stage.azurewebsites.net/api/v2"; // Dev Form Post Service URL
-      //window.serviceUrl = "http://localhost:12345/api/v2"; // Local Host Service URL
+      var recaptchaSiteKey = "6Lcf3GYjAAAAAGPae1QeEf0jJ8xjTwrwPAHOhZIJ"; // Set this to your recaptcha site key
+      var serviceUrl = "https://fa-cdt-pub-migr-betaws-w-p-001-stage.azurewebsites.net/api/v2"; // Dev Form Post Service URL
+      //var serviceUrl = "http://localhost:12345/api/v2"; // Local Host Service URL
 
+      /** @type { HTMLButtonElement } */
+      var recaptchaButton;
       window.addEventListener("DOMContentLoaded", () => {
         // Dynamically add the invisible reCAPTCHA v3 button to the form.
-        const recaptchaButton = document.createElement("button");
-        recaptchaButton.ariaHidden = "true";
-        recaptchaButton.type = "button";
-        recaptchaButton.hidden = true;
-        recaptchaButton.dataset.sitekey = window.recaptchaSiteKey;
-        recaptchaButton.dataset.callback = "recaptchaCallback";
-        recaptchaButton.dataset.action = "submit";
-        recaptchaButton.classList.add("g-recaptcha");
-        getForm().appendChild(recaptchaButton);
-        getForm().addEventListener("submit", submitForm);
+        if (!recaptchaButton) {
+          recaptchaButton = document.createElement("button");
+          recaptchaButton.ariaHidden = "true";
+          recaptchaButton.type = "button";
+          recaptchaButton.hidden = true;
+          recaptchaButton.setAttribute("data-sitekey", recaptchaSiteKey);
+          recaptchaButton.setAttribute("data-callback", "recaptchaCallback");
+          recaptchaButton.setAttribute("data-action", "submit");
+          recaptchaButton.classList.add("g-recaptcha");
+          getForm().appendChild(recaptchaButton);
+          getForm().addEventListener("submit", submitForm);
+        }
       });
-
-      function getRecaptcha() {
-        return /** @type { HTMLButtonElement } */ (
-          getForm().querySelector("button.g-recaptcha")
-        );
-      }
 
       function getForm() {
         return /** @type {HTMLFormElement} */ (
@@ -51,7 +49,7 @@
 
         // Trigger the invisible reCAPTCHA v3 flow.
         // This will call recaptchaCallback() when complete.
-        getRecaptcha().click();
+        recaptchaButton.click();
       }
       function recaptchaCallback() {
         /** @type { RequestInit } */
@@ -63,7 +61,7 @@
           body: JSON.stringify([...new FormData(getForm())])
         };
 
-        fetch(window.serviceUrl, request)
+        fetch(serviceUrl, request)
           .then(async response => {
             if (response.ok) {
               console.log("Form submitted successfully");

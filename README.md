@@ -139,3 +139,16 @@ Running Sample will be found at
 
 - [Stage (fa-cdt-pub-migr-betaws-w-p-001/Stage)](https://portal.azure.com/#@digitalca.onmicrosoft.com/resource/subscriptions/005fa005-b981-47d8-8b39-5b82adf6569c/resourceGroups/rg-cdt-pub-migr-webstandards-w-p-001/providers/Microsoft.Web/sites/fa-cdt-pub-migr-betaws-w-p-001/slots/Stage/appServices)
 - [fa-cdt-pub-migr-betaws-w-p-001](https://portal.azure.com/#@digitalca.onmicrosoft.com/resource/subscriptions/005fa005-b981-47d8-8b39-5b82adf6569c/resourceGroups/RG-CDT-PUB-MIGR-WebStandards-W-P-001/providers/Microsoft.Web/sites/fa-cdt-pub-migr-betaws-w-p-001/appServices)
+
+## Airtable Personal access tokens
+
+Create them [https://airtable.com/create/tokens](here)
+
+## Get you Airtable base and table ids
+
+When you are looking at your Airtable, the URL has that information
+
+    https://airtable.com/appXXXXXXXX/tblYYYYYYYY/
+
+appXXXXXXXX - Your Base ID  
+tblYYYYYYYY - Your Table ID
