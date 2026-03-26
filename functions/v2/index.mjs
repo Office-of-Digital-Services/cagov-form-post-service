@@ -1,6 +1,5 @@
 //@ts-check
 import fetch from "node-fetch";
-import { validateInputJson } from "./support/JsonValidate.mjs";
 import { verifyCaptcha } from "./support/recaptcha.mjs";
 import {
   airTableApiUrl,
@@ -59,13 +58,7 @@ export default async function (httpRequest, context) {
   try {
     console.log("Received request with method:", httpRequest.method);
 
-    const contentType =
-      httpRequest.headers.get("content-type")?.trim().toLowerCase() || "";
-
-    if (
-      httpRequest.method === "POST" &&
-      contentType.includes("application/json")
-    ) {
+    if (httpRequest.method === "POST") {
       // Valid POST with Json content
       const host = httpRequest.headers.get("origin") || "";
 
@@ -76,156 +69,147 @@ export default async function (httpRequest, context) {
 
       console.log("Parsed server config successfully.");
 
-      const requestBody = /** @type {[string, string][]} */ (
-        await httpRequest.json()
+      const form = await httpRequest.formData();
+      // Convert to a simple array of [name, value]
+      const requestBody = [...form.entries()].map(([name, value]) => [
+        name,
+        value.toString()
+      ]);
+
+      /** @type {{ [key: string]: string }} */
+      const requestNameValues = Object.fromEntries(requestBody);
+
+      //verify captcha
+      const fetchResponse_captcha = await verifyCaptcha(
+        serverConfig.recaptchaSecret,
+        requestNameValues[captchaKey]
       );
 
-      // Validate input
-      const validationErrors = validateInputJson(requestBody);
-      if (validationErrors) {
-        // Failed validation
-        return errorResponse(
-          "JSON validation failed",
-          validationErrors,
-          422 // Unprocessable Entity
+      delete requestNameValues[captchaKey]; // No need to keep this around
+
+      if (fetchResponse_captcha.success) {
+        // captcha is good, post to database
+
+        /**
+         * @param {import("node-fetch").Response} fetchResponse
+         */
+        const airTableProcessResponse = async fetchResponse => {
+          const responseContentType = fetchResponse.headers.get("content-type");
+          if (responseContentType)
+            httpResponse.headers["Content-Type"] = responseContentType;
+
+          if (fetchResponse.ok) {
+            return await fetchResponse.json();
+          } else {
+            // Airtable API error
+            const error = await airTableProcessError(fetchResponse);
+
+            return errorResponse(
+              `Airtable Error - ${error.error.type}`,
+              error.error.message,
+              fetchResponse.status
+            );
+          }
+        };
+
+        // Get table info from airtable API
+        const infoRequest = getRequestInit(PersonalAccessToken);
+
+        console.log(
+          "Fetching Airtable base and table information for Base ID:",
+          serverConfig.airtableBaseId
         );
-      } else {
-        /** @type {{ [key: string]: string }} */
-        const requestNameValues = Object.fromEntries(requestBody);
 
-        //verify captcha
-        const fetchResponse_captcha = await verifyCaptcha(
-          serverConfig.recaptchaSecret,
-          requestNameValues[captchaKey]
+        const result = await fetch(
+          `${airTableApiUrl}/meta/bases/${serverConfig.airtableBaseId}/tables`,
+          infoRequest
         );
 
-        delete requestNameValues[captchaKey]; // No need to keep this around
+        console.log("Airtable response status:", result.status);
 
-        if (fetchResponse_captcha.success) {
-          // captcha is good, post to database
+        if (!result.ok) {
+          return errorResponse(
+            "Base Not Found",
+            `Base ID '${serverConfig.airtableBaseId}' not found. Is schema.bases:read present in the token's scopes?`,
+            422 // Unprocessable Entity
+          );
+        }
 
-          /**
-           * @param {import("node-fetch").Response} fetchResponse
-           */
-          const airTableProcessResponse = async fetchResponse => {
+        const tablesInfo =
+          /** @type {import("./support/airTable.mjs").TablesInfo} */ (
+            await airTableProcessResponse(result)
+          );
+
+        const myTable = tablesInfo.tables.find(
+          table =>
+            table.id === serverConfig.airtableTable ||
+            table.name === serverConfig.airtableTable
+        );
+        if (!myTable) {
+          return errorResponse(
+            "Table Not Found",
+            `Table with ID or Name '${serverConfig.airtableTable}' not found in base '${serverConfig.airtableBaseId}'`,
+            422 // Unprocessable Entity
+          );
+        }
+
+        const convertFormDataToFields = () => {
+          const formData = requestNameValues;
+
+          /** @type {{ [key: string]: string | number }} */
+          const fields = {};
+
+          for (const key of Object.keys(formData)) {
+            const metaField = myTable.fields.find(f => f.name === key);
+            if (metaField) {
+              const isNumberfield = metaField.type === "number";
+
+              fields[key] = isNumberfield
+                ? Number(formData[key])
+                : formData[key];
+            } else {
+              throw new Error(
+                `Field with name '${key}' not found in table '${myTable.name}'.`
+              );
+            }
+          }
+          return fields;
+        };
+
+        console.log("Converting form data to Airtable fields format.");
+
+        const fields = convertFormDataToFields();
+        if (fields) {
+          const fetchResponse = await postToAirTable(
+            PersonalAccessToken,
+            serverConfig.airtableBaseId,
+            serverConfig.airtableTable,
+            fields
+          );
+
+          if (fetchResponse.ok) {
+            httpResponse.status = 204; // No Content
+          } else {
+            // Airtable API error
+            const error = await airTableProcessError(fetchResponse);
+
             const responseContentType =
               fetchResponse.headers.get("content-type");
             if (responseContentType)
               httpResponse.headers["Content-Type"] = responseContentType;
 
-            if (fetchResponse.ok) {
-              return await fetchResponse.json();
-            } else {
-              // Airtable API error
-              const error = await airTableProcessError(fetchResponse);
-
-              return errorResponse(
-                `Airtable Error - ${error.error.type}`,
-                error.error.message,
-                fetchResponse.status
-              );
-            }
-          };
-
-          // Get table info from airtable API
-          const infoRequest = getRequestInit(PersonalAccessToken);
-
-          console.log(
-            "Fetching Airtable base and table information for Base ID:",
-            serverConfig.airtableBaseId
-          );
-
-          const result = await fetch(
-            `${airTableApiUrl}/meta/bases/${serverConfig.airtableBaseId}/tables`,
-            infoRequest
-          );
-
-          console.log("Airtable response status:", result.status);
-
-          if (!result.ok) {
-            return errorResponse(
-              "Base Not Found",
-              `Base ID '${serverConfig.airtableBaseId}' not found. Is schema.bases:read present in the token's scopes?`,
-              422 // Unprocessable Entity
-            );
+            httpResponse.status = fetchResponse.status;
+            httpResponse.jsonBody = error;
           }
-
-          const tablesInfo =
-            /** @type {import("./support/airTable.mjs").TablesInfo} */ (
-              await airTableProcessResponse(result)
-            );
-
-          const myTable = tablesInfo.tables.find(
-            table =>
-              table.id === serverConfig.airtableTable ||
-              table.name === serverConfig.airtableTable
-          );
-          if (!myTable) {
-            return errorResponse(
-              "Table Not Found",
-              `Table with ID or Name '${serverConfig.airtableTable}' not found in base '${serverConfig.airtableBaseId}'`,
-              422 // Unprocessable Entity
-            );
-          }
-
-          const convertFormDataToFields = () => {
-            const formData = requestNameValues;
-
-            /** @type {{ [key: string]: string | number }} */
-            const fields = {};
-
-            for (const key of Object.keys(formData)) {
-              const metaField = myTable.fields.find(f => f.name === key);
-              if (metaField) {
-                const isNumberfield = metaField.type === "number";
-
-                fields[key] = isNumberfield
-                  ? Number(formData[key])
-                  : formData[key];
-              } else {
-                throw new Error(
-                  `Field with name '${key}' not found in table '${myTable.name}'.`
-                );
-              }
-            }
-            return fields;
-          };
-
-          console.log("Converting form data to Airtable fields format.");
-
-          const fields = convertFormDataToFields();
-          if (fields) {
-            const fetchResponse = await postToAirTable(
-              PersonalAccessToken,
-              serverConfig.airtableBaseId,
-              serverConfig.airtableTable,
-              fields
-            );
-
-            if (fetchResponse.ok) {
-              httpResponse.status = 204; // No Content
-            } else {
-              // Airtable API error
-              const error = await airTableProcessError(fetchResponse);
-
-              const responseContentType =
-                fetchResponse.headers.get("content-type");
-              if (responseContentType)
-                httpResponse.headers["Content-Type"] = responseContentType;
-
-              httpResponse.status = fetchResponse.status;
-              httpResponse.jsonBody = error;
-            }
-          }
-        } else {
-          // Failed captcha
-          console.log("Failed Captcha verification");
-          return errorResponse(
-            "Captcha failed",
-            `Failed human detection. Error Codes ${JSON.stringify(fetchResponse_captcha["error-codes"])}`,
-            422 // Unprocessable Entity
-          );
         }
+      } else {
+        // Failed captcha
+        console.log("Failed Captcha verification");
+        return errorResponse(
+          "Captcha failed",
+          `Failed human detection. Error Codes ${JSON.stringify(fetchResponse_captcha["error-codes"])}`,
+          422 // Unprocessable Entity
+        );
       }
     } else {
       // NOT POST

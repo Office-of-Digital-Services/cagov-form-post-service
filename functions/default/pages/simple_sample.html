@@ -34,7 +34,7 @@
             grecaptcha.execute().then(function(token) {
               const recaptchaTokenInput = document.createElement("input");
               recaptchaTokenInput.type = "hidden";
-              recaptchaTokenInput.name = "recaptchaToken";
+              recaptchaTokenInput.name = "g-recaptcha-response";
               recaptchaTokenInput.value = token;
               form.appendChild(recaptchaTokenInput);
 
