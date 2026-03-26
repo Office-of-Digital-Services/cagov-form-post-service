@@ -15,6 +15,7 @@
         const form = document.getElementById("mySampleForm");
         form.action = formPostServiceUrl;
         form.method = "POST";
+        const formSubmitButton = form.querySelector("input[type=submit]");
 
         if (!document.querySelector(".g-recaptcha")) {
           const recaptchaButton = document.createElement("button");
@@ -25,20 +26,22 @@
           recaptchaButton.classList.add("g-recaptcha");
           document.body.appendChild(recaptchaButton);
 
+          const recaptchaTokenInput = document.createElement("input");
+          recaptchaTokenInput.type = "hidden";
+          recaptchaTokenInput.name = "g-recaptcha-response";
+          form.appendChild(recaptchaTokenInput);
+
           form.addEventListener("submit", function (e) {
             e.preventDefault(); // stop native submission for a moment
 
-            if (form.dataset.submitting === "true") return; // prevent multiple submits
-            form.dataset.submitting = "true"; // set submitting state
+            formSubmitButton.disabled = true; // disable submit button to prevent multiple clicks
+            setTimeout(() => {
+              formSubmitButton.disabled = false; // re-enable submit button after submission
+            }, 5000);
 
             grecaptcha.execute().then(function(token) {
-              const recaptchaTokenInput = document.createElement("input");
-              recaptchaTokenInput.type = "hidden";
-              recaptchaTokenInput.name = "g-recaptcha-response";
               recaptchaTokenInput.value = token;
-              form.appendChild(recaptchaTokenInput);
 
-              // Now that the token is injected, submit natively
               form.submit();
             });
           });
