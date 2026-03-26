@@ -7,17 +7,17 @@
     <link rel="icon" href="data:," />
     <script src="https://www.google.com/recaptcha/api.js" defer></script>
     <script>
-      window.serviceUrl = "https://fa-cdt-pub-migr-betaws-w-p-001-stage.azurewebsites.net/api/v2";
-      //window.serviceUrl = "http://localhost:12345/api/v2";
+      window.recaptchaSiteKey = "6Lcf3GYjAAAAAGPae1QeEf0jJ8xjTwrwPAHOhZIJ"; // Set this to your recaptcha site key
+      window.serviceUrl = "https://fa-cdt-pub-migr-betaws-w-p-001-stage.azurewebsites.net/api/v2"; // Dev Form Post Service URL
+      //window.serviceUrl = "http://localhost:12345/api/v2"; // Local Host Service URL
 
       window.addEventListener("DOMContentLoaded", () => {
-        const siteKey = "6Lcf3GYjAAAAAGPae1QeEf0jJ8xjTwrwPAHOhZIJ"; // Set this to your recaptch site key
-
         // Dynamically add the invisible reCAPTCHA v3 button to the form.
         const recaptchaButton = document.createElement("button");
         recaptchaButton.ariaHidden = "true";
+        recaptchaButton.type = "button";
         recaptchaButton.hidden = true;
-        recaptchaButton.dataset.sitekey = siteKey;
+        recaptchaButton.dataset.sitekey = window.recaptchaSiteKey;
         recaptchaButton.dataset.callback = "recaptchaCallback";
         recaptchaButton.dataset.action = "submit";
         recaptchaButton.classList.add("g-recaptcha");
