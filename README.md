@@ -18,7 +18,7 @@ There is **no hard‑coded schema**. Each site defines its own Airtable base, ta
 
 ## ✨ Key Features
 
-### Multi‑site support
+### Multi‑origin support
 
 One Azure Function App can now serve any number of websites. Each site is configured through environment variables following a naming convention.
 
@@ -68,23 +68,23 @@ Each site is configured through environment variables. These can be stored direc
 
 ### Per‑site variables
 
-| Variable                      | Description                    |
-| ----------------------------- | ------------------------------ |
-| `<SITE_NAME>_host`            | Full URL of requesting site    |
-| `<SITE_NAME>_airtableToken`   | Airtable personal access token |
-| `<SITE_NAME>_airtableBaseId`  | Airtable base ID               |
-| `<SITE_NAME>_airtableTable`   | Airtable table name            |
-| `<SITE_NAME>_recaptchaSecret` | reCAPTCHA v3 secret            |
+| Variable                      | Description                               |
+| ----------------------------- | ----------------------------------------- |
+| `<SITE_NAME>_orgins`          | comma list of origins for requesting site |
+| `<SITE_NAME>_airtableToken`   | Airtable personal access token            |
+| `<SITE_NAME>_airtableBaseId`  | Airtable base ID                          |
+| `<SITE_NAME>_airtableTable`   | Airtable table name                       |
+| `<SITE_NAME>_recaptchaSecret` | reCAPTCHA v3 secret                       |
 
 You can add as many sites as needed:
 
-    TEMPLATE_host=https://template.webstandards.ca.gov
+    TEMPLATE_origins=https://template.webstandards.ca.gov
     TEMPLATE_airtableToken_=pat...
     TEMPLATE_airtableBaseId=app...
     TEMPLATE_airtableTable=tbl...
     TEMPLATE_recaptchaSecret=...
 
-    PARKS_host=https://parks.ca.gov
+    PARKS_origins=https://parks.ca.gov
     PARKS_airtableToken=pat...
     PARKS_airtableBaseId=app...
     PARKS_airtableTable=tbl...
