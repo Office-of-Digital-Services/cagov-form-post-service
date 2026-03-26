@@ -145,7 +145,7 @@ export default async function (httpRequest, context) {
           if (!result.ok) {
             return errorResponse(
               "Base Not Found",
-              `Base ID '${serverConfig.airtableBaseId}' not found.`,
+              `Base ID '${serverConfig.airtableBaseId}' not found. Is schema.bases:read present in the token's scopes?`,
               422 // Unprocessable Entity
             );
           }

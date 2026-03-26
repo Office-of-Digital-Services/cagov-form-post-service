@@ -8,8 +8,8 @@
     <script src="https://www.google.com/recaptcha/api.js" defer></script>
     <script>
       var recaptchaSiteKey = "6Lcf3GYjAAAAAGPae1QeEf0jJ8xjTwrwPAHOhZIJ"; // Set this to your recaptcha site key
-      var serviceUrl = "https://fa-cdt-pub-migr-betaws-w-p-001-stage.azurewebsites.net/api/v2"; // Dev Form Post Service URL
-      //var serviceUrl = "http://localhost:12345/api/v2"; // Local Host Service URL
+      var formPostServiceUrl = "https://fa-cdt-pub-migr-betaws-w-p-001-stage.azurewebsites.net/api/v2"; // Dev Form Post Service URL
+      //var formPostServiceUrl = "http://localhost:12345/api/v2"; // Local Host Service URL
 
       /** @type { HTMLButtonElement } */
       var recaptchaButton;
@@ -31,7 +31,7 @@
 
       function getForm() {
         return /** @type {HTMLFormElement} */ (
-          document.querySelector("form")
+          document.querySelector("#mySampleForm")
         );
       }
 
@@ -61,7 +61,7 @@
           body: JSON.stringify([...new FormData(getForm())])
         };
 
-        fetch(serviceUrl, request)
+        fetch(formPostServiceUrl, request)
           .then(async response => {
             if (response.ok) {
               console.log("Form submitted successfully");
@@ -81,7 +81,7 @@
   <body>
     <main>
       <h1>Simple Sample Form with HTML5 validators</h1>
-      <form autocomplete="on">
+      <form autocomplete="on" id="mySampleForm">
         <p>
           <label for="InputName">Your name</label>
           <input
