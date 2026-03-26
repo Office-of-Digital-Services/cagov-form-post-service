@@ -34,10 +34,20 @@
           form.addEventListener("submit", function (e) {
             e.preventDefault(); // stop native submission for a moment
 
+            let navigated = false;
+            const handler = () => { navigated = true; };
+            window.addEventListener("pagehide", handler);
+
             formSubmitButton.disabled = true; // disable submit button to prevent multiple clicks
             setTimeout(() => {
               formSubmitButton.disabled = false; // re-enable submit button after submission
+
+              if (!navigated) {
+                  alert("Form submission Success.");
+              }
+
             }, 5000);
+
 
             grecaptcha.execute().then(function(token) {
               recaptchaTokenInput.value = token;
