@@ -14,30 +14,43 @@
       window.addEventListener("DOMContentLoaded", () => {
         const form = document.getElementById("mySampleForm");
         form.action = formPostServiceUrl;
+        form.method = "POST";
 
-        form.addEventListener("submit", function (e) {
-          e.preventDefault(); // stop native submission for a moment
+        if (!document.querySelector(".g-recaptcha")) {
+          const recaptchaButton = document.createElement("button");
+          recaptchaButton.type = "button";
+          recaptchaButton.hidden = true;
+          recaptchaButton.setAttribute("data-sitekey", recaptchaSiteKey);
+          recaptchaButton.setAttribute("data-action", "submit");
+          recaptchaButton.classList.add("g-recaptcha");
+          document.body.appendChild(recaptchaButton);
 
-          if (form.dataset.submitting === "true") return; // prevent multiple submits
-          form.dataset.submitting = "true"; // set submitting state
+          form.addEventListener("submit", function (e) {
+            e.preventDefault(); // stop native submission for a moment
 
+            if (form.dataset.submitting === "true") return; // prevent multiple submits
+            form.dataset.submitting = "true"; // set submitting state
 
-          grecaptcha.execute().then(function(token) {
+            grecaptcha.execute().then(function(token) {
+              const recaptchaTokenInput = document.createElement("input");
+              recaptchaTokenInput.type = "hidden";
+              recaptchaTokenInput.name = "recaptchaToken";
+              recaptchaTokenInput.value = token;
+              form.appendChild(recaptchaTokenInput);
 
-            document.getElementById("recaptchaToken").value = token;
-
-            // Now that the token is injected, submit natively
-            form.submit();
+              // Now that the token is injected, submit natively
+              form.submit();
+            });
           });
-        });
+        }
       });
     </script>
+    <script src="https://www.google.com/recaptcha/api.js" async defer></script>
   </head>
   <body>
     <main>
       <h1>Simple Sample Form with HTML5 validators</h1>
-      <form autocomplete="on" id="mySampleForm" method="post">
-        <input type="hidden" name="recaptchaToken" id="recaptchaToken" />
+      <form autocomplete="on" id="mySampleForm">
         <p>
           <label for="InputName">Your name</label>
           <input
@@ -95,12 +108,6 @@
         </p>
         <input type="submit" value="Submit" />
       </form>
-      <button
-        class="g-recaptcha"
-        data-sitekey="6Lcf3GYjAAAAAGPae1QeEf0jJ8xjTwrwPAHOhZIJ"
-        data-action="submit"
-        hidden></button>
     </main>
-    <script src="https://www.google.com/recaptcha/api.js" async defer></script>
   </body>
 </html>
