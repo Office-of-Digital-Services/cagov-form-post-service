@@ -5,9 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Simple Sample AirTable Submit</title>
     <link rel="icon" href="data:," />
-  </head>
-
-  <body>
     <script src="https://www.google.com/recaptcha/api.js" defer></script>
     <script>
       const serviceUrl = "https://fa-cdt-pub-migr-betaws-w-p-001-stage.azurewebsites.net/api/v2";
@@ -15,12 +12,12 @@
 
       const siteKey = "6Lcf3GYjAAAAAGPae1QeEf0jJ8xjTwrwPAHOhZIJ"; // Set this to your recaptch site key
     </script>
-
+  </head>
+  <body>
     <h1>Simple Sample Form with HTML5 validators</h1>
-
     <form autocomplete="on" method="POST" id="ContactUsForm">
       <p>
-        <label for="InputName"> Your name </label>
+        <label for="InputName">Your name</label>
         <input
           autofocus
           type="text"
@@ -34,7 +31,7 @@
           value="Test Name" />
       </p>
       <p>
-        <label for="InputNumber"> A Number </label>
+        <label for="InputNumber">A Number</label>
         <input
           type="number"
           id="InputNumber"
@@ -42,20 +39,21 @@
           required
           value="12345" />
       </p>
-      <label for="InputEmail"> Email </label>
-      <input
-        type="email"
-        id="InputEmail"
-        name="My Email"
-        autocomplete="email"
-        required
-        size="65"
-        maxlength="250"
-        minlength="1"
-        value="test@test.com" />
-
       <p>
-        <label for="InputDate"> Date </label>
+        <label for="InputEmail">Email</label>
+        <input
+          type="email"
+          id="InputEmail"
+          name="My Email"
+          autocomplete="email"
+          required
+          size="65"
+          maxlength="250"
+          minlength="1"
+          value="test@test.com" />
+      </p>
+      <p>
+        <label for="InputDate">Date</label>
         <input
           type="date"
           id="InputDate"
@@ -64,7 +62,6 @@
           required
           value="2024-06-01" />
       </p>
-
       <p>
         <label for="InputOption">Select an option</label>
         <select id="InputOption" name="My Option">
@@ -75,10 +72,8 @@
           <option value="Invalid">Invalid</option>
         </select>
       </p>
-
       <input type="submit" value="Submit" />
     </form>
-
     <script>
       (() => {
         const recaptchaButton = document.createElement("button");
@@ -136,7 +131,6 @@
               alert("Form submitted successfully!");
               return;
             }
-
             throw new Error(JSON.stringify(await response.json()));
           })
           .catch(error => {
