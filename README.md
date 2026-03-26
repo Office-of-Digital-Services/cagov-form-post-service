@@ -18,7 +18,7 @@ There is **no hard‑coded schema**. Each site defines its own Airtable base, ta
 
 ## ✨ Key Features
 
-### Multi‑origin support
+### Multi‑site support
 
 One Azure Function App can now serve any number of websites. Each site is configured through environment variables following a naming convention.
 
