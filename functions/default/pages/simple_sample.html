@@ -68,7 +68,8 @@
               alert("Form submitted successfully!");
               return;
             }
-            throw new Error(JSON.stringify(await response.json()));
+
+            throw new Error(await response.text());
           })
           .catch(error => {
             console.error(error);

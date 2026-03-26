@@ -183,10 +183,8 @@ export default async function (httpRequest, context) {
                   ? Number(formData[key])
                   : formData[key];
               } else {
-                return errorResponse(
-                  "Field Not Found",
-                  `Field with name '${key}' not found in table '${myTable.name}'.`,
-                  422 // Unprocessable Entity
+                throw new Error(
+                  `Field with name '${key}' not found in table '${myTable.name}'.`
                 );
               }
             }
