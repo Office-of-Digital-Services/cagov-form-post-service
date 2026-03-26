@@ -1,5 +1,13 @@
-<html>
+<!doctype html>
+<html lang="en">
   <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Simple Sample AirTable Submit</title>
+    <link rel="icon" href="data:," />
+  </head>
+
+  <body>
     <script src="https://www.google.com/recaptcha/api.js" defer></script>
     <script>
       const serviceUrl = "https://fa-cdt-pub-migr-betaws-w-p-001-stage.azurewebsites.net/api/v2";
@@ -7,106 +15,206 @@
 
       const siteKey = "6Lcf3GYjAAAAAGPae1QeEf0jJ8xjTwrwPAHOhZIJ"; // Set this to your recaptch site key
     </script>
-    <style>
-      body {
-        font-family: "Open Sans", sans-serif;
-        padding: 20px;
+
+    <div id="main-content" class="main-content">
+      <div class="container p-t-md p-b-lg">
+        <h1 class="m-t-0">Contact us</h1>
+        <p>
+          Have a question? Contact us for help with general inquiries, feedback,
+          or bugs.
+        </p>
+        <div class="row">
+          <div class="col-lg-8">
+            <form
+              autocomplete="on"
+              method="POST"
+              id="ContactUsForm"
+              role="form">
+              <div
+                class="alert alert-danger alert-banner brd-0 brd-red p-l m-t-md"
+                role="alert">
+                <span
+                  class="alert-icon ca-gov-icon-warning-diamond color-red"
+                  aria-hidden="true"></span>
+                <div class="container m-l-md">
+                  <span class="alert-text gray-900 font-weight-600">
+                    Correct the errors to continue
+                  </span>
+                </div>
+              </div>
+              <label class="form-control-label m-t-md" for="InputName">
+                Your name
+                <span class="required-label" aria-hidden="true">*</span>
+              </label>
+              <input
+                autofocus
+                type="text"
+                class="form-control rounded-5"
+                id="InputName"
+                name="My Name"
+                autocomplete="name"
+                required
+                aria-required="true"
+                size="65"
+                maxlength="150"
+                minlength="1"
+                role="textbox"
+                value="Test Name" />
+              <div class="mt-2 invalid-feedback font-weight-600 d-block">
+                Enter your name
+              </div>
+
+              <label class="form-control-label m-t-md" for="InputNumber">
+                A Number
+                <span class="required-label" aria-hidden="true">*</span>
+              </label>
+              <input
+                type="number"
+                class="form-control rounded-5"
+                id="InputNumber"
+                name="My Number"
+                required
+                aria-required="true"
+                role="textbox"
+                value="12345" />
+              <div class="mt-2 invalid-feedback font-weight-600 d-block">
+                Enter a number
+              </div>
+
+              <label class="form-control-label m-t-lg" for="InputEmail">
+                Email
+                <span class="required-label" aria-hidden="true">*</span>
+              </label>
+              <input
+                type="email"
+                class="form-control rounded-5"
+                id="InputEmail"
+                name="My Email"
+                autocomplete="email"
+                required
+                aria-required="true"
+                size="65"
+                maxlength="250"
+                minlength="1"
+                role="textbox"
+                value="test@test.com" />
+              <div class="mt-2 invalid-feedback font-weight-600 d-block">
+                Enter a valid email. Example: name@email.com
+              </div>
+
+              <label class="form-control-label m-t-lg" for="InputDate">
+                Date
+                <span class="required-label" aria-hidden="true">*</span>
+              </label>
+              <input
+                type="date"
+                class="form-control rounded-5"
+                id="InputDate"
+                name="My Date"
+                autocomplete="bday"
+                required
+                aria-required="true"
+                role="textbox"
+                value="2024-06-01" />
+              <div class="mt-2 invalid-feedback font-weight-600 d-block">
+                Enter a valid date.
+              </div>
+
+              <label class="form-control-label  m-t-lg" for="InputOption">
+                Select an option
+                <span class="required-label" aria-hidden="true">*</span>
+              </label>
+
+              <select
+                class="form-select form-select-lg mb-3"
+                id="InputOption"
+                name="My Option">
+                <option value="">Select an option</option>
+                <option value="Option 1" selected>Option 1</option>
+                <option value="Option 2">Option 2</option>
+                <option value="Option 3">Option 3</option>
+                <option value="Invalid">Invalid</option>
+              </select>
+
+              <input
+                type="submit"
+                value="Submit"
+                class="btn btn-primary m-t-lg" />
+
+              <button
+                class="g-recaptcha hidden"
+                data-sitekey=""
+                data-callback="recaptchaCallback"
+                data-action="submit"></button>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      document.querySelector("button.g-recaptcha").dataset.sitekey = siteKey;
+
+      window.addEventListener("load", () => {
+
+        getForm().addEventListener("submit", submitForm);
+        getSubmitButton().addEventListener("click", () =>
+          getForm().setAttribute("submit_attempted", "")
+        );
+      });
+
+      function getForm() {
+        return /** @type {HTMLFormElement} */ (
+          document.getElementById("ContactUsForm")
+        );
       }
 
-      input,
-      select {
-        display: block;
-        margin-bottom: 10px;
-        padding: 5px;
-        width: 600px;
+      function getSubmitButton() {
+        return /** @type { HTMLButtonElement } */ (
+          getForm().querySelector("input[type=submit]")
+        );
       }
 
-      label {
-        font-weight: 600;
-        margin-top: 15px;
+
+
+      function triggerRecaptcha() {
+        document.querySelector(".g-recaptcha").click(); //will trigger recaptchaCallback when complete
       }
-    </style>
-  </head>
-  <body>
-    <form autocomplete="on" method="POST" id="ContactUsForm" role="form">
-      <label class="form-control-label m-t-md" for="InputName">
-        Your name
-      </label>
-      <input
-        autofocus
-        type="text"
-        id="InputName"
-        name="My Name"
-        autocomplete="name"
-        required
-        aria-required="true"
-        size="65"
-        maxlength="150"
-        minlength="1"
-        role="textbox"
-        value="Test Name" />
-      <div class="mt-2 invalid-feedback font-weight-600 d-block">
-        Enter your name
-      </div>
 
-      <label for="InputNumber">A Number</label>
-      <input
-        type="number"
-        id="InputNumber"
-        name="My Number"
-        required
-        aria-required="true"
-        role="textbox"
-        value="12345" />
-      <div class="mt-2 invalid-feedback font-weight-600 d-block">
-        Enter a number
-      </div>
+      async function submitForm(/** @type { SubmitEvent } */ e) {
+        e.preventDefault();
 
-      <label for="InputEmail"> Email </label>
-      <input
-        type="email"
-        id="InputEmail"
-        name="My Email"
-        autocomplete="email"
-        required
-        aria-required="true"
-        size="65"
-        maxlength="250"
-        minlength="1"
-        role="textbox"
-        value="test@test.com" />
-      <div>Enter a valid email. Example: name@email.com</div>
+        getSubmitButton().disabled = true;
+        setTimeout(() => (getSubmitButton().disabled = false), 5000);
 
-      <label for="InputDate">Date</label>
-      <input
-        type="date"
-        id="InputDate"
-        name="My Date"
-        autocomplete="bday"
-        required
-        aria-required="true"
-        role="textbox"
-        value="2024-06-01" />
-      <div class="mt-2 invalid-feedback font-weight-600 d-block">
-        Enter a valid date.
-      </div>
+        triggerRecaptcha();
+      }
 
-      <label for="InputOption">Select an option</label>
+      function recaptchaCallback() {
+        /** @type { RequestInit } */
+        const request = {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify([...new FormData(getForm())]),
+        };
 
-      <select id="InputOption" name="My Option">
-        <option value="">Select an option</option>
-        <option value="Option 1" selected>Option 1</option>
-        <option value="Option 2">Option 2</option>
-        <option value="Option 3">Option 3</option>
-        <option value="Invalid">Invalid Option</option>
-      </select>
+        fetch(serviceUrl, request)
+          .then(async response => {
+            if (response.ok) {
+              console.log("Form submitted successfully");
+              alert("Form submitted successfully!");
+              return;
+            }
 
-      <input type="submit" value="Submit" />
-
-      <button
-        data-sitekey=""
-        data-callback="recaptchaCallback"
-        data-action="submit"></button>
-    </form>
+            throw new Error(JSON.stringify(await response.json()));
+          })
+          .catch(error => {
+            console.error(error);
+            alert("Form submission failed. See console for details.");
+          });
+      }
+    </script>
   </body>
 </html>
