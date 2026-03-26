@@ -6,7 +6,7 @@
     <title>Simple Sample AirTable Submit</title>
     <link rel="icon" href="data:," />
 
-    <script>
+    <script async defer>
       var recaptchaSiteKey = "6Lcf3GYjAAAAAGPae1QeEf0jJ8xjTwrwPAHOhZIJ"; // Set this to your recaptcha site key
         //var formPostServiceUrl = "https://fa-cdt-pub-migr-betaws-w-p-001-stage.azurewebsites.net/api/v2"; // Dev Form Post Service URL
       var formPostServiceUrl = "http://localhost:12345/api/v2"; // Local Host Service URL
@@ -18,6 +18,8 @@
         form.addEventListener("submit", function (e) {
           e.preventDefault(); // stop native submission for a moment
 
+          if (form.dataset.submitting === "true") return; // prevent multiple submits
+          form.dataset.submitting = "true"; // set submitting state
 
 
           grecaptcha.execute().then(function(token) {
@@ -35,11 +37,6 @@
     <main>
       <h1>Simple Sample Form with HTML5 validators</h1>
       <form autocomplete="on" id="mySampleForm" method="post">
-        <button
-          class="g-recaptcha"
-          data-sitekey="6Lcf3GYjAAAAAGPae1QeEf0jJ8xjTwrwPAHOhZIJ"
-          data-action="submit"
-          hidden></button>
         <input type="hidden" name="recaptchaToken" id="recaptchaToken" />
         <p>
           <label for="InputName">Your name</label>
@@ -98,6 +95,11 @@
         </p>
         <input type="submit" value="Submit" />
       </form>
+      <button
+        class="g-recaptcha"
+        data-sitekey="6Lcf3GYjAAAAAGPae1QeEf0jJ8xjTwrwPAHOhZIJ"
+        data-action="submit"
+        hidden></button>
     </main>
     <script src="https://www.google.com/recaptcha/api.js" async defer></script>
   </body>
