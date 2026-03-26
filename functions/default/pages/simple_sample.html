@@ -16,115 +16,88 @@
       const siteKey = "6Lcf3GYjAAAAAGPae1QeEf0jJ8xjTwrwPAHOhZIJ"; // Set this to your recaptch site key
     </script>
 
-    <div>
-      <div>
-        <h1>Contact us</h1>
-        <p>
-          Have a question? Contact us for help with general inquiries, feedback,
-          or bugs.
-        </p>
-        <div>
-          <div>
-            <form
-              autocomplete="on"
-              method="POST"
-              id="ContactUsForm"
-              role="form">
-              <label for="InputName"> Your name </label>
-              <input
-                autofocus
-                type="text"
-                class="form-control rounded-5"
-                id="InputName"
-                name="My Name"
-                autocomplete="name"
-                required
-                aria-required="true"
-                size="65"
-                maxlength="150"
-                minlength="1"
-                role="textbox"
-                value="Test Name" />
-              <div class="mt-2 invalid-feedback font-weight-600 d-block">
-                Enter your name
-              </div>
+    <h1>Simple Sample Form</h1>
+    <p>Simple Sample Form</p>
 
-              <label for="InputNumber"> A Number </label>
-              <input
-                type="number"
-                class="form-control rounded-5"
-                id="InputNumber"
-                name="My Number"
-                required
-                aria-required="true"
-                role="textbox"
-                value="12345" />
-              <div class="mt-2 invalid-feedback font-weight-600 d-block">
-                Enter a number
-              </div>
+    <form autocomplete="on" method="POST" id="ContactUsForm" role="form">
+      <label for="InputName"> Your name </label>
+      <input
+        autofocus
+        type="text"
+        class="form-control rounded-5"
+        id="InputName"
+        name="My Name"
+        autocomplete="name"
+        required
+        aria-required="true"
+        size="65"
+        maxlength="150"
+        minlength="1"
+        role="textbox"
+        value="Test Name" />
 
-              <label for="InputEmail"> Email </label>
-              <input
-                type="email"
-                class="form-control rounded-5"
-                id="InputEmail"
-                name="My Email"
-                autocomplete="email"
-                required
-                aria-required="true"
-                size="65"
-                maxlength="250"
-                minlength="1"
-                role="textbox"
-                value="test@test.com" />
-              <div class="mt-2 invalid-feedback font-weight-600 d-block">
-                Enter a valid email. Example: name@email.com
-              </div>
+      <label for="InputNumber"> A Number </label>
+      <input
+        type="number"
+        class="form-control rounded-5"
+        id="InputNumber"
+        name="My Number"
+        required
+        aria-required="true"
+        role="textbox"
+        value="12345" />
 
-              <label for="InputDate"> Date </label>
-              <input
-                type="date"
-                class="form-control rounded-5"
-                id="InputDate"
-                name="My Date"
-                autocomplete="bday"
-                required
-                aria-required="true"
-                role="textbox"
-                value="2024-06-01" />
-              <div class="mt-2 invalid-feedback font-weight-600 d-block">
-                Enter a valid date.
-              </div>
+      <label for="InputEmail"> Email </label>
+      <input
+        type="email"
+        class="form-control rounded-5"
+        id="InputEmail"
+        name="My Email"
+        autocomplete="email"
+        required
+        aria-required="true"
+        size="65"
+        maxlength="250"
+        minlength="1"
+        role="textbox"
+        value="test@test.com" />
 
-              <label for="InputOption"> Select an option </label>
+      <label for="InputDate"> Date </label>
+      <input
+        type="date"
+        class="form-control rounded-5"
+        id="InputDate"
+        name="My Date"
+        autocomplete="bday"
+        required
+        aria-required="true"
+        role="textbox"
+        value="2024-06-01" />
 
-              <select id="InputOption" name="My Option">
-                <option value="">Select an option</option>
-                <option value="Option 1" selected>Option 1</option>
-                <option value="Option 2">Option 2</option>
-                <option value="Option 3">Option 3</option>
-                <option value="Invalid">Invalid</option>
-              </select>
+      <label for="InputOption"> Select an option </label>
 
-              <input type="submit" value="Submit" />
+      <select id="InputOption" name="My Option">
+        <option value="">Select an option</option>
+        <option value="Option 1" selected>Option 1</option>
+        <option value="Option 2">Option 2</option>
+        <option value="Option 3">Option 3</option>
+        <option value="Invalid">Invalid</option>
+      </select>
 
-              <button
-                class="g-recaptcha"
-                data-sitekey=""
-                data-callback="recaptchaCallback"
-                data-action="submit"></button>
-            </form>
-          </div>
-        </div>
-      </div>
-    </div>
+      <input type="submit" value="Submit" />
+
+      <button
+        aria-hidden="true"
+        hidden
+        class="g-recaptcha"
+        data-sitekey=""
+        data-callback="recaptchaCallback"
+        data-action="submit"></button>
+    </form>
 
     <script>
       window.addEventListener("load", () => {
         getForm().addEventListener("submit", submitForm);
-        getSubmitButton().addEventListener("click", () =>
-          getForm().setAttribute("submit_attempted", "")
-        );
       });
 
       function getRecaptcha() {
@@ -147,17 +120,13 @@
 
       getRecaptcha().dataset.sitekey = siteKey;
 
-      function triggerRecaptcha() {
-        getRecaptcha().click(); //will trigger recaptchaCallback when complete
-      }
-
       async function submitForm(/** @type { SubmitEvent } */ e) {
         e.preventDefault();
 
         getSubmitButton().disabled = true;
         setTimeout(() => (getSubmitButton().disabled = false), 5000);
 
-        triggerRecaptcha();
+        getRecaptcha().click(); //will trigger recaptchaCallback when complete
       }
 
       function recaptchaCallback() {
