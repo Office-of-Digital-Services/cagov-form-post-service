@@ -11,81 +11,6 @@
       //const serviceUrl = "http://localhost:12345/api/v2";
 
       const siteKey = "6Lcf3GYjAAAAAGPae1QeEf0jJ8xjTwrwPAHOhZIJ"; // Set this to your recaptch site key
-    </script>
-  </head>
-  <body>
-    <h1>Simple Sample Form with HTML5 validators</h1>
-    <form autocomplete="on" method="POST" id="ContactUsForm">
-      <p>
-        <label for="InputName">Your name</label>
-        <input
-          autofocus
-          type="text"
-          id="InputName"
-          name="My Name"
-          autocomplete="name"
-          required
-          size="65"
-          maxlength="150"
-          minlength="1"
-          value="Test Name" />
-      </p>
-      <p>
-        <label for="InputNumber">A Number</label>
-        <input
-          type="number"
-          id="InputNumber"
-          name="My Number"
-          required
-          value="12345" />
-      </p>
-      <p>
-        <label for="InputEmail">Email</label>
-        <input
-          type="email"
-          id="InputEmail"
-          name="My Email"
-          autocomplete="email"
-          required
-          size="65"
-          maxlength="250"
-          minlength="1"
-          value="test@test.com" />
-      </p>
-      <p>
-        <label for="InputDate">Date</label>
-        <input
-          type="date"
-          id="InputDate"
-          name="My Date"
-          autocomplete="bday"
-          required
-          value="2024-06-01" />
-      </p>
-      <p>
-        <label for="InputOption">Select an option</label>
-        <select id="InputOption" name="My Option">
-          <option value="">Select an option</option>
-          <option value="Option 1" selected>Option 1</option>
-          <option value="Option 2">Option 2</option>
-          <option value="Option 3">Option 3</option>
-          <option value="Invalid">Invalid</option>
-        </select>
-      </p>
-      <input type="submit" value="Submit" />
-    </form>
-    <script>
-      (() => {
-        const recaptchaButton = document.createElement("button");
-        recaptchaButton.ariaHidden = "true";
-        recaptchaButton.hidden = true;
-        recaptchaButton.dataset.sitekey = siteKey;
-        recaptchaButton.dataset.callback = "recaptchaCallback";
-        recaptchaButton.dataset.action = "submit";
-        recaptchaButton.classList.add("g-recaptcha");
-        getForm().appendChild(recaptchaButton);
-        getForm().addEventListener("submit", submitForm);
-      })();
 
       function getRecaptcha() {
         return /** @type { HTMLButtonElement } */ (
@@ -138,6 +63,82 @@
             alert("Form submission failed. See console for details.");
           });
       }
+
+      window.addEventListener("DOMContentLoaded", () => {
+        const recaptchaButton = document.createElement("button");
+        recaptchaButton.ariaHidden = "true";
+        recaptchaButton.hidden = true;
+        recaptchaButton.dataset.sitekey = siteKey;
+        recaptchaButton.dataset.callback = "recaptchaCallback";
+        recaptchaButton.dataset.action = "submit";
+        recaptchaButton.classList.add("g-recaptcha");
+        getForm().appendChild(recaptchaButton);
+        getForm().addEventListener("submit", submitForm);
+      });
     </script>
+  </head>
+  <body>
+    <main>
+      <h1>Simple Sample Form with HTML5 validators</h1>
+      <form autocomplete="on" method="POST" id="ContactUsForm">
+        <p>
+          <label for="InputName">Your name</label>
+          <input
+            autofocus
+            type="text"
+            id="InputName"
+            name="My Name"
+            autocomplete="name"
+            required
+            size="65"
+            maxlength="150"
+            minlength="1"
+            value="Test Name" />
+        </p>
+        <p>
+          <label for="InputNumber">A Number</label>
+          <input
+            type="number"
+            id="InputNumber"
+            name="My Number"
+            required
+            value="12345" />
+        </p>
+        <p>
+          <label for="InputEmail">Email</label>
+          <input
+            type="email"
+            id="InputEmail"
+            name="My Email"
+            autocomplete="email"
+            required
+            size="65"
+            maxlength="250"
+            minlength="1"
+            value="test@test.com" />
+        </p>
+        <p>
+          <label for="InputDate">Date</label>
+          <input
+            type="date"
+            id="InputDate"
+            name="My Date"
+            autocomplete="bday"
+            required
+            value="2024-06-01" />
+        </p>
+        <p>
+          <label for="InputOption">Select an option</label>
+          <select id="InputOption" name="My Option">
+            <option value="">Select an option</option>
+            <option value="Option 1" selected>Option 1</option>
+            <option value="Option 2">Option 2</option>
+            <option value="Option 3">Option 3</option>
+            <option value="Invalid">Invalid</option>
+          </select>
+        </p>
+        <input type="submit" value="Submit" />
+      </form>
+    </main>
   </body>
 </html>
