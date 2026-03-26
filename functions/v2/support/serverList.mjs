@@ -21,16 +21,16 @@ const getEnvVar = (
 };
 
 /**
- * @param {string} host Host URL from request header
+ * @param {string} origin origin URL from request header
  */
-function getServerConfigByHost(host) {
+function getServerConfigByHost(origin) {
   const hostList = getEnvVar("HostList").split(",");
   const name = hostList.find(onename => {
-    const serverHost = getEnvVar(`${onename}_host`, false);
-    return serverHost === host;
+    const serverHost = getEnvVar(`${onename}_origins`, false);
+    return serverHost.split(",").includes(origin);
   });
   if (!name) {
-    throw new Error(`No server configuration found for host: ${host}`);
+    throw new Error(`No server configuration found for host: ${origin}`);
   }
 
   /** @type {ServerConfig} */

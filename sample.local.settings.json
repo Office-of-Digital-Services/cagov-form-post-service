@@ -4,7 +4,7 @@
   "Values": {
     "FUNCTIONS_WORKER_RUNTIME": "node",
     "HostList": "LOCALHOST",
-    "LOCALHOST_host": "http://localhost:12345",
+    "LOCALHOST_origins": "http://localhost:12345",
     "LOCALHOST_airtableBaseId": "appXfKtM85FrT0Ipc",
     "LOCALHOST_airtableTable": "tblrWC8qRNId3mSaL",
     "LOCALHOST_airtableToken": "Your AirTable Personal Access Token here",
