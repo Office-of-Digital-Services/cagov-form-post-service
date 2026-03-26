@@ -144,6 +144,13 @@ Running Sample will be found at
 
 Create them [https://airtable.com/create/tokens](here)
 
+Ensure that your base is added to the `Access` section
+
+Permissions required
+
+    data.records:write
+    schema.bases:read
+
 ## Get you Airtable base and table ids
 
 When you are looking at your Airtable, the URL has that information
