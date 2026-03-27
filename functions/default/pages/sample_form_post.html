@@ -33,17 +33,8 @@
 
           grecaptcha.execute().then(recaptchaCallback);
 
-          // No clear way to detect form submission when using native form post, so we will use a timeout as a fallback to re-enable the submit button in case of issues, and also to alert the user of success since we won't get a response back from the server in this case. In a real implementation, you would want to handle this more elegantly.
-          let navigated = false;
-          const handler = () => { navigated = true; };
-          window.addEventListener("pagehide", handler);
-
           setTimeout(() => {
             formSubmitButton.disabled = false; // re-enable submit button after submission
-
-            if (!navigated) {
-              alert("Form submission Success.");
-            }
           }, 5000);
         } // End of submitForm function
 

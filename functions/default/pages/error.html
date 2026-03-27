@@ -20,30 +20,17 @@
       const raw = params.get("error_message");
 
       if (raw) {
-        try {
-          // Decode and parse JSON
-          const decoded = decodeURIComponent(raw);
-          const data = JSON.parse(decoded);
+        // URLSearchParams already decodes, but decodeURIComponent is safe here
+        const decoded = decodeURIComponent(raw);
 
-          // Extract fields safely
-          const type = data?.error?.type || "Unknown error";
-          const message = data?.error?.message || "An unexpected error occurred.";
+        // Basic sanitization to prevent HTML injection
+        const safe = decoded.replace(/[<>&]/g, (c) => ({
+          "<": "&lt;",
+          ">": "&gt;",
+          "&": "&amp;"
+        }[c]));
 
-          // Sanitize to prevent HTML injection
-          const sanitize = (str) =>
-            str.replace(/[<>&]/g, (c) => ({ "<": "&lt;", ">": "&gt;", "&": "&amp;" }[c]));
-
-          const safeType = sanitize(type);
-          const safeMessage = sanitize(message);
-
-          // Display the error
-          document.getElementById("errorMessage").innerHTML =
-            `<strong>${safeType}</strong><br>${safeMessage}`;
-        } catch (err) {
-          // Fallback if JSON parsing fails
-          document.getElementById("errorMessage").textContent =
-            "An error occurred, but the details could not be parsed.";
-        }
+        document.getElementById("errorMessage").textContent = safe;
       }
     </script>
   </body>

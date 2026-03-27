@@ -34,29 +34,11 @@ export default async function (httpRequest, context) {
     headers: {},
     status: 500,
     /** @type {*} */
-    jsonBody: undefined
+    body: undefined
   };
 
-  /**
-   * Marks the response as an error with the given type, message, and status code.
-   * @param {string} type
-   * @param {string | {}} message
-   * @param {number} [responseStatus]
-   */
-  const errorResponse = (type, message, responseStatus = 500) => {
-    console.warn(`Error Response - ${type}:`, message);
-    httpResponse.jsonBody = {
-      error: {
-        type,
-        message
-      }
-    };
-
-    httpResponse.headers["Content-Type"] = "application/json";
-    httpResponse.status = responseStatus;
-
-    return httpResponse;
-  };
+  /** @type {string?} */
+  let redirectErrorUrl = null;
 
   try {
     console.log("Received request with method:", httpRequest.method);
@@ -85,10 +67,8 @@ export default async function (httpRequest, context) {
         const validationErrors = validateInputJson(requestBody);
         if (validationErrors) {
           // Failed validation
-          return errorResponse(
-            "JSON validation failed",
-            validationErrors,
-            422 // Unprocessable Entity
+          throw new Error(
+            `JSON validation failed${JSON.stringify(validationErrors)}`
           );
         }
       } else {
@@ -104,10 +84,18 @@ export default async function (httpRequest, context) {
       /** @type {{ [key: string]: string }} */
       const formData = Object.fromEntries(requestBody);
 
+      const captchaResponse = formData[captchaKey];
+      const redirectSuccessUrl = formData[redirectSuccessKey];
+      redirectErrorUrl = formData[redirectErrorKey];
+
+      delete formData[redirectSuccessKey]; // No need to keep this around
+      delete formData[redirectErrorKey]; // No need to keep this around
+      delete formData[captchaKey]; // No need to keep this around
+
       //verify captcha
       const fetchResponse_captcha = await verifyCaptcha(
         serverConfig.recaptchaSecret,
-        formData[captchaKey]
+        captchaResponse
       );
 
       if (fetchResponse_captcha.success) {
@@ -127,10 +115,8 @@ export default async function (httpRequest, context) {
             // Airtable API error
             const error = await airTableProcessError(fetchResponse);
 
-            return errorResponse(
-              `Airtable Error - ${error.error.type}`,
-              error.error.message,
-              fetchResponse.status
+            throw new Error(
+              `${fetchResponse.status}: Airtable API Error - ${error.error.type}: ${error.error.message}`
             );
           }
         };
@@ -150,13 +136,10 @@ export default async function (httpRequest, context) {
 
         console.log("Airtable response status:", result.status);
 
-        if (!result.ok) {
-          return errorResponse(
-            "Base Not Found",
-            `Base ID '${serverConfig.airtableBaseId}' not found. Is schema.bases:read present in the token's scopes?`,
-            422 // Unprocessable Entity
+        if (!result.ok)
+          throw new Error(
+            `Base ID '${serverConfig.airtableBaseId}' not found. Is schema.bases:read present in the token's scopes?`
           );
-        }
 
         const tablesInfo =
           /** @type {import("./support/airTable.mjs").TablesInfo} */ (
@@ -168,13 +151,10 @@ export default async function (httpRequest, context) {
             table.id === serverConfig.airtableTable ||
             table.name === serverConfig.airtableTable
         );
-        if (!myTable) {
-          return errorResponse(
-            "Table Not Found",
-            `Table with ID or Name '${serverConfig.airtableTable}' not found in base '${serverConfig.airtableBaseId}'`,
-            422 // Unprocessable Entity
+        if (!myTable)
+          throw new Error(
+            `Table with ID or Name '${serverConfig.airtableTable}' not found in base '${serverConfig.airtableBaseId}'`
           );
-        }
 
         const convertFormDataToFields = () => {
           /** @type {{ [key: string]: string | number }} */
@@ -199,13 +179,6 @@ export default async function (httpRequest, context) {
 
         console.log("Converting form data to Airtable fields format.");
 
-        const redirectSuccessUrl = formData[redirectSuccessKey];
-        const redirectErrorUrl = formData[redirectErrorKey];
-
-        delete formData[redirectSuccessKey]; // No need to keep this around
-        delete formData[redirectErrorKey]; // No need to keep this around
-        delete formData[captchaKey]; // No need to keep this around
-
         const fields = convertFormDataToFields();
         if (fields) {
           const fetchResponse = await postToAirTable(
@@ -227,22 +200,15 @@ export default async function (httpRequest, context) {
             // Airtable API error
             const error = await airTableProcessError(fetchResponse);
 
-            const responseContentType =
-              fetchResponse.headers.get("content-type");
-            if (responseContentType)
-              httpResponse.headers["Content-Type"] = responseContentType;
-
-            httpResponse.status = fetchResponse.status;
-            httpResponse.jsonBody = error;
+            throw new Error(
+              `${fetchResponse.status}: Airtable API Error - ${error.error.type}: ${error.error.message}`
+            );
           }
         }
       } else {
         // Failed captcha
-        console.log("Failed Captcha verification");
-        return errorResponse(
-          "Captcha failed",
-          `Failed human detection. Error Codes ${JSON.stringify(fetchResponse_captcha["error-codes"])}`,
-          422 // Unprocessable Entity
+        throw new Error(
+          `Captcha failed: Failed human detection. Error Codes ${JSON.stringify(fetchResponse_captcha["error-codes"])}`
         );
       }
     } else {
@@ -255,8 +221,18 @@ export default async function (httpRequest, context) {
     }
   } catch (/** @type {*} **/ e) {
     // ERROR
+    const errorPayload = e.name !== "Error" ? e.name : `${e.message}`;
 
-    return errorResponse(e.name, e.message);
+    console.error(`Error processing request:`, errorPayload);
+
+    if (redirectErrorUrl) {
+      httpResponse.status = 302; // Redirect
+      httpResponse.headers["Location"] =
+        redirectErrorUrl + encodeURIComponent(errorPayload);
+    } else {
+      httpResponse.body = errorPayload;
+      httpResponse.status = 422; // Unprocessable Entity, since the error is likely due to bad input or failed captcha, not a server error
+    }
   }
 
   return httpResponse;
