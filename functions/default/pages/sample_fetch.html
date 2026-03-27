@@ -16,12 +16,9 @@
         // Dynamically add the invisible reCAPTCHA v3 button to the form.
         if (!recaptchaButton) {
           recaptchaButton = document.createElement("button");
-          recaptchaButton.ariaHidden = "true";
-          recaptchaButton.type = "button";
           recaptchaButton.hidden = true;
           recaptchaButton.setAttribute("data-sitekey", recaptchaSiteKey);
           recaptchaButton.setAttribute("data-callback", "recaptchaCallback");
-          recaptchaButton.setAttribute("data-action", "submit");
           recaptchaButton.classList.add("g-recaptcha");
           getForm().appendChild(recaptchaButton);
           getForm().addEventListener("submit", submitForm);
