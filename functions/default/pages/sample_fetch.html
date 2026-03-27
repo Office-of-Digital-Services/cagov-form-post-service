@@ -5,8 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Sample AirTable Submit via Fetch</title>
     <link rel="icon" href="data:," />
-    <script src="https://www.google.com/recaptcha/api.js" defer></script>
-    <script>
+    <script async defer>
       var recaptchaSiteKey = "6Lcf3GYjAAAAAGPae1QeEf0jJ8xjTwrwPAHOhZIJ"; // Set this to your recaptcha site key
       //var formPostServiceUrl = "https://fa-cdt-pub-migr-betaws-w-p-001-stage.azurewebsites.net/api/v2"; // Dev Form Post Service URL
       var formPostServiceUrl = "http://localhost:12345/api/v2"; // Local Host Service URL
@@ -77,6 +76,7 @@
           });
       }
     </script>
+    <script src="https://www.google.com/recaptcha/api.js" async defer></script>
   </head>
   <body>
     <main>
@@ -129,7 +129,7 @@
         </p>
         <p>
           <label for="InputOption">Select an option</label>
-          <select id="InputOption" name="My Option">
+          <select id="InputOption" name="My Option" required>
             <option value="">Select an option</option>
             <option value="Option 1" selected>Option 1</option>
             <option value="Option 2">Option 2</option>
@@ -137,7 +137,7 @@
             <option value="Invalid">Invalid</option>
           </select>
         </p>
-        <input type="submit" value="Submit" />
+        <input type="submit" />
       </form>
     </main>
   </body>

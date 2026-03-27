@@ -15,28 +15,22 @@
         const form = document.getElementById("mySampleForm");
         form.action = formPostServiceUrl;
         form.method = "POST";
-        const formSubmitButton = form.querySelector("input[type=submit]");
 
         if (!document.querySelector(".g-recaptcha")) {
           const recaptchaButton = document.createElement("button");
-          recaptchaButton.type = "button";
           recaptchaButton.hidden = true;
           recaptchaButton.setAttribute("data-sitekey", recaptchaSiteKey);
-          recaptchaButton.setAttribute("data-action", "submit");
           recaptchaButton.classList.add("g-recaptcha");
-          document.body.appendChild(recaptchaButton);
+          form.appendChild(recaptchaButton);
 
-          const recaptchaTokenInput = document.createElement("input");
-          recaptchaTokenInput.type = "hidden";
-          recaptchaTokenInput.name = "g-recaptcha-response";
-          form.appendChild(recaptchaTokenInput);
-
-          form.addEventListener("submit", function (e) {
+          form.addEventListener("submit", e => {
             e.preventDefault(); // stop native submission for a moment
 
             let navigated = false;
             const handler = () => { navigated = true; };
             window.addEventListener("pagehide", handler);
+
+            const formSubmitButton = form.querySelector("input[type=submit]");
 
             formSubmitButton.disabled = true; // disable submit button to prevent multiple clicks
             setTimeout(() => {
@@ -48,12 +42,7 @@
 
             }, 5000);
 
-
-            grecaptcha.execute().then(function(token) {
-              recaptchaTokenInput.value = token;
-
-              form.submit();
-            });
+            grecaptcha.execute().then(() => form.submit());
           });
         }
       });
@@ -111,7 +100,7 @@
         </p>
         <p>
           <label for="InputOption">Select an option</label>
-          <select id="InputOption" name="My Option">
+          <select id="InputOption" name="My Option" required>
             <option value="">Select an option</option>
             <option value="Option 1" selected>Option 1</option>
             <option value="Option 2">Option 2</option>
@@ -119,7 +108,7 @@
             <option value="Invalid">Invalid</option>
           </select>
         </p>
-        <input type="submit" value="Submit" />
+        <input type="submit" />
       </form>
     </main>
   </body>
