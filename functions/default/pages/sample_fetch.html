@@ -11,6 +11,8 @@
         const recaptchaSiteKey = "6Lcf3GYjAAAAAGPae1QeEf0jJ8xjTwrwPAHOhZIJ"; // Set this to your recaptcha site key
         //const formPostServiceUrl = "https://fa-cdt-pub-migr-betaws-w-p-001-stage.azurewebsites.net/api/v2"; // Dev Form Post Service URL
         const formPostServiceUrl = "http://localhost:12345/api/v2"; // Local Host Service URL
+        const redirectSuccessUrl = "/success";
+        const redirectErrorUrl = "/error?error_message=";
 
         /** @type {HTMLFormElement} */
         const form = document.querySelector("#mySampleForm");
@@ -31,7 +33,7 @@
             .then(async response => {
               if (response.ok) {
                 console.log("Form submitted successfully");
-                alert("Form submitted successfully!");
+                window.location.href = redirectSuccessUrl;
                 return;
               }
 
@@ -39,7 +41,8 @@
             })
             .catch(error => {
               console.error(error);
-              alert("Form submission failed. See console for details.");
+              window.location.href = redirectErrorUrl+encodeURIComponent(error.message);
+              //alert("Form submission failed. See console for details.");
             });
         } // End of recaptchaCallback function
 

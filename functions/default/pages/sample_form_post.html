@@ -8,9 +8,11 @@
 
     <script async defer>
       window.addEventListener("DOMContentLoaded", () => {
-        var recaptchaSiteKey = "6Lcf3GYjAAAAAGPae1QeEf0jJ8xjTwrwPAHOhZIJ"; // Set this to your recaptcha site key
-        //var formPostServiceUrl = "https://fa-cdt-pub-migr-betaws-w-p-001-stage.azurewebsites.net/api/v2"; // Dev Form Post Service URL
-        var formPostServiceUrl = "http://localhost:12345/api/v2"; // Local Host Service URL
+        const recaptchaSiteKey = "6Lcf3GYjAAAAAGPae1QeEf0jJ8xjTwrwPAHOhZIJ"; // Set this to your recaptcha site key
+        //const formPostServiceUrl = "https://fa-cdt-pub-migr-betaws-w-p-001-stage.azurewebsites.net/api/v2"; // Dev Form Post Service URL
+        const formPostServiceUrl = "http://localhost:12345/api/v2"; // Local Host Service URL
+        const redirectSuccessUrl = "/success";
+        const redirectErrorUrl = "/error?error_message=";
 
         /** @type {HTMLFormElement} */
         const form = document.getElementById("mySampleForm");
@@ -53,6 +55,19 @@
           recaptchaButton.className = "g-recaptcha";
           form.appendChild(recaptchaButton);
           form.addEventListener("submit", submitForm);
+
+          const successField = document.createElement("input");
+          successField.type = "hidden";
+          successField.name = "redirect_success";
+          successField.value = redirectSuccessUrl;
+
+          const errorField = document.createElement("input");
+          errorField.type = "hidden";
+          errorField.name = "redirect_error";
+          errorField.value = redirectErrorUrl;
+
+          form.appendChild(successField);
+          form.appendChild(errorField);
         }
       });
     </script>
