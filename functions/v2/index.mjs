@@ -105,10 +105,6 @@ export default async function (httpRequest, context) {
          * @param {import("node-fetch").Response} fetchResponse
          */
         const airTableProcessResponse = async fetchResponse => {
-          const responseContentType = fetchResponse.headers.get("content-type");
-          if (responseContentType)
-            httpResponse.headers["Content-Type"] = responseContentType;
-
           if (fetchResponse.ok) {
             return await fetchResponse.json();
           } else {
