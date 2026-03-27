@@ -68,7 +68,7 @@ export default async function (httpRequest, context) {
         if (validationErrors) {
           // Failed validation
           throw new Error(
-            `JSON validation failed${JSON.stringify(validationErrors)}`
+            `400: JSON validation failed${JSON.stringify(validationErrors)}`
           );
         }
       } else {
