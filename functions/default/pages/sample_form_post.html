@@ -7,43 +7,52 @@
     <link rel="icon" href="data:," />
 
     <script async defer>
-      var recaptchaSiteKey = "6Lcf3GYjAAAAAGPae1QeEf0jJ8xjTwrwPAHOhZIJ"; // Set this to your recaptcha site key
-      //var formPostServiceUrl = "https://fa-cdt-pub-migr-betaws-w-p-001-stage.azurewebsites.net/api/v2"; // Dev Form Post Service URL
-      var formPostServiceUrl = "http://localhost:12345/api/v2"; // Local Host Service URL
-
       window.addEventListener("DOMContentLoaded", () => {
+        var recaptchaSiteKey = "6Lcf3GYjAAAAAGPae1QeEf0jJ8xjTwrwPAHOhZIJ"; // Set this to your recaptcha site key
+        //var formPostServiceUrl = "https://fa-cdt-pub-migr-betaws-w-p-001-stage.azurewebsites.net/api/v2"; // Dev Form Post Service URL
+        var formPostServiceUrl = "http://localhost:12345/api/v2"; // Local Host Service URL
+
+        /** @type {HTMLFormElement} */
         const form = document.getElementById("mySampleForm");
         form.action = formPostServiceUrl;
         form.method = "POST";
 
+        function recaptchaCallback() {
+          // Callback that directly uses a FORM POST to submit the form data to the form post service after successful reCAPTCHA validation.
+          form.submit();
+        } // End of recaptchaCallback function
+
+        async function submitForm(/** @type { SubmitEvent } */ e) {
+          e.preventDefault(); // stop native submission for a moment
+
+          /** @type {HTMLButtonElement} */
+          const formSubmitButton = form.querySelector("input[type=submit]");
+          formSubmitButton.disabled = true; // disable submit button to prevent multiple clicks
+
+          grecaptcha.execute().then(recaptchaCallback);
+
+          // No clear way to detect form submission when using native form post, so we will use a timeout as a fallback to re-enable the submit button in case of issues, and also to alert the user of success since we won't get a response back from the server in this case. In a real implementation, you would want to handle this more elegantly.
+          let navigated = false;
+          const handler = () => { navigated = true; };
+          window.addEventListener("pagehide", handler);
+
+          setTimeout(() => {
+            formSubmitButton.disabled = false; // re-enable submit button after submission
+
+            if (!navigated) {
+              alert("Form submission Success.");
+            }
+          }, 5000);
+        } // End of submitForm function
+
+        // Dynamically add the invisible reCAPTCHA v3 button to the form.
         if (!document.querySelector(".g-recaptcha")) {
           const recaptchaButton = document.createElement("button");
           recaptchaButton.hidden = true;
           recaptchaButton.setAttribute("data-sitekey", recaptchaSiteKey);
           recaptchaButton.classList.add("g-recaptcha");
           form.appendChild(recaptchaButton);
-
-          form.addEventListener("submit", e => {
-            e.preventDefault(); // stop native submission for a moment
-
-            let navigated = false;
-            const handler = () => { navigated = true; };
-            window.addEventListener("pagehide", handler);
-
-            const formSubmitButton = form.querySelector("input[type=submit]");
-
-            formSubmitButton.disabled = true; // disable submit button to prevent multiple clicks
-            setTimeout(() => {
-              formSubmitButton.disabled = false; // re-enable submit button after submission
-
-              if (!navigated) {
-                  alert("Form submission Success.");
-              }
-
-            }, 5000);
-
-            grecaptcha.execute().then(() => form.submit());
-          });
+          form.addEventListener("submit", submitForm);
         }
       });
     </script>
