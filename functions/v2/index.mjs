@@ -8,6 +8,7 @@ import {
   getRequestInit
 } from "./support/airTable.mjs";
 import { getServerConfigByHost } from "./support/serverList.mjs";
+import { validateInputJson } from "./support/JsonValidate.mjs";
 const captchaKey = "g-recaptcha-response";
 
 /**
@@ -67,12 +68,36 @@ export default async function (httpRequest, context) {
 
       console.log("Parsed server config successfully. Origin:", origin);
 
-      const form = await httpRequest.formData();
-      // Convert to a simple array of [name, value]
-      const requestBody = [...form.entries()].map(([name, value]) => [
-        name,
-        value.toString()
-      ]);
+      const contentType = httpRequest.headers.get("content-type") || "";
+
+      /** @type {[string, string][]} */
+      let requestBody = [];
+
+      if (contentType === "application/json") {
+        // JSON POST
+        requestBody = /** @type {[string, string][]} */ (
+          await httpRequest.json()
+        );
+
+        // Validate input
+        const validationErrors = validateInputJson(requestBody);
+        if (validationErrors) {
+          // Failed validation
+          return errorResponse(
+            "JSON validation failed",
+            validationErrors,
+            422 // Unprocessable Entity
+          );
+        }
+      } else {
+        // Form POST
+        const form = await httpRequest.formData();
+        // Convert to a simple array of [name, value]
+        requestBody = [...form.entries()].map(([name, value]) => [
+          name,
+          value.toString()
+        ]);
+      }
 
       /** @type {{ [key: string]: string }} */
       const requestNameValues = Object.fromEntries(requestBody);
