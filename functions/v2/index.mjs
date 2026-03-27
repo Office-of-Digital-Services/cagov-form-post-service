@@ -60,14 +60,12 @@ export default async function (httpRequest, context) {
 
     if (httpRequest.method === "POST") {
       // Valid POST with Json content
-      const host = httpRequest.headers.get("origin") || "";
+      const origin = httpRequest.headers.get("origin") || "";
 
-      console.log("Using server config for host:", host);
-
-      const serverConfig = getServerConfigByHost(host); // Validate host and get server config, will throw if invalid
+      const serverConfig = getServerConfigByHost(origin); // Validate host and get server config, will throw if invalid
       const PersonalAccessToken = serverConfig.airtableToken;
 
-      console.log("Parsed server config successfully.");
+      console.log("Parsed server config successfully. Origin:", origin);
 
       const form = await httpRequest.formData();
       // Convert to a simple array of [name, value]
