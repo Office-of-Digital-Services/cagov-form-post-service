@@ -49,8 +49,8 @@
         if (!document.querySelector(".g-recaptcha")) {
           const recaptchaButton = document.createElement("button");
           recaptchaButton.hidden = true;
-          recaptchaButton.setAttribute("data-sitekey", recaptchaSiteKey);
-          recaptchaButton.classList.add("g-recaptcha");
+          recaptchaButton.dataset.sitekey = recaptchaSiteKey;
+          recaptchaButton.className = "g-recaptcha";
           form.appendChild(recaptchaButton);
           form.addEventListener("submit", submitForm);
         }
