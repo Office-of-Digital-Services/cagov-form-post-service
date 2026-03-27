@@ -10,6 +10,8 @@ import {
 import { getServerConfigByHost } from "./support/serverList.mjs";
 import { validateInputJson } from "./support/JsonValidate.mjs";
 const captchaKey = "g-recaptcha-response";
+const redirectSuccessKey = "redirect_success";
+const redirectErrorKey = "redirect_error";
 
 /**
  *
@@ -100,15 +102,13 @@ export default async function (httpRequest, context) {
       }
 
       /** @type {{ [key: string]: string }} */
-      const requestNameValues = Object.fromEntries(requestBody);
+      const formData = Object.fromEntries(requestBody);
 
       //verify captcha
       const fetchResponse_captcha = await verifyCaptcha(
         serverConfig.recaptchaSecret,
-        requestNameValues[captchaKey]
+        formData[captchaKey]
       );
-
-      delete requestNameValues[captchaKey]; // No need to keep this around
 
       if (fetchResponse_captcha.success) {
         // captcha is good, post to database
@@ -177,8 +177,6 @@ export default async function (httpRequest, context) {
         }
 
         const convertFormDataToFields = () => {
-          const formData = requestNameValues;
-
           /** @type {{ [key: string]: string | number }} */
           const fields = {};
 
@@ -201,6 +199,13 @@ export default async function (httpRequest, context) {
 
         console.log("Converting form data to Airtable fields format.");
 
+        const redirectSuccessUrl = formData[redirectSuccessKey];
+        const redirectErrorUrl = formData[redirectErrorKey];
+
+        delete formData[redirectSuccessKey]; // No need to keep this around
+        delete formData[redirectErrorKey]; // No need to keep this around
+        delete formData[captchaKey]; // No need to keep this around
+
         const fields = convertFormDataToFields();
         if (fields) {
           const fetchResponse = await postToAirTable(
@@ -211,7 +216,13 @@ export default async function (httpRequest, context) {
           );
 
           if (fetchResponse.ok) {
-            httpResponse.status = 204; // No Content
+            if (redirectSuccessUrl) {
+              httpResponse.status = 302; // Redirect
+              httpResponse.headers["Location"] = redirectSuccessUrl;
+            } else {
+              // Fire and forget, just return 204
+              httpResponse.status = 204; // No Content
+            }
           } else {
             // Airtable API error
             const error = await airTableProcessError(fetchResponse);
