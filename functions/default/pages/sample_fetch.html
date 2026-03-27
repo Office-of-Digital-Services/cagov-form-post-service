@@ -3,66 +3,84 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Sample AirTable Submit via Form Post</title>
+    <title>Sample AirTable Submit via Fetch</title>
     <link rel="icon" href="data:," />
-
-    <script async defer>
+    <script src="https://www.google.com/recaptcha/api.js" defer></script>
+    <script>
       var recaptchaSiteKey = "6Lcf3GYjAAAAAGPae1QeEf0jJ8xjTwrwPAHOhZIJ"; // Set this to your recaptcha site key
       //var formPostServiceUrl = "https://fa-cdt-pub-migr-betaws-w-p-001-stage.azurewebsites.net/api/v2"; // Dev Form Post Service URL
       var formPostServiceUrl = "http://localhost:12345/api/v2"; // Local Host Service URL
 
+      /** @type { HTMLButtonElement } */
+      var recaptchaButton;
       window.addEventListener("DOMContentLoaded", () => {
-        const form = document.getElementById("mySampleForm");
-        form.action = formPostServiceUrl;
-        form.method = "POST";
-        const formSubmitButton = form.querySelector("input[type=submit]");
-
-        if (!document.querySelector(".g-recaptcha")) {
-          const recaptchaButton = document.createElement("button");
+        // Dynamically add the invisible reCAPTCHA v3 button to the form.
+        if (!recaptchaButton) {
+          recaptchaButton = document.createElement("button");
+          recaptchaButton.ariaHidden = "true";
           recaptchaButton.type = "button";
           recaptchaButton.hidden = true;
           recaptchaButton.setAttribute("data-sitekey", recaptchaSiteKey);
+          recaptchaButton.setAttribute("data-callback", "recaptchaCallback");
           recaptchaButton.setAttribute("data-action", "submit");
           recaptchaButton.classList.add("g-recaptcha");
-          document.body.appendChild(recaptchaButton);
-
-          const recaptchaTokenInput = document.createElement("input");
-          recaptchaTokenInput.type = "hidden";
-          recaptchaTokenInput.name = "g-recaptcha-response";
-          form.appendChild(recaptchaTokenInput);
-
-          form.addEventListener("submit", function (e) {
-            e.preventDefault(); // stop native submission for a moment
-
-            let navigated = false;
-            const handler = () => { navigated = true; };
-            window.addEventListener("pagehide", handler);
-
-            formSubmitButton.disabled = true; // disable submit button to prevent multiple clicks
-            setTimeout(() => {
-              formSubmitButton.disabled = false; // re-enable submit button after submission
-
-              if (!navigated) {
-                  alert("Form submission Success.");
-              }
-
-            }, 5000);
-
-
-            grecaptcha.execute().then(function(token) {
-              recaptchaTokenInput.value = token;
-
-              form.submit();
-            });
-          });
+          getForm().appendChild(recaptchaButton);
+          getForm().addEventListener("submit", submitForm);
         }
       });
+
+      function getForm() {
+        return /** @type {HTMLFormElement} */ (
+          document.querySelector("#mySampleForm")
+        );
+      }
+
+      function getSubmitButton() {
+        return /** @type { HTMLButtonElement } */ (
+          getForm().querySelector("input[type=submit]")
+        );
+      }
+
+      async function submitForm(/** @type { SubmitEvent } */ e) {
+        e.preventDefault();
+
+        getSubmitButton().disabled = true;
+        setTimeout(() => (getSubmitButton().disabled = false), 5000);
+
+        // Trigger the invisible reCAPTCHA v3 flow.
+        // This will call recaptchaCallback() when complete.
+        recaptchaButton.click();
+      }
+      function recaptchaCallback() {
+        /** @type { RequestInit } */
+        const request = {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify([...new FormData(getForm())])
+        };
+
+        fetch(formPostServiceUrl, request)
+          .then(async response => {
+            if (response.ok) {
+              console.log("Form submitted successfully");
+              alert("Form submitted successfully!");
+              return;
+            }
+
+            throw new Error(await response.text());
+          })
+          .catch(error => {
+            console.error(error);
+            alert("Form submission failed. See console for details.");
+          });
+      }
     </script>
-    <script src="https://www.google.com/recaptcha/api.js" async defer></script>
   </head>
   <body>
     <main>
-      <h1>Sample AirTable Submit via Form Post</h1>
+      <h1>Sample AirTable Submit via Fetch</h1>
       <form autocomplete="on" id="mySampleForm">
         <p>
           <label for="InputName">Your name</label>
