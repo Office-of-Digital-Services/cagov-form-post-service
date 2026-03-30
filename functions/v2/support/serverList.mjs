@@ -3,10 +3,12 @@
 // AitTable Base and Table IDs are not treated as secrets
 /**
  * @typedef {object} ServerConfig
+ * @property {string} project
  * @property {string} airtableBaseId
- * @property {string} airtableTable
+ * @property {string} airtableTableId
  * @property {string} airtableToken
  * @property {string} recaptchaSecret
+ * @property {string[]} origins
  */
 
 const getEnvVar = (
@@ -21,27 +23,23 @@ const getEnvVar = (
 };
 
 /**
- * @param {string} origin origin URL from request header
+ * @param {string} path path from request header
  */
-function getServerConfigByHost(origin) {
-  const hostList = getEnvVar("HostList").split(",");
-  const name = hostList.find(onename => {
-    const serverHost = getEnvVar(`${onename}_origins`, false);
-    return serverHost.split(",").includes(origin);
-  });
-  if (!name) {
-    throw new Error(`No server configuration found for host: ${origin}`);
-  }
+function getServerConfig(path) {
+  const parts = path.split("/");
+  const [project, airtableBaseId, airtableTableId] = parts;
 
   /** @type {ServerConfig} */
   const serverConfig = {
-    airtableBaseId: getEnvVar(`${name}_airtableBaseId`),
-    airtableTable: getEnvVar(`${name}_airtableTable`),
-    airtableToken: getEnvVar(`${name}_airtableToken`),
-    recaptchaSecret: getEnvVar(`${name}_recaptchaSecret`)
+    project,
+    airtableBaseId,
+    airtableTableId,
+    airtableToken: getEnvVar(`${project}_airtableToken`),
+    recaptchaSecret: getEnvVar(`${project}_recaptchaSecret`),
+    origins: getEnvVar(`${project}_origins`).split(",")
   };
 
   return serverConfig;
 }
 
-export { getServerConfigByHost };
+export { getServerConfig };

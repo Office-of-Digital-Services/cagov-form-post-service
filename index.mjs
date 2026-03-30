@@ -4,7 +4,7 @@ import mydefault from "./functions/default/index.mjs";
 
 // API route for version 2 of the API
 app.http("v2", {
-  route: "api/v2/{*path}",
+  route: "api/v2/airtable/{*path}",
   methods: ["GET", "POST", "OPTIONS"],
   handler: v2
 });

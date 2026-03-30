@@ -7,7 +7,7 @@ import {
   airTableProcessError,
   getRequestInit
 } from "./support/airTable.mjs";
-import { getServerConfigByHost } from "./support/serverList.mjs";
+import { getServerConfig } from "./support/serverList.mjs";
 import { validateInputJson } from "./support/JsonValidate.mjs";
 const captchaKey = "g-recaptcha-response";
 const redirectSuccessKey = "redirect_success";
@@ -43,14 +43,13 @@ export default async function (httpRequest, context) {
   try {
     console.log("Received request with method:", httpRequest.method);
 
+    const origin = httpRequest.headers.get("origin") || "";
+
+    const serverConfig = getServerConfig(httpRequest.params.path); // Validate host and get server config, will throw if invalid
+    console.log("Parsed server config successfully. Origin:", origin);
+
     if (httpRequest.method === "POST") {
       // Valid POST with Json content
-      const origin = httpRequest.headers.get("origin") || "";
-
-      const serverConfig = getServerConfigByHost(origin); // Validate host and get server config, will throw if invalid
-      const PersonalAccessToken = serverConfig.airtableToken;
-
-      console.log("Parsed server config successfully. Origin:", origin);
 
       const contentType = httpRequest.headers.get("content-type") || "";
 
@@ -118,7 +117,7 @@ export default async function (httpRequest, context) {
         };
 
         // Get table info from airtable API
-        const infoRequest = getRequestInit(PersonalAccessToken);
+        const infoRequest = getRequestInit(serverConfig.airtableToken);
 
         console.log(
           "Fetching Airtable base and table information for Base ID:",
@@ -144,12 +143,12 @@ export default async function (httpRequest, context) {
 
         const myTable = tablesInfo.tables.find(
           table =>
-            table.id === serverConfig.airtableTable ||
-            table.name === serverConfig.airtableTable
+            table.id === serverConfig.airtableTableId ||
+            table.name === serverConfig.airtableTableId
         );
         if (!myTable)
           throw new Error(
-            `Table with ID or Name '${serverConfig.airtableTable}' not found in base '${serverConfig.airtableBaseId}'`
+            `Table with ID or Name '${serverConfig.airtableTableId}' not found in base '${serverConfig.airtableBaseId}'`
           );
 
         const convertFormDataToFields = () => {
@@ -178,9 +177,9 @@ export default async function (httpRequest, context) {
         const fields = convertFormDataToFields();
         if (fields) {
           const fetchResponse = await postToAirTable(
-            PersonalAccessToken,
+            serverConfig.airtableToken,
             serverConfig.airtableBaseId,
-            serverConfig.airtableTable,
+            serverConfig.airtableTableId,
             fields
           );
 
