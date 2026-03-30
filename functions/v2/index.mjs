@@ -43,10 +43,18 @@ export default async function (httpRequest, context) {
   try {
     console.log("Received request with method:", httpRequest.method);
 
-    const origin = httpRequest.headers.get("origin") || "";
-
     const serverConfig = getServerConfig(httpRequest.params.path); // Validate host and get server config, will throw if invalid
-    console.log("Parsed server config successfully. Origin:", origin);
+    console.log(
+      "Parsed server config successfully. Project:",
+      serverConfig.project
+    );
+
+    const origin = httpRequest.headers.get("origin") || "";
+    if (!serverConfig.origins.includes(origin)) {
+      throw new Error(
+        `403: Origin '${origin}' not allowed for project '${serverConfig.project}'`
+      );
+    }
 
     if (httpRequest.method === "POST") {
       // Valid POST with Json content
