@@ -120,15 +120,16 @@ This service runs as an **Azure Function App** using the JavaScript v4 programmi
 
 The function will be available at:
 
-    http://localhost:12345/api/v2
+- http://localhost:12345/api/v2
 
 All relevant links will be running at
 
-    http://localhost:12345/
+- http://localhost:12345/
 
-Running Sample will be found at
+Running Samples will be found at
 
-    http://localhost:12345/sample/
+- http://localhost:12345/sample_fetch/
+- http://localhost:12345/sample_form_post/
 
 ## Azure DevOps Locations
 
