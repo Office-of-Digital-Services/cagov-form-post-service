@@ -1,9 +1,9 @@
 import { app } from "@azure/functions";
-import v2 from "./functions/v2/index.mjs";
+import v2 from "./functions/v2/post.mjs";
 import mydefault from "./functions/default/index.mjs";
 
 // API route for version 2 of the API
-app.http("v2", {
+app.http("v2 post", {
   route: "api/v2/airtable/{*path}",
   methods: ["GET", "POST", "OPTIONS"],
   handler: v2
