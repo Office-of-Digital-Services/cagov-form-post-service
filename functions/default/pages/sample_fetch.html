@@ -33,6 +33,7 @@
             .then(async response => {
               if (response.ok) {
                 console.log("Form submitted successfully");
+                alert("Form submitted successfully");
                 window.location.href = redirectSuccessUrl;
                 return;
               }
@@ -41,6 +42,7 @@
             })
             .catch(error => {
               console.error(error);
+              alert("Form submission failed. See console for details.");
               window.location.href = redirectErrorUrl+encodeURIComponent(error.message);
               //alert("Form submission failed. See console for details.");
             });
