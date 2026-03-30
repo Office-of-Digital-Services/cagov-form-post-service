@@ -49,7 +49,7 @@ The function:
 
 1. Accepts `multipart/form-data` or JSON payloads
 2. Normalizes input into `[name, value]` tuples
-3. Verifies reCAPTCHA (if enabled for the site)
+3. Verifies reCAPTCHA (required)
 4. Determines which site configuration applies (based on `Origin` or explicit config)
 5. Attempts to create a record in Airtable
 6. Returns success or structured error JSON
@@ -60,34 +60,22 @@ The function:
 
 Each site is configured through environment variables. These can be stored directly in the Function App or in Azure Key Vault.
 
-### Required host list variable
-
-| Variable   | Sample                     |
-| ---------- | -------------------------- |
-| `HostList` | "LOCALHOST,PARKS,TEMPLATE" |
-
 ### Per‑site variables
 
 | Variable                      | Description                               |
 | ----------------------------- | ----------------------------------------- |
-| `<SITE_NAME>_orgins`          | comma list of origins for requesting site |
+| `<SITE_NAME>_origins`         | comma list of origins for requesting site |
 | `<SITE_NAME>_airtableToken`   | Airtable personal access token            |
-| `<SITE_NAME>_airtableBaseId`  | Airtable base ID                          |
-| `<SITE_NAME>_airtableTable`   | Airtable table name                       |
 | `<SITE_NAME>_recaptchaSecret` | reCAPTCHA v3 secret                       |
 
 You can add as many sites as needed:
 
     TEMPLATE_origins=https://template.webstandards.ca.gov
     TEMPLATE_airtableToken_=pat...
-    TEMPLATE_airtableBaseId=app...
-    TEMPLATE_airtableTable=tbl...
     TEMPLATE_recaptchaSecret=...
 
     PARKS_origins=https://parks.ca.gov
     PARKS_airtableToken=pat...
-    PARKS_airtableBaseId=app...
-    PARKS_airtableTable=tbl...
     PARKS_recaptchaSecret=...
 
 The service automatically selects the correct site configuration based on the request origin.
