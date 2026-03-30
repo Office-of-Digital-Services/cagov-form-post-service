@@ -6,9 +6,5 @@
     "LOCALHOST_origins": "http://localhost:12345",
     "LOCALHOST_airtableToken": "Your AirTable Personal Access Token here",
     "LOCALHOST_recaptchaSecret": "Your ReCaptcha Secret here"
-  },
-  "Host": {
-    "LocalHttpPort": 12345,
-    "CORS": "*"
   }
 }

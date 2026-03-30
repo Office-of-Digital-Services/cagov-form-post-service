@@ -16,13 +16,7 @@ const redirectErrorKey = "redirect_error";
 /**
  *
  * Azure Function HTTP trigger for processing form submissions.
- *
  * Handles POST requests.
- * Validates input, verifies reCAPTCHA, and posts form data to Airtable.
- *
- * Environment Variables:
- * - AirTablePersonalAccessToken: Airtable API access token (required)
- * - ReCaptchaSecret: reCAPTCHA secret key (required)
  * @param {import("@azure/functions").HttpRequest} httpRequest - HTTP request object.
  * @param {import("@azure/functions").InvocationContext} context - Azure Function context object.
  */
@@ -96,6 +90,9 @@ export default async function (httpRequest, context) {
         `403: Origin '${origin}' not allowed for project '${serverConfig.project}'`
       );
     }
+    httpResponse.headers["Access-Control-Allow-Origin"] = origin;
+    httpResponse.headers["Access-Control-Allow-Methods"] = "GET, POST, OPTIONS";
+    httpResponse.headers["Access-Control-Allow-Headers"] = "Content-Type";
 
     //verify captcha
     const fetchResponse_captcha = await verifyCaptcha(
