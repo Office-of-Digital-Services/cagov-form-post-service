@@ -49,13 +49,6 @@ export default async function (httpRequest, context) {
       serverConfig.project
     );
 
-    const origin = httpRequest.headers.get("origin") || "";
-    if (!serverConfig.origins.includes(origin)) {
-      throw new Error(
-        `403: Origin '${origin}' not allowed for project '${serverConfig.project}'`
-      );
-    }
-
     if (httpRequest.method === "POST") {
       // Valid POST with Json content
 
@@ -98,6 +91,14 @@ export default async function (httpRequest, context) {
       delete formData[redirectSuccessKey]; // No need to keep this around
       delete formData[redirectErrorKey]; // No need to keep this around
       delete formData[captchaKey]; // No need to keep this around
+
+      // Validate origin
+      const origin = httpRequest.headers.get("origin") || "";
+      if (!serverConfig.origins.includes(origin)) {
+        throw new Error(
+          `403: Origin '${origin}' not allowed for project '${serverConfig.project}'`
+        );
+      }
 
       //verify captcha
       const fetchResponse_captcha = await verifyCaptcha(
@@ -222,19 +223,28 @@ export default async function (httpRequest, context) {
       httpResponse.status = 302;
       httpResponse.headers = { location: "/" };
     }
-  } catch (/** @type {*} **/ e) {
-    // ERROR
-    const errorPayload = e.name !== "Error" ? e.name : `${e.message}`;
+  } catch (/** @type {*} */ e) {
+    // Normalize the error message
+    const rawMessage = e?.message || String(e);
+    let status = 422; // default for validation/captcha/user errors
+    let message = rawMessage;
 
-    console.error(`Error processing request:`, errorPayload);
+    // Detect "###: message" pattern
+    const match = rawMessage.match(/^(\d{3}):\s*(.*)$/);
+    if (match) {
+      status = Number(match[1]);
+      message = match[2];
+    }
+
+    console.error(`Error processing request:`, message);
 
     if (redirectErrorUrl) {
-      httpResponse.status = 302; // Redirect
+      httpResponse.status = 302;
       httpResponse.headers["Location"] =
-        redirectErrorUrl + encodeURIComponent(errorPayload);
+        redirectErrorUrl + encodeURIComponent(message);
     } else {
-      httpResponse.body = errorPayload;
-      httpResponse.status = 422; // Unprocessable Entity, since the error is likely due to bad input or failed captcha, not a server error
+      httpResponse.status = status;
+      httpResponse.body = message;
     }
   }
 
