@@ -1,0 +1,141 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Sample AirTable Submit via Fetch</title>
+    <link rel="icon" href="data:," />
+
+    <script async defer>
+      window.addEventListener("DOMContentLoaded", () => {
+        const recaptchaSiteKey = "6Lcf3GYjAAAAAGPae1QeEf0jJ8xjTwrwPAHOhZIJ"; // Set this to your recaptcha site key
+        //const formPostServiceUrl = "https://fa-cdt-pub-migr-betaws-w-p-001-stage.azurewebsites.net/api/v2"; // Dev Form Post Service URL
+        const formPostServiceUrl = "http://localhost:12345/api/v2"; // Local Host Service URL
+        const redirectSuccessUrl = "/success";
+        const redirectErrorUrl = "/error?error_message=";
+
+        /** @type {HTMLFormElement} */
+        const form = document.querySelector("#mySampleForm");
+
+        function recaptchaCallback() {
+          // Callback that uses FETCH API to submit the form data to the form post service after successful reCAPTCHA validation.
+
+          /** @type { RequestInit } */
+          const request = {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json"
+            },
+            body: JSON.stringify([...new FormData(form)])
+          };
+
+          fetch(formPostServiceUrl, request)
+            .then(async response => {
+              if (response.ok) {
+                console.log("Form submitted successfully");
+                alert("Form submitted successfully");
+                window.location.href = redirectSuccessUrl;
+                return;
+              }
+
+              throw new Error(await response.text());
+            })
+            .catch(error => {
+              console.error(error);
+              alert("Form submission failed. See console for details.");
+              window.location.href = redirectErrorUrl+encodeURIComponent(error.message);
+              //alert("Form submission failed. See console for details.");
+            });
+        } // End of recaptchaCallback function
+
+        async function submitForm(/** @type { SubmitEvent } */ e) {
+          e.preventDefault();
+
+          /** @type {HTMLButtonElement} */
+          const formSubmitButton = form.querySelector("input[type=submit]");
+          formSubmitButton.disabled = true; // disable submit button to prevent multiple clicks
+
+          grecaptcha.execute().then(recaptchaCallback);
+
+          setTimeout(() => {
+            formSubmitButton.disabled = false;
+          }, 5000);
+        } // End of submitForm function
+
+        // Dynamically add the invisible reCAPTCHA v3 button to the form.
+        if (!document.querySelector(".g-recaptcha")) {
+          const recaptchaButton = document.createElement("button");
+          recaptchaButton.hidden = true;
+          recaptchaButton.dataset.sitekey = recaptchaSiteKey;
+          recaptchaButton.className = "g-recaptcha";
+          form.appendChild(recaptchaButton);
+          form.addEventListener("submit", submitForm);
+        }
+      });
+    </script>
+    <script src="https://www.google.com/recaptcha/api.js" async defer></script>
+  </head>
+  <body>
+    <main>
+      <h1>Sample AirTable Submit via Fetch</h1>
+      <form autocomplete="on" id="mySampleForm">
+        <p>
+          <label for="InputName">Your name</label>
+          <input
+            autofocus
+            type="text"
+            id="InputName"
+            name="My Name"
+            autocomplete="name"
+            required
+            size="65"
+            maxlength="150"
+            minlength="1"
+            value="Test Name" />
+        </p>
+        <p>
+          <label for="InputNumber">A Number</label>
+          <input
+            type="number"
+            id="InputNumber"
+            name="My Number"
+            required
+            value="12345" />
+        </p>
+        <p>
+          <label for="InputEmail">Email</label>
+          <input
+            type="email"
+            id="InputEmail"
+            name="My Email"
+            autocomplete="email"
+            required
+            size="65"
+            maxlength="250"
+            minlength="1"
+            value="test@test.com" />
+        </p>
+        <p>
+          <label for="InputDate">Date</label>
+          <input
+            type="date"
+            id="InputDate"
+            name="My Date"
+            required
+            value="2024-06-01" />
+        </p>
+        <p>
+          <label for="InputOption">Select an option</label>
+          <select id="InputOption" name="My Option" required>
+            <option value="">Select an option</option>
+            <option value="Option 1" selected>Option 1</option>
+            <option value="Option 2">Option 2</option>
+            <option value="Option 3">Option 3</option>
+            <option value="Invalid">Invalid</option>
+          </select>
+        </p>
+        <input type="submit" />
+      </form>
+    </main>
+  </body>
+</html>

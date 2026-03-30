@@ -19,7 +19,7 @@
   },
   "dependencies": {
     "@azure/functions": "^4.11.2",
-    "ajv": "^8.11.2",
+    "ajv": "^8.18.0",
     "node-fetch": "^3.3.0"
   },
   "devDependencies": {
