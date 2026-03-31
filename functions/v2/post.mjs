@@ -9,6 +9,7 @@ import {
 } from "./support/airTable.mjs";
 import { getServerConfig } from "./support/serverList.mjs";
 import { validateInputJson } from "./support/JsonValidate.mjs";
+import { getHttpResponse, setCorsHeaders } from "./support/cors.mjs";
 const captchaKey = "g-recaptcha-response";
 const redirectSuccessKey = "redirect_success";
 const redirectErrorKey = "redirect_error";
@@ -23,13 +24,7 @@ const redirectErrorKey = "redirect_error";
 export default async function (httpRequest, context) {
   context.log("JavaScript HTTP trigger function processed a request.");
 
-  const httpResponse = {
-    /** @type {Record<string, string>} */
-    headers: {},
-    status: 500,
-    /** @type {*} */
-    body: undefined
-  };
+  const httpResponse = getHttpResponse();
 
   /** @type {string?} */
   let redirectErrorUrl = null;
@@ -83,16 +78,7 @@ export default async function (httpRequest, context) {
     delete formData[redirectErrorKey]; // No need to keep this around
     delete formData[captchaKey]; // No need to keep this around
 
-    // Validate origin
-    const origin = httpRequest.headers.get("origin") || "";
-    if (!serverConfig.origins.includes(origin)) {
-      throw new Error(
-        `403: Origin '${origin}' not allowed for project '${serverConfig.project}'`
-      );
-    }
-    httpResponse.headers["Access-Control-Allow-Origin"] = origin;
-    httpResponse.headers["Access-Control-Allow-Methods"] = "GET, POST, OPTIONS";
-    httpResponse.headers["Access-Control-Allow-Headers"] = "Content-Type";
+    setCorsHeaders(httpResponse, httpRequest, serverConfig);
 
     //verify captcha
     const fetchResponse_captcha = await verifyCaptcha(

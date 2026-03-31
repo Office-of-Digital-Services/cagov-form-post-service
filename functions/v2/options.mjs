@@ -1,4 +1,5 @@
 //@ts-check
+import { getHttpResponse, setCorsHeaders } from "./support/cors.mjs";
 import { getServerConfig } from "./support/serverList.mjs";
 
 /**
@@ -11,39 +12,30 @@ import { getServerConfig } from "./support/serverList.mjs";
 export default async function (httpRequest, context) {
   context.log("OPTIONS preflight received");
 
-  const httpResponse = {
-    /** @type {Record<string, string>} */
-    headers: {},
-    status: 204,
-    /** @type {*} */
-    body: undefined
-  };
+  const httpResponse = getHttpResponse();
 
   try {
-    const origin = httpRequest.headers.get("origin") || "";
     const serverConfig = getServerConfig(httpRequest.params.path);
 
-    // Check if origin is allowed
-    if (!serverConfig.origins.includes(origin)) {
-      httpResponse.status = 403;
-      httpResponse.body = `403: Origin '${origin}' not allowed`;
-      return httpResponse;
-    }
-
-    // Echo back the allowed origin
-    httpResponse.headers = {
-      "Access-Control-Allow-Origin": origin,
-      "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
-      "Access-Control-Allow-Headers": "Content-Type",
-      "Access-Control-Max-Age": "600"
-    };
+    setCorsHeaders(httpResponse, httpRequest, serverConfig);
 
     httpResponse.status = 204;
   } catch (/** @type {*} */ e) {
-    const message = e?.message || String(e);
-    console.error("OPTIONS error:", message);
+    // Normalize the error message
+    const rawMessage = e?.message || String(e);
+    let status = 422; // default for validation/captcha/user errors
+    let message = rawMessage;
 
-    httpResponse.status = 500;
+    // Detect "###: message" pattern
+    const match = rawMessage.match(/^(\d{3}):\s*(.*)$/);
+    if (match) {
+      status = Number(match[1]);
+      message = match[2];
+    }
+
+    console.error(`Error processing request:`, message);
+
+    httpResponse.status = status;
     httpResponse.body = message;
   }
 
