@@ -13,11 +13,6 @@
         /** @type {HTMLFormElement} */
         const form = document.getElementById("mySampleForm");
 
-        function recaptchaCallback() {
-          // Callback that directly uses a FORM POST to submit the form data to the form post service after successful reCAPTCHA validation.
-          form.submit();
-        } // End of recaptchaCallback function
-
         async function submitForm(/** @type { SubmitEvent } */ e) {
           e.preventDefault(); // stop native submission for a moment
 
@@ -25,22 +20,10 @@
           const formSubmitButton = form.querySelector("input[type=submit]");
           formSubmitButton.disabled = true; // disable submit button to prevent multiple clicks
 
-          grecaptcha.execute().then(recaptchaCallback);
-
-          setTimeout(() => {
-            formSubmitButton.disabled = false; // re-enable submit button after submission
-          }, 5000);
+          grecaptcha.execute().then(()=>form.submit()); // execute reCAPTCHA and submit form on successful validation);
         } // End of submitForm function
 
-        // Dynamically add the invisible reCAPTCHA v3 button to the form.
-        if (!document.querySelector(".g-recaptcha")) {
-          const recaptchaButton = document.createElement("button");
-          recaptchaButton.hidden = true;
-          recaptchaButton.dataset.sitekey = recaptchaSiteKey;
-          recaptchaButton.className = "g-recaptcha";
-          form.appendChild(recaptchaButton);
-          form.addEventListener("submit", submitForm);
-        }
+        form.addEventListener("submit", submitForm);
       });
     </script>
     <script src="https://www.google.com/recaptcha/api.js" async defer></script>
@@ -116,6 +99,10 @@
           </select>
         </p>
         <input type="submit" />
+        <button
+          hidden=""
+          data-sitekey="6Lcf3GYjAAAAAGPae1QeEf0jJ8xjTwrwPAHOhZIJ"
+          class="g-recaptcha"></button>
       </form>
     </main>
   </body>
