@@ -36,14 +36,15 @@
           data-sitekey="6Lcf3GYjAAAAAGPae1QeEf0jJ8xjTwrwPAHOhZIJ"
           class="g-recaptcha" />
 
+        <!-- optional success page.  Omitting this will keep the user on the current page with no notification (Fire and forget) -->
+        <input type="hidden" name="redirect_success" value="/success" />
+
         <!-- optional error page.  Omitting this will display errors on the API endpoint -->
         <input
           type="hidden"
           name="redirect_error"
           value="/error?error_message=" />
 
-        <!-- optional success page.  Omitting this will keep the user on the current page with no notification (Fire and forget) -->
-        <input type="hidden" name="redirect_success" value="/success" />
         <!-- #endregion Required Elements to support Form Post Service -->
 
         <p>
