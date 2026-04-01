@@ -6,16 +6,17 @@
     <title>Sample AirTable Submit via Fetch</title>
     <link rel="icon" href="data:," />
 
-    <script async defer>
-      window.addEventListener("DOMContentLoaded", () => {
-        const recaptchaSiteKey = "6Lcf3GYjAAAAAGPae1QeEf0jJ8xjTwrwPAHOhZIJ"; // Set this to your recaptcha site key
+    <script>
+      function submitForm(/** @type { SubmitEvent } */ e) {
+        e.preventDefault();
+
         //const formPostServiceUrl = "https://fa-cdt-pub-migr-betaws-w-p-001-stage.azurewebsites.net/api/v2"; // Dev Form Post Service URL
         const formPostServiceUrl = "http://localhost:12345/api/v2/airtable/sample/appXfKtM85FrT0Ipc/tblrWC8qRNId3mSaL"; // Local Host Service URL
         const redirectSuccessUrl = "/success";
         const redirectErrorUrl = "/error?error_message=";
 
         /** @type {HTMLFormElement} */
-        const form = document.querySelector("#mySampleForm");
+        const form = e.target;
 
         function recaptchaCallback() {
           // Callback that uses FETCH API to submit the form data to the form post service after successful reCAPTCHA validation.
@@ -47,37 +48,36 @@
             });
         } // End of recaptchaCallback function
 
-        async function submitForm(/** @type { SubmitEvent } */ e) {
-          e.preventDefault();
+        /** @type {HTMLButtonElement} */
+        const formSubmitButton = e.submitter;
+        formSubmitButton.disabled = true; // disable submit button to prevent multiple clicks
 
-          /** @type {HTMLButtonElement} */
-          const formSubmitButton = e.submitter;
-          formSubmitButton.disabled = true; // disable submit button to prevent multiple clicks
+        grecaptcha.execute().then(recaptchaCallback);
 
-          grecaptcha.execute().then(recaptchaCallback);
-
-          setTimeout(() => {
-            formSubmitButton.disabled = false;
-          }, 5000);
-        } // End of submitForm function
-
-        // Dynamically add the invisible reCAPTCHA v3 button to the form.
-        if (!document.querySelector(".g-recaptcha")) {
-          const recaptchaButton = document.createElement("button");
-          recaptchaButton.hidden = true;
-          recaptchaButton.dataset.sitekey = recaptchaSiteKey;
-          recaptchaButton.className = "g-recaptcha";
-          form.appendChild(recaptchaButton);
-          form.addEventListener("submit", submitForm);
-        }
-      });
+        setTimeout(() => {
+          formSubmitButton.disabled = false;
+        }, 5000);
+      } // End of submitForm function
     </script>
     <script src="https://www.google.com/recaptcha/api.js" async defer></script>
   </head>
   <body>
     <main>
       <h1>Sample AirTable Submit via Fetch</h1>
-      <form autocomplete="on" id="mySampleForm">
+      <form autocomplete="on" onsubmit="submitForm(event)">
+        <!-- #region Required Elements to support Form Post Service-->
+        <!-- 
+        hidden g-recaptcha element required to support Google reCAPTCHA v3 
+        update the data-sitekey value with your own reCAPTCHA site key. You can obtain a site key by registering your site at https://www.google.com/recaptcha/admin/create
+        -->
+        <input
+          type="button"
+          hidden=""
+          data-sitekey="6Lcf3GYjAAAAAGPae1QeEf0jJ8xjTwrwPAHOhZIJ"
+          class="g-recaptcha" />
+
+        <!-- #endregion Required Elements to support Form Post Service -->
+
         <p>
           <label for="InputName">Your name</label>
           <input
