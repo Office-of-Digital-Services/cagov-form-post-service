@@ -33,7 +33,6 @@ const setCorsHeaders = (httpResponse, httpRequest, serverConfig) => {
   httpResponse.headers["Access-Control-Allow-Origin"] = origin;
   httpResponse.headers["Access-Control-Allow-Methods"] = "GET, POST, OPTIONS";
   httpResponse.headers["Access-Control-Allow-Headers"] = "Content-Type";
-  httpResponse.headers["Access-Control-Max-Age"] = "600"; // Cache preflight response for 10 minutes
 };
 
 export { getHttpResponse, setCorsHeaders };
