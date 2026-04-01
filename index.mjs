@@ -1,5 +1,6 @@
 import { app } from "@azure/functions";
 import post from "./functions/v2/post.mjs";
+import get from "./functions/v2/get.mjs";
 import options from "./functions/v2/options.mjs";
 import mydefault from "./functions/default/index.mjs";
 
@@ -14,12 +15,7 @@ app.http("V2_post", {
 app.http("V2_get", {
   route: "api/v2/airtable/{*path}",
   methods: ["GET"],
-  handler: () => ({
-    status: 302,
-    headers: {
-      Location: "/"
-    }
-  })
+  handler: get
 });
 
 // API route for version 2 of the API

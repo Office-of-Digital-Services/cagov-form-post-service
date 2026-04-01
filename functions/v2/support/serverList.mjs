@@ -17,7 +17,7 @@ const getEnvVar = (
 ) => {
   const value = process.env[key];
   if (required && !value) {
-    throw new Error(`Missing environment variable: ${key}`);
+    throw new Error(`Missing configuration for: ${key}`);
   }
   return value || "";
 };
