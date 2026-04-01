@@ -15,10 +15,9 @@
         const redirectSuccessUrl = "/success";
         const redirectErrorUrl = "/error?error_message=";
 
-        /** @type {HTMLFormElement} */
-        const form = e.target;
+        e.submitter.disabled = true; // disable submit button to prevent multiple clicks
 
-        function recaptchaCallback() {
+        grecaptcha.execute().then(() => {
           // Callback that uses FETCH API to submit the form data to the form post service after successful reCAPTCHA validation.
 
           /** @type { RequestInit } */
@@ -27,7 +26,7 @@
             headers: {
               "Content-Type": "application/json"
             },
-            body: JSON.stringify([...new FormData(form)])
+            body: JSON.stringify([...new FormData(e.target)]) // Convert form data to JSON
           };
 
           fetch(formPostServiceUrl, request)
@@ -45,18 +44,9 @@
               console.error(error);
               alert("Form submission failed. See console for details.");
               window.location.href = redirectErrorUrl+encodeURIComponent(error.message);
-            });
-        } // End of recaptchaCallback function
-
-        /** @type {HTMLButtonElement} */
-        const formSubmitButton = e.submitter;
-        formSubmitButton.disabled = true; // disable submit button to prevent multiple clicks
-
-        grecaptcha.execute().then(recaptchaCallback);
-
-        setTimeout(() => {
-          formSubmitButton.disabled = false;
-        }, 5000);
+            })
+            .finally(() => e.submitter.disabled = false);
+        });
       } // End of submitForm function
     </script>
     <script src="https://www.google.com/recaptcha/api.js" async defer></script>
