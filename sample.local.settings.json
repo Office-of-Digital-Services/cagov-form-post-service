@@ -3,8 +3,8 @@
   "IsEncrypted": false,
   "Values": {
     "FUNCTIONS_WORKER_RUNTIME": "node",
-    "sample_origins": "http://localhost:12345",
-    "sample_airtableToken": "Your AirTable Personal Access Token here",
-    "sample_recaptchaSecret": "Your ReCaptcha Secret here"
+    "CAFORMPOST_SAMPLE_ORIGINS": "http://localhost:12345",
+    "CAFORMPOST_SAMPLE_AIRTABLETOKEN": "Your AirTable Personal Access Token here",
+    "CAFORMPOST_SAMPLE_RECAPTCHASECRET": "Your ReCaptcha Secret here"
   }
 }

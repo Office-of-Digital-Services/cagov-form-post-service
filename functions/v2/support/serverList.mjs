@@ -28,15 +28,16 @@ const getEnvVar = (
 function getServerConfig(path) {
   const parts = path.split("/");
   const [project, airtableBaseId, airtableTableId] = parts;
+  const projectUpper = project.toUpperCase();
 
   /** @type {ServerConfig} */
   const serverConfig = {
     project,
     airtableBaseId,
     airtableTableId,
-    airtableToken: getEnvVar(`${project}_airtableToken`),
-    recaptchaSecret: getEnvVar(`${project}_recaptchaSecret`),
-    origins: getEnvVar(`${project}_origins`).split(",")
+    airtableToken: getEnvVar(`CAFORMPOST_${projectUpper}_AIRTABLETOKEN`),
+    recaptchaSecret: getEnvVar(`CAFORMPOST_${projectUpper}_RECAPTCHASECRET`),
+    origins: getEnvVar(`CAFORMPOST_${projectUpper}_ORIGINS`).split(",")
   };
 
   return serverConfig;

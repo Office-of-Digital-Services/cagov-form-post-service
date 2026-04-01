@@ -62,21 +62,21 @@ Each site is configured through environment variables. These can be stored direc
 
 ### Per‑site variables
 
-| Variable                      | Description                               |
-| ----------------------------- | ----------------------------------------- |
-| `<SITE_NAME>_origins`         | comma list of origins for requesting site |
-| `<SITE_NAME>_airtableToken`   | Airtable personal access token            |
-| `<SITE_NAME>_recaptchaSecret` | reCAPTCHA v3 secret                       |
+| Variable                                    | Description                               |
+| ------------------------------------------- | ----------------------------------------- |
+| `CAFORMPOST_<PROJECT_NAME>_ORIGINS`         | comma list of origins for requesting site |
+| `CAFORMPOST_<PROJECT_NAME>_AIRTABLETOKEN`   | Airtable personal access token            |
+| `CAFORMPOST_<PROJECT_NAME>_RECAPTCHASECRET` | reCAPTCHA v3 secret                       |
 
 You can add as many sites as needed:
 
-    TEMPLATE_origins=https://template.webstandards.ca.gov
-    TEMPLATE_airtableToken_=pat...
-    TEMPLATE_recaptchaSecret=...
+    CAFORMPOST_TEMPLATE_ORIGINS=https://template.webstandards.ca.gov
+    CAFORMPOST_TEMPLATE_AIRTABLETOKEN=pat...
+    CAFORMPOST_TEMPLATE_RECAPTCHASECRET=...
 
-    PARKS_origins=https://parks.ca.gov
-    PARKS_airtableToken=pat...
-    PARKS_recaptchaSecret=...
+    CAFORMPOST_PARKS_ORIGINS=https://parks.ca.gov
+    CAFORMPOST_PARKS_AIRTABLETOKEN=pat...
+    CAFORMPOST_PARKS_RECAPTCHASECRET=...
 
 The service automatically selects the correct site configuration based on the request origin.
 
