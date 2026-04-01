@@ -6,6 +6,24 @@
     <title>Sample AirTable Submit via Form Post</title>
     <link rel="icon" href="data:," />
 
+    <script async defer>
+      window.addEventListener("DOMContentLoaded", () => {
+        /** @type {HTMLFormElement} */
+        const form = document.getElementById("mySampleForm");
+
+        function submitForm(/** @type { SubmitEvent } */ e) {
+          e.preventDefault(); // stop native submission for a moment
+
+          /** @type {HTMLButtonElement} */
+          const formSubmitButton = form.querySelector("input[type=submit]");
+          formSubmitButton.disabled = true; // disable submit button to prevent multiple clicks
+
+          grecaptcha.execute().then(()=>form.submit()); // execute reCAPTCHA and submit form on successful validation);
+        } // End of submitForm function
+
+        form.addEventListener("submit", submitForm);
+      });
+    </script>
     <script src="https://www.google.com/recaptcha/api.js" async defer></script>
   </head>
   <body>
@@ -19,11 +37,10 @@
         <!-- Staging Target -- https://fa-cdt-pub-migr-betaws-w-p-001-stage.azurewebsites.net/api/v2 -->
         <!-- Required Elements to support Form Post Service -->
         <input
-          type="submit"
+          type="button"
+          hidden=""
           data-sitekey="6Lcf3GYjAAAAAGPae1QeEf0jJ8xjTwrwPAHOhZIJ"
-          class="g-recaptcha"
-          onclick="setTimeout(() => this.form.submit(), 2000)" />
-
+          class="g-recaptcha" />
         <input
           type="hidden"
           name="redirect_error"
@@ -84,6 +101,7 @@
             <option value="Invalid">Invalid</option>
           </select>
         </p>
+        <input type="submit" />
       </form>
     </main>
   </body>
