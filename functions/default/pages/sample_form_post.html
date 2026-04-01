@@ -6,24 +6,6 @@
     <title>Sample AirTable Submit via Form Post</title>
     <link rel="icon" href="data:," />
 
-    <script async defer>
-      window.addEventListener("DOMContentLoaded", () => {
-        /** @type {HTMLFormElement} */
-        const form = document.getElementById("mySampleForm");
-
-        function submitForm(/** @type { SubmitEvent } */ e) {
-          e.preventDefault(); // stop native submission for a moment
-
-          /** @type {HTMLButtonElement} */
-          const formSubmitButton = form.querySelector("input[type=submit]");
-          formSubmitButton.disabled = true; // disable submit button to prevent multiple clicks
-
-          grecaptcha.execute().then(()=>form.submit()); // execute reCAPTCHA and submit form on successful validation);
-        } // End of submitForm function
-
-        form.addEventListener("submit", submitForm);
-      });
-    </script>
     <script src="https://www.google.com/recaptcha/api.js" async defer></script>
   </head>
   <body>
@@ -36,10 +18,12 @@
         action="http://localhost:12345/api/v2/airtable/sample/appXfKtM85FrT0Ipc/tblrWC8qRNId3mSaL">
         <!-- Staging Target -- https://fa-cdt-pub-migr-betaws-w-p-001-stage.azurewebsites.net/api/v2 -->
         <!-- Required Elements to support Form Post Service -->
-        <button
-          hidden=""
+        <input
+          type="submit"
           data-sitekey="6Lcf3GYjAAAAAGPae1QeEf0jJ8xjTwrwPAHOhZIJ"
-          class="g-recaptcha"></button>
+          class="g-recaptcha"
+          onclick="setTimeout(() => this.form.submit(), 2000)" />
+
         <input
           type="hidden"
           name="redirect_error"
@@ -100,7 +84,6 @@
             <option value="Invalid">Invalid</option>
           </select>
         </p>
-        <input type="submit" />
       </form>
     </main>
   </body>
