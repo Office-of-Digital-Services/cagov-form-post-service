@@ -51,7 +51,7 @@
           e.preventDefault();
 
           /** @type {HTMLButtonElement} */
-          const formSubmitButton = form.querySelector("input[type=submit]");
+          const formSubmitButton = e.submitter;
           formSubmitButton.disabled = true; // disable submit button to prevent multiple clicks
 
           grecaptcha.execute().then(recaptchaCallback);
