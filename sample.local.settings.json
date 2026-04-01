@@ -3,7 +3,7 @@
   "IsEncrypted": false,
   "Values": {
     "FUNCTIONS_WORKER_RUNTIME": "node",
-    "CAFORMPOST_SAMPLE_ORIGINS": "http://localhost:12345",
+    "CAFORMPOST_SAMPLE_ORIGINS": "http://localhost:12345,http://localhost:7071,https://fa-cdt-pub-migr-betaws-w-p-001-stage.azurewebsites.net",
     "CAFORMPOST_SAMPLE_AIRTABLETOKEN": "Your AirTable Personal Access Token here",
     "CAFORMPOST_SAMPLE_RECAPTCHASECRET": "Your ReCaptcha Secret here"
   }
