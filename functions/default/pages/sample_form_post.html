@@ -9,15 +9,9 @@
     <script async defer>
       window.addEventListener("DOMContentLoaded", () => {
         const recaptchaSiteKey = "6Lcf3GYjAAAAAGPae1QeEf0jJ8xjTwrwPAHOhZIJ"; // Set this to your recaptcha site key
-        //const formPostServiceUrl = "https://fa-cdt-pub-migr-betaws-w-p-001-stage.azurewebsites.net/api/v2"; // Dev Form Post Service URL
-        const formPostServiceUrl = "http://localhost:12345/api/v2/airtable/sample/appXfKtM85FrT0Ipc/tblrWC8qRNId3mSaL"; // Local Host Service URL
-        const redirectSuccessUrl = "/success";
-        const redirectErrorUrl = "/error?error_message=";
 
         /** @type {HTMLFormElement} */
         const form = document.getElementById("mySampleForm");
-        form.action = formPostServiceUrl;
-        form.method = "POST";
 
         function recaptchaCallback() {
           // Callback that directly uses a FORM POST to submit the form data to the form post service after successful reCAPTCHA validation.
@@ -46,19 +40,6 @@
           recaptchaButton.className = "g-recaptcha";
           form.appendChild(recaptchaButton);
           form.addEventListener("submit", submitForm);
-
-          const successField = document.createElement("input");
-          successField.type = "hidden";
-          successField.name = "redirect_success";
-          successField.value = redirectSuccessUrl;
-
-          const errorField = document.createElement("input");
-          errorField.type = "hidden";
-          errorField.name = "redirect_error";
-          errorField.value = redirectErrorUrl;
-
-          form.appendChild(successField);
-          form.appendChild(errorField);
         }
       });
     </script>
@@ -67,7 +48,18 @@
   <body>
     <main>
       <h1>Sample AirTable Submit via Form Post</h1>
-      <form autocomplete="on" id="mySampleForm">
+      <form
+        autocomplete="on"
+        id="mySampleForm"
+        method="POST"
+        action="http://localhost:12345/api/v2/airtable/sample/appXfKtM85FrT0Ipc/tblrWC8qRNId3mSaL">
+        <!-- Staging Target -- https://fa-cdt-pub-migr-betaws-w-p-001-stage.azurewebsites.net/api/v2 -->
+        <!-- Required Elements to support Form Post Service -->
+        <input
+          type="hidden"
+          name="redirect_error"
+          value="/error?error_message=" />
+        <input type="hidden" name="redirect_success" value="/success" />
         <p>
           <label for="InputName">Your name</label>
           <input
