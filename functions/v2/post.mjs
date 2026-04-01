@@ -29,6 +29,18 @@ export default async function (httpRequest, context) {
   /** @type {string?} */
   let redirectErrorUrl = null;
 
+  /**
+   *
+   * @param {string} url
+   */
+  const originRedirect = url => {
+    const origin = httpRequest.headers.get("origin");
+    if (origin && origin !== "null" && url.startsWith("/")) {
+      return origin + url;
+    }
+    return url;
+  };
+
   try {
     console.log("Received request with method:", httpRequest.method);
 
@@ -173,7 +185,8 @@ export default async function (httpRequest, context) {
         if (fetchResponse.ok) {
           if (redirectSuccessUrl) {
             httpResponse.status = 302; // Redirect
-            httpResponse.headers["Location"] = redirectSuccessUrl;
+            httpResponse.headers["Location"] =
+              originRedirect(redirectSuccessUrl);
           } else {
             // Fire and forget, just return 204
             httpResponse.status = 204; // No Content
@@ -211,7 +224,7 @@ export default async function (httpRequest, context) {
     if (redirectErrorUrl) {
       httpResponse.status = 302;
       httpResponse.headers["Location"] =
-        redirectErrorUrl + encodeURIComponent(message);
+        originRedirect(redirectErrorUrl) + encodeURIComponent(message);
     } else {
       httpResponse.status = status;
       httpResponse.body = message;
