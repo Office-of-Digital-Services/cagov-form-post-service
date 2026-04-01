@@ -43,9 +43,9 @@
             .catch(error => {
               console.error(error);
               alert("Form submission failed. See console for details.");
-              window.location.href = redirectErrorUrl+encodeURIComponent(error.message);
+              window.location.href = redirectErrorUrl + encodeURIComponent(error.message);
             })
-            .finally(() => e.submitter.disabled = false);
+            .finally(() => { e.submitter.disabled = false; });
         });
       } // End of submitForm function
     </script>
