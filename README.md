@@ -82,11 +82,83 @@ The service automatically selects the correct site configuration based on the re
 
 ---
 
-## 🚀 Deployment
+# 📘 **API Path Structure**
+
+The Form Post Service exposes a predictable, fully path‑based routing structure for submitting data to Airtable. Each request identifies:
+
+1. **The project** (your multi‑tenant identifier)
+2. **The Airtable Base ID**
+3. **The Airtable Table ID**
+
+This keeps routing explicit, stateless, and easy to debug.
+
+---
+
+## 🔗 **Submission Path**
+
+```
+/api/v2/airtable/<project_id>/<airtable_base_id>/<airtable_table_id>
+```
+
+### Example
+
+```
+/api/v2/airtable/sample/appXfKtM85FrT0Ipc/tblrWC8qRNId3mSaL
+```
+
+### Path Parameters
+
+| Segment               | Meaning                     | Notes                                                                     |
+| --------------------- | --------------------------- | ------------------------------------------------------------------------- |
+| `<project_id>`        | Your configured project key | Must match your environment variable prefix (e.g., `CAFORMPOST_SAMPLE_*`) |
+| `<airtable_base_id>`  | Airtable Base ID            | Always starts with `app`                                                  |
+| `<airtable_table_id>` | Airtable Table ID           | Always starts with `tbl`                                                  |
+
+---
+
+## 🧭 **How Routing Works**
+
+When a request hits:
+
+```
+/api/v2/airtable/<project>/<baseId>/<tableId>
+```
+
+the handler:
+
+1. **Parses the path** into project, baseId, tableId
+2. **Loads project‑specific configuration** from environment variables
+3. **Validates** that the base/table IDs are allowed for that project
+4. **Processes the POST body**
+5. **Submits the record to Airtable**
+6. **Returns a structured JSON response** with status and metadata
+
+This design keeps the API stateless and makes each project’s configuration fully isolated.
+
+---
+
+## 🧪 **Supported Methods**
+
+### `POST /api/v2/airtable/<project>/<baseId>/<tableId>`
+
+Submits form data to Airtable.  
+This is the primary endpoint used by client‑side forms.
+
+---
+
+## 🧱 **Why this Path Structure?**
+
+- **Explicit** — no hidden configuration or magic routing
+- **Discoverable** — developers can understand the API from the URL alone
+- **Multi‑tenant** — each project is isolated and self‑contained
+- **Secure** — Airtable tokens stay server‑side; only IDs appear in the path
+- **Future‑proof** — easy to extend with additional metadata endpoints
+
+# 🚀 Deployment
 
 This service runs as an **Azure Function App** using the JavaScript v4 programming model.
 
-### Existing deployments
+## Existing deployments
 
 - **Production:** https://api.template.webstandards.ca.gov/api/v2
 - **Staging:** https://fa-cdt-pub-migr-betaws-w-p-001-stage.azurewebsites.net/api/v2
