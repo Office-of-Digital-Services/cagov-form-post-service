@@ -20,16 +20,32 @@ const getHttpResponse = () => {
  *
  * @param {HttpResponse} httpResponse
  * @param {import("@azure/functions").HttpRequest} httpRequest
- * @param {import("./serverList.mjs").ServerConfig} serverConfig
  */
-const setCorsHeaders = (httpResponse, httpRequest, serverConfig) => {
+const setCorsHeaders = (httpResponse, httpRequest) => {
   if (httpRequest.headers.get("sec-fetch-mode") !== "cors") return; // Not a CORS request, no need to set CORS headers
 
-  // Validate origin
+  const origin = httpRequest.headers.get("origin") || "null";
+  if (origin === "null") {
+    return; // Don't set CORS headers for requests with null origin
+  }
+
+  httpResponse.headers["Access-Control-Allow-Origin"] = origin;
+  httpResponse.headers["Access-Control-Allow-Methods"] = "GET, POST, OPTIONS";
+  httpResponse.headers["Access-Control-Allow-Headers"] = "Content-Type";
+  console.log(`CORS headers set for origin: ${origin}`);
+};
+
+/**
+ * Validates CORS request and throws an error if invalid.
+ * @param {import("@azure/functions").HttpRequest} httpRequest
+ * @param {import("./serverList.mjs").ServerConfig} serverConfig
+ */
+const validateCorsRequest = (httpRequest, serverConfig) => {
+  if (httpRequest.headers.get("sec-fetch-mode") !== "cors") return; // Not a CORS request, no need to set CORS headers
+
   const origin = httpRequest.headers.get("origin") || "null";
 
   if (origin === "null") {
-    // CORS request without Origin header, likely from a non-browser client. Reject for security.
     throw new Error("400: CORS request missing Origin header");
   }
 
@@ -38,10 +54,6 @@ const setCorsHeaders = (httpResponse, httpRequest, serverConfig) => {
       `403: Origin '${origin}' not allowed for project '${serverConfig.project}'`
     );
   }
-  httpResponse.headers["Access-Control-Allow-Origin"] = origin;
-  httpResponse.headers["Access-Control-Allow-Methods"] = "GET, POST, OPTIONS";
-  httpResponse.headers["Access-Control-Allow-Headers"] = "Content-Type";
-  console.log(`CORS headers set for origin: ${origin}`);
 };
 
-export { getHttpResponse, setCorsHeaders };
+export { getHttpResponse, setCorsHeaders, validateCorsRequest };

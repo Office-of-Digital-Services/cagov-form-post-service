@@ -1,6 +1,10 @@
 //@ts-check
 import { getServerConfig } from "./support/serverList.mjs";
-import { getHttpResponse, setCorsHeaders } from "./support/cors.mjs";
+import {
+  getHttpResponse,
+  setCorsHeaders,
+  validateCorsRequest
+} from "./support/cors.mjs";
 
 /**
  *
@@ -17,13 +21,15 @@ export default async function (httpRequest, context) {
   try {
     console.log("Received request with method:", httpRequest.method);
 
+    setCorsHeaders(httpResponse, httpRequest);
+
     const serverConfig = getServerConfig(httpRequest.params.path); // Validate host and get server config, will throw if invalid
     console.log(
       "Parsed server config successfully. Project:",
       serverConfig.project
     );
 
-    setCorsHeaders(httpResponse, httpRequest, serverConfig);
+    validateCorsRequest(httpRequest, serverConfig);
 
     httpResponse.status = 200;
     httpResponse.body = `✅ Project "${serverConfig.project}" is properly configured!`;

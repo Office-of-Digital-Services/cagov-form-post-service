@@ -9,7 +9,11 @@ import {
 } from "./support/airTable.mjs";
 import { getServerConfig } from "./support/serverList.mjs";
 import { validateInputJson } from "./support/JsonValidate.mjs";
-import { getHttpResponse, setCorsHeaders } from "./support/cors.mjs";
+import {
+  getHttpResponse,
+  setCorsHeaders,
+  validateCorsRequest
+} from "./support/cors.mjs";
 const captchaKey = "g-recaptcha-response";
 const redirectSuccessKey = "redirect_success";
 const redirectErrorKey = "redirect_error";
@@ -52,6 +56,8 @@ export default async function (httpRequest, context) {
 
     const contentType = httpRequest.headers.get("content-type") || "";
 
+    setCorsHeaders(httpResponse, httpRequest);
+
     /** @type {[string, string][]} */
     let requestBody = [];
 
@@ -90,7 +96,7 @@ export default async function (httpRequest, context) {
     delete formData[redirectErrorKey]; // No need to keep this around
     delete formData[captchaKey]; // No need to keep this around
 
-    setCorsHeaders(httpResponse, httpRequest, serverConfig);
+    validateCorsRequest(httpRequest, serverConfig);
 
     //verify captcha
     const fetchResponse_captcha = await verifyCaptcha(

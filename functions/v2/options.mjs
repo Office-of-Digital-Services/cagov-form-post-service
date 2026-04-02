@@ -1,5 +1,9 @@
 //@ts-check
-import { getHttpResponse, setCorsHeaders } from "./support/cors.mjs";
+import {
+  getHttpResponse,
+  setCorsHeaders,
+  validateCorsRequest
+} from "./support/cors.mjs";
 import { getServerConfig } from "./support/serverList.mjs";
 
 /**
@@ -15,9 +19,11 @@ export default async function (httpRequest, context) {
   const httpResponse = getHttpResponse();
 
   try {
+    setCorsHeaders(httpResponse, httpRequest);
+
     const serverConfig = getServerConfig(httpRequest.params.path);
 
-    setCorsHeaders(httpResponse, httpRequest, serverConfig);
+    validateCorsRequest(httpRequest, serverConfig);
 
     httpResponse.status = 204;
   } catch (/** @type {*} */ e) {
