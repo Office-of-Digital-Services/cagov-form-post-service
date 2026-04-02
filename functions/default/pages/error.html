@@ -1,0 +1,37 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Sample AirTable Submit Failed</title>
+    <link rel="icon" href="data:," />
+  </head>
+
+  <body>
+    <main>
+      <h1>Submission Failed!</h1>
+      <p id="errorMessage">
+        There was an error submitting your form. Please try again later.
+      </p>
+    </main>
+
+    <script>
+      const params = new URLSearchParams(window.location.search);
+      const raw = params.get("error_message");
+
+      if (raw) {
+        // URLSearchParams already decodes, but decodeURIComponent is safe here
+        const decoded = decodeURIComponent(raw);
+
+        // Basic sanitization to prevent HTML injection
+        const safe = decoded.replace(/[<>&]/g, (c) => ({
+          "<": "&lt;",
+          ">": "&gt;",
+          "&": "&amp;"
+        }[c]));
+
+        document.getElementById("errorMessage").textContent = safe;
+      }
+    </script>
+  </body>
+</html>
