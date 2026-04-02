@@ -21,7 +21,7 @@ export default async function (httpRequest, context) {
   try {
     setCorsHeaders(httpResponse, httpRequest);
 
-    const serverConfig = getServerConfig(httpRequest.params.path);
+    const serverConfig = getServerConfig(httpRequest.params);
 
     validateCorsRequest(httpRequest, serverConfig);
 

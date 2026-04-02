@@ -6,21 +6,33 @@ import mydefault from "./functions/default/index.mjs";
 
 // API route for version 2 of the API
 app.http("V2_post", {
-  route: "api/v2/airtable/{*path}",
+  route: "api/v2/airtable/{project}/{airtableBaseId}/{airtableTableId}",
   methods: ["POST"],
   handler: post
 });
 
-// API route for version 2 of the API
-app.http("V2_get", {
-  route: "api/v2/airtable/{*path}",
+app.http("V2_getprojecttest", {
+  route: "api/v2/airtable/{project}/{airtableBaseId}/{airtableTableId}",
   methods: ["GET"],
   handler: get
 });
 
+app.http("V2_getroot", {
+  route: "api/{*path}",
+  methods: ["GET"],
+  handler: () => {
+    return {
+      status: 302,
+      headers: {
+        Location: "/"
+      }
+    };
+  }
+});
+
 // API route for version 2 of the API
 app.http("V2_options", {
-  route: "api/v2/airtable/{*path}",
+  route: "api/v2/airtable/{project}/{airtableBaseId}/{airtableTableId}",
   methods: ["OPTIONS"],
   handler: options
 });
