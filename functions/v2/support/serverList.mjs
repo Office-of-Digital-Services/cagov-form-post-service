@@ -23,11 +23,10 @@ const getEnvVar = (
 };
 
 /**
- * @param {string} path path from request header
+ * @param {*} params parameters from request header
  */
-function getServerConfig(path) {
-  const parts = path.split("/");
-  const [project, airtableBaseId, airtableTableId] = parts;
+function getServerConfig(params) {
+  const { project, airtableBaseId, airtableTableId } = params;
   const projectUpper = project.toUpperCase();
 
   /** @type {ServerConfig} */

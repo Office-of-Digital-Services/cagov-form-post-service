@@ -23,7 +23,7 @@ export default async function (httpRequest, context) {
 
     setCorsHeaders(httpResponse, httpRequest);
 
-    const serverConfig = getServerConfig(httpRequest.params.path); // Validate host and get server config, will throw if invalid
+    const serverConfig = getServerConfig(httpRequest.params); // Validate host and get server config, will throw if invalid
     console.log(
       "Parsed server config successfully. Project:",
       serverConfig.project
