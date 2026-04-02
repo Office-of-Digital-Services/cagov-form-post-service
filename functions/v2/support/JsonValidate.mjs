@@ -11,10 +11,7 @@ const jsonSchema = {
     type: "array",
     minItems: 2,
     maxItems: 2,
-    items: [
-      { type: "string", minLength: 1 },
-      { type: "string", minLength: 1 }
-    ],
+    items: [{ type: "string", minLength: 1 }, { type: "string" }],
     additionalItems: false
   },
   contains: {
@@ -31,7 +28,8 @@ const jsonSchema = {
     [
       ["firstName", "Carter"],
       ["email", "carter@example.com"],
-      ["g-recaptcha-response", "TOKEN"]
+      ["g-recaptcha-response", "TOKEN"],
+      ["BlankOk", ""]
     ]
   ]
 };
