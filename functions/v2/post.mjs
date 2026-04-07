@@ -1,6 +1,10 @@
 //@ts-check
 import { verifyCaptcha } from "./support/recaptcha.mjs";
-import { postToAirTable, airTableProcessError } from "./support/airTable.mjs";
+import {
+  postToAirTable,
+  airTableProcessError,
+  getTable
+} from "./support/airTable.mjs";
 import { getServerConfig } from "./support/serverList.mjs";
 import { validateInputJson } from "./support/JsonValidate.mjs";
 import {
@@ -8,7 +12,7 @@ import {
   setCorsHeaders,
   validateCorsRequest
 } from "./support/cors.mjs";
-import { getTable } from "./support/getTables.mjs";
+
 const captchaKey = "g-recaptcha-response";
 const redirectSuccessKey = "redirect_success";
 const redirectErrorKey = "redirect_error";
@@ -102,7 +106,14 @@ export default async function (httpRequest, context) {
     if (fetchResponse_captcha.success) {
       // captcha is good, post to database
 
-      const myTable = await getTable(serverConfig);
+      const myTable = await getTable(
+        serverConfig.airtableToken,
+        serverConfig.airtableBaseId,
+        serverConfig.airtableTableId
+      );
+
+      //Table was found, set the Table ID in case the table name was used
+      serverConfig.airtableTableId = myTable.id;
 
       const convertFormDataToFields = () => {
         /** @type {{ [key: string]: string | number }} */

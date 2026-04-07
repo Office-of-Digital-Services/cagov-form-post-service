@@ -5,7 +5,7 @@ import {
   setCorsHeaders,
   validateCorsRequest
 } from "./support/cors.mjs";
-import { getTable } from "./support/getTables.mjs";
+import { getTable } from "./support/airTable.mjs";
 
 /**
  *
@@ -28,10 +28,22 @@ export default async function (httpRequest, context) {
 
     validateCorsRequest(httpRequest, serverConfig);
 
-    await getTable(serverConfig);
+    const tableInfo = await getTable(
+      serverConfig.airtableToken,
+      serverConfig.airtableBaseId,
+      serverConfig.airtableTableId
+    );
 
     httpResponse.status = 200;
-    httpResponse.body = `✅ Project "${serverConfig.project}" is properly configured!`;
+    httpResponse.headers["Content-Type"] = "application/json";
+    httpResponse.body = JSON.stringify({
+      success: true,
+      project: serverConfig.project,
+      table: {
+        name: tableInfo.name,
+        id: tableInfo.id
+      }
+    });
   } catch (/** @type {*} */ e) {
     // Normalize the error message
     const rawMessage = e?.message || String(e);

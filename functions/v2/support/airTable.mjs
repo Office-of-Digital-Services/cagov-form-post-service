@@ -130,4 +130,74 @@ const getRequestInit = (
   return fetchRequest;
 };
 
-export { postToAirTable, airTableApiUrl, airTableProcessError, getRequestInit };
+/**
+ * @param {import("node-fetch").Response} fetchResponse
+ */
+const airTableProcessResponse = async fetchResponse => {
+  if (fetchResponse.ok) {
+    return await fetchResponse.json();
+  } else {
+    // Airtable API error
+    const error = await airTableProcessError(fetchResponse);
+
+    throw new Error(
+      `${fetchResponse.status}: Airtable API Error - ${error.error.type}: ${error.error.message}`
+    );
+  }
+};
+
+/**
+ * Returns a single Table object from Airtable
+ * @param {string} PersonalAccessToken
+ * @param {string} airtableBaseId
+ * @param {string} airtableTableId - Can be either the table ID or the table Name
+ */
+const getTable = async (
+  PersonalAccessToken,
+  airtableBaseId,
+  airtableTableId
+) => {
+  // Get table info from airtable API
+  const infoRequest = getRequestInit(PersonalAccessToken);
+
+  console.log(
+    "Fetching Airtable base and table information for Base ID:",
+    airtableBaseId
+  );
+
+  const result = await fetch(
+    `${airTableApiUrl}/meta/bases/${airtableBaseId}/tables`,
+    infoRequest
+  );
+
+  console.log("Airtable response status:", result.status);
+
+  if (!result.ok)
+    throw new Error(
+      `Base ID '${airtableBaseId}' not found. Is schema.bases:read present in the token's scopes?`
+    );
+
+  const tablesInfo = /** @type {import("./airTable.mjs").TablesInfo} */ (
+    await airTableProcessResponse(result)
+  );
+
+  const myTable = tablesInfo.tables.find(
+    table =>
+      table.id === airtableTableId ||
+      table.name.toLowerCase() === airtableTableId.toLowerCase()
+  );
+  if (!myTable)
+    throw new Error(
+      `Table with ID or Name '${airtableTableId}' not found in base '${airtableBaseId}'`
+    );
+
+  return myTable;
+};
+
+export {
+  postToAirTable,
+  airTableApiUrl,
+  airTableProcessError,
+  getRequestInit,
+  getTable
+};
