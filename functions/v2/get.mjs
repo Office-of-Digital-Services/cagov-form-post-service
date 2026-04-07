@@ -5,6 +5,7 @@ import {
   setCorsHeaders,
   validateCorsRequest
 } from "./support/cors.mjs";
+import { getTable } from "./support/getTables.mjs";
 
 /**
  *
@@ -24,12 +25,10 @@ export default async function (httpRequest, context) {
     setCorsHeaders(httpResponse, httpRequest);
 
     const serverConfig = getServerConfig(httpRequest.params); // Validate host and get server config, will throw if invalid
-    console.log(
-      "Parsed server config successfully. Project:",
-      serverConfig.project
-    );
 
     validateCorsRequest(httpRequest, serverConfig);
+
+    await getTable(serverConfig);
 
     httpResponse.status = 200;
     httpResponse.body = `✅ Project "${serverConfig.project}" is properly configured!`;

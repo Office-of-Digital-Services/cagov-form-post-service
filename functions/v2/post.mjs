@@ -1,12 +1,6 @@
 //@ts-check
-import fetch from "node-fetch";
 import { verifyCaptcha } from "./support/recaptcha.mjs";
-import {
-  airTableApiUrl,
-  postToAirTable,
-  airTableProcessError,
-  getRequestInit
-} from "./support/airTable.mjs";
+import { postToAirTable, airTableProcessError } from "./support/airTable.mjs";
 import { getServerConfig } from "./support/serverList.mjs";
 import { validateInputJson } from "./support/JsonValidate.mjs";
 import {
@@ -14,6 +8,7 @@ import {
   setCorsHeaders,
   validateCorsRequest
 } from "./support/cors.mjs";
+import { getTable } from "./support/getTables.mjs";
 const captchaKey = "g-recaptcha-response";
 const redirectSuccessKey = "redirect_success";
 const redirectErrorKey = "redirect_error";
@@ -107,56 +102,7 @@ export default async function (httpRequest, context) {
     if (fetchResponse_captcha.success) {
       // captcha is good, post to database
 
-      /**
-       * @param {import("node-fetch").Response} fetchResponse
-       */
-      const airTableProcessResponse = async fetchResponse => {
-        if (fetchResponse.ok) {
-          return await fetchResponse.json();
-        } else {
-          // Airtable API error
-          const error = await airTableProcessError(fetchResponse);
-
-          throw new Error(
-            `${fetchResponse.status}: Airtable API Error - ${error.error.type}: ${error.error.message}`
-          );
-        }
-      };
-
-      // Get table info from airtable API
-      const infoRequest = getRequestInit(serverConfig.airtableToken);
-
-      console.log(
-        "Fetching Airtable base and table information for Base ID:",
-        serverConfig.airtableBaseId
-      );
-
-      const result = await fetch(
-        `${airTableApiUrl}/meta/bases/${serverConfig.airtableBaseId}/tables`,
-        infoRequest
-      );
-
-      console.log("Airtable response status:", result.status);
-
-      if (!result.ok)
-        throw new Error(
-          `Base ID '${serverConfig.airtableBaseId}' not found. Is schema.bases:read present in the token's scopes?`
-        );
-
-      const tablesInfo =
-        /** @type {import("./support/airTable.mjs").TablesInfo} */ (
-          await airTableProcessResponse(result)
-        );
-
-      const myTable = tablesInfo.tables.find(
-        table =>
-          table.id === serverConfig.airtableTableId ||
-          table.name === serverConfig.airtableTableId
-      );
-      if (!myTable)
-        throw new Error(
-          `Table with ID or Name '${serverConfig.airtableTableId}' not found in base '${serverConfig.airtableBaseId}'`
-        );
+      const myTable = await getTable(serverConfig);
 
       const convertFormDataToFields = () => {
         /** @type {{ [key: string]: string | number }} */
