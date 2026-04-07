@@ -40,7 +40,10 @@ Project: ${serverConfig.project}
 Base ID: ${serverConfig.airtableBaseId}
 Table ID: ${tableInfo.id}
 Table Name: ${tableInfo.name}
-Token ID: ${serverConfig.airtableToken.slice(0, 17)}...`;
+Token ID: ${serverConfig.airtableToken.slice(0, 17)}...
+Fields:
+  ${tableInfo.fields.map(f => `${f.name} - ${f.id}`).join("\n  ")}
+`;
   } catch (/** @type {*} */ e) {
     // Normalize the error message
     const rawMessage = e?.message || String(e);

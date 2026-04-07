@@ -121,7 +121,7 @@ export default async function (httpRequest, context) {
 
         for (const key of Object.keys(formData)) {
           const metaField = myTable.fields.find(
-            f => f.name.toLowerCase() === key.toLowerCase()
+            f => f.name.toLowerCase() === key.toLowerCase() || f.id === key
           );
           if (metaField) {
             const isNumberfield = metaField.type === "number";
