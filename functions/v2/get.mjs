@@ -35,15 +35,7 @@ export default async function (httpRequest, context) {
     );
 
     httpResponse.status = 200;
-    httpResponse.headers["Content-Type"] = "application/json";
-    httpResponse.body = JSON.stringify({
-      success: true,
-      project: serverConfig.project,
-      table: {
-        name: tableInfo.name,
-        id: tableInfo.id
-      }
-    });
+    httpResponse.body = `✅ Project "${serverConfig.project}" is properly connecting to table "${tableInfo.name}".`;
   } catch (/** @type {*} */ e) {
     // Normalize the error message
     const rawMessage = e?.message || String(e);
