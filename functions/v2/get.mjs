@@ -35,7 +35,12 @@ export default async function (httpRequest, context) {
     );
 
     httpResponse.status = 200;
-    httpResponse.body = `✅ Project "${serverConfig.project}" is properly connecting to table "${tableInfo.name}".`;
+    httpResponse.body = `✅ Success!
+Project: ${serverConfig.project}
+Base ID: ${serverConfig.airtableBaseId}
+Table ID: ${tableInfo.id}
+Table Name: ${tableInfo.name}
+Token ID: ${serverConfig.airtableToken.slice(0, 17)}...`;
   } catch (/** @type {*} */ e) {
     // Normalize the error message
     const rawMessage = e?.message || String(e);
