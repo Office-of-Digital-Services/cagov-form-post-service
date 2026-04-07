@@ -87,7 +87,23 @@ export default async function (httpRequest, context) {
     /** @type {{ [key: string]: string }} */
     const formData = Object.fromEntries(requestBody);
 
+    if (!Object.keys(formData).includes(captchaKey)) {
+      throw new Error(`422: '${captchaKey}' is missing from the form payload.`);
+    }
+
     const captchaResponse = formData[captchaKey];
+    if (!captchaResponse) {
+      throw new Error(
+        `422: '${captchaKey}' is present but empty in the form payload.`
+      );
+    }
+
+    if (Object.keys(formData).length <= 1) {
+      throw new Error(
+        `422: Form payload must contain at least one name/value combination besides '${captchaKey}'.`
+      );
+    }
+
     const redirectSuccessUrl = formData[redirectSuccessKey];
     redirectErrorUrl = formData[redirectErrorKey];
 

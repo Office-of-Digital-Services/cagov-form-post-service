@@ -17,12 +17,7 @@ const jsonSchema = {
   contains: {
     type: "array",
     minItems: 2,
-    maxItems: 2,
-    items: [
-      { const: "g-recaptcha-response" },
-      { type: "string", minLength: 1 }
-    ],
-    additionalItems: false
+    maxItems: 2
   },
   examples: [
     [
@@ -39,7 +34,7 @@ const jsonSchema = {
  */
 function validateInputJson(data) {
   /** @type { import("ajv").Options } */
-  const ajvOptions = { allErrors: true };
+  const ajvOptions = { allErrors: false };
 
   const ajv = new Ajv(ajvOptions);
 
