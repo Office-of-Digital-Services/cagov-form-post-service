@@ -120,11 +120,16 @@ export default async function (httpRequest, context) {
         const fields = {};
 
         for (const key of Object.keys(formData)) {
-          const metaField = myTable.fields.find(f => f.name === key);
+          const metaField = myTable.fields.find(
+            f => f.name.toLowerCase() === key.toLowerCase()
+          );
           if (metaField) {
             const isNumberfield = metaField.type === "number";
 
-            fields[key] = isNumberfield ? Number(formData[key]) : formData[key];
+            // Use the correct field case we found above
+            fields[metaField.name] = isNumberfield
+              ? Number(formData[key])
+              : formData[key];
           } else {
             throw new Error(
               `Field with name '${key}' not found in table '${myTable.name}'.`
