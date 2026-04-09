@@ -17,19 +17,6 @@ app.http("V2_getprojecttest", {
   handler: get
 });
 
-app.http("V2_getroot", {
-  route: "api/{*path}",
-  methods: ["GET"],
-  handler: () => {
-    return {
-      status: 302,
-      headers: {
-        Location: "/"
-      }
-    };
-  }
-});
-
 // API route for version 2 of the API
 app.http("V2_options", {
   route: "api/v2/airtable/{project}/{airtableBaseId}/{airtableTableId}",
