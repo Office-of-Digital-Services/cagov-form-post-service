@@ -2,7 +2,7 @@
 import { verifyCaptcha } from "./support/recaptcha.mjs";
 import {
   postToAirTable,
-  airTableProcessError,
+  airTableThrowError,
   getTable
 } from "./support/airTable.mjs";
 import { getServerConfig } from "./support/serverList.mjs";
@@ -177,11 +177,7 @@ export default async function (httpRequest, context) {
           }
         } else {
           // Airtable API error
-          const error = await airTableProcessError(fetchResponse);
-
-          throw new Error(
-            `${fetchResponse.status}: Airtable API Error - ${error.error.type}: ${error.error.message}`
-          );
+          await airTableThrowError(fetchResponse);
         }
       }
     } else {

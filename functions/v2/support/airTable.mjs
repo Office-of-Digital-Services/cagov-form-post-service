@@ -74,16 +74,12 @@ function postToAirTable(
 /**
  * @param {import("node-fetch").Response} fetchResponse
  */
-const airTableProcessError = async fetchResponse => {
+const airTableThrowError = async fetchResponse => {
   if (fetchResponse.ok) {
     throw new Error(
       `Expected error response, got success: ${fetchResponse.status}`
     );
   }
-
-  console.error(
-    `Airtable API error: ${fetchResponse.status} ${fetchResponse.statusText}`
-  );
 
   const json = /** @type {AirTableErrorResponse} */ (
     await fetchResponse.json()
@@ -94,7 +90,9 @@ const airTableProcessError = async fetchResponse => {
     json.error = { type: "UnknownError", message: json.error.toString() };
   }
 
-  return json;
+  throw new Error(
+    `${fetchResponse.status}: Airtable API error: ${json.error.type}: ${json.error.message.replace(/""/g, '"')}`
+  );
 };
 
 /**
@@ -138,11 +136,7 @@ const airTableProcessResponse = async fetchResponse => {
     return await fetchResponse.json();
   } else {
     // Airtable API error
-    const error = await airTableProcessError(fetchResponse);
-
-    throw new Error(
-      `${fetchResponse.status}: Airtable API Error - ${error.error.type}: ${error.error.message}`
-    );
+    await airTableThrowError(fetchResponse);
   }
 };
 
@@ -197,7 +191,7 @@ const getTable = async (
 export {
   postToAirTable,
   airTableApiUrl,
-  airTableProcessError,
+  airTableThrowError,
   getRequestInit,
   getTable
 };
