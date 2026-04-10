@@ -74,16 +74,12 @@ function postToAirTable(
 /**
  * @param {import("node-fetch").Response} fetchResponse
  */
-const airTableProcessError = async fetchResponse => {
+const airTableThrowError = async fetchResponse => {
   if (fetchResponse.ok) {
     throw new Error(
       `Expected error response, got success: ${fetchResponse.status}`
     );
   }
-
-  console.error(
-    `Airtable API error: ${fetchResponse.status} ${fetchResponse.statusText}`
-  );
 
   const json = /** @type {AirTableErrorResponse} */ (
     await fetchResponse.json()
@@ -91,10 +87,15 @@ const airTableProcessError = async fetchResponse => {
 
   if (!json.error.type) {
     // Handles unexpected error format
-    json.error = { type: "UnknownError", message: json.error.toString() };
+    json.error = {
+      type: fetchResponse.status.toString(),
+      message: json.error.toString()
+    };
   }
 
-  return json;
+  throw new Error(
+    `${fetchResponse.status}: Airtable API error: ${json.error.type}: ${json.error.message.replace(/""/g, '"')}`
+  );
 };
 
 /**
@@ -138,11 +139,7 @@ const airTableProcessResponse = async fetchResponse => {
     return await fetchResponse.json();
   } else {
     // Airtable API error
-    const error = await airTableProcessError(fetchResponse);
-
-    throw new Error(
-      `${fetchResponse.status}: Airtable API Error - ${error.error.type}: ${error.error.message}`
-    );
+    await airTableThrowError(fetchResponse);
   }
 };
 
@@ -172,10 +169,15 @@ const getTable = async (
 
   console.log("Airtable response status:", result.status);
 
-  if (!result.ok)
-    throw new Error(
-      `Base ID '${airtableBaseId}' not found. Is schema.bases:read present in the token's scopes?`
-    );
+  if (!result.ok) {
+    if (result.status === 404) {
+      throw new Error(
+        `404: Base ID '${airtableBaseId}' not found. Is schema.bases:read present in the token's scopes?`
+      );
+    }
+
+    await airTableThrowError(result);
+  }
 
   const tablesInfo = /** @type {import("./airTable.mjs").TablesInfo} */ (
     await airTableProcessResponse(result)
@@ -188,7 +190,7 @@ const getTable = async (
   );
   if (!myTable)
     throw new Error(
-      `Table with ID or Name '${airtableTableId}' not found in base '${airtableBaseId}'`
+      `404: Table with ID or Name '${airtableTableId}' not found in base '${airtableBaseId}'`
     );
 
   return myTable;
@@ -197,7 +199,7 @@ const getTable = async (
 export {
   postToAirTable,
   airTableApiUrl,
-  airTableProcessError,
+  airTableThrowError,
   getRequestInit,
   getTable
 };
